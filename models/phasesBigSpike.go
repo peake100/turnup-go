@@ -16,12 +16,14 @@ func (phase *steadyDecrease) PossibleLengths(
 	return []int{1, 2, 3, 4, 5, 6, 7}
 }
 
-func (phase *steadyDecrease) BasePriceMultiplier(subPeriod int) (min float64, max float64) {
+func (phase *steadyDecrease) BasePriceMultiplier(
+	subPeriod int,
+) (min float64, max float64) {
 	return 0.85, 0.9
 }
 
 func (phase *steadyDecrease) SubPeriodPriceMultiplier() (min float64, max float64) {
-	return 0.03, 0.05
+	return -0.05, -0.03
 }
 
 func (phase *steadyDecrease) Duplicate() phaseImplement {
@@ -46,7 +48,9 @@ func (phase *sharpIncrease) PossibleLengths(
 	return []int{3}
 }
 
-func (phase *sharpIncrease) BasePriceMultiplier(subPeriod int) (min float64, max float64) {
+func (phase *sharpIncrease) BasePriceMultiplier(
+	subPeriod int,
+) (min float64, max float64) {
 	switch {
 	case subPeriod == 0:
 		return 0.9, 1.4
@@ -85,7 +89,9 @@ func (phase *sharpDecrease) PossibleLengths(
 	return []int{2}
 }
 
-func (phase *sharpDecrease) BasePriceMultiplier(subPeriod int) (min float64, max float64) {
+func (phase *sharpDecrease) BasePriceMultiplier(
+	subPeriod int,
+) (min float64, max float64) {
 	switch {
 	case subPeriod == 0:
 		return 1.4, 2
@@ -122,7 +128,9 @@ func (phase *randomDecrease) PossibleLengths(
 	return []int{12 - phases[0].Length() - 5}
 }
 
-func (phase *randomDecrease) BasePriceMultiplier(subPeriod int) (min float64, max float64) {
+func (phase *randomDecrease) BasePriceMultiplier(
+	subPeriod int,
+) (min float64, max float64) {
 	return 0.4, 0.9
 }
 

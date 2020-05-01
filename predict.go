@@ -157,6 +157,35 @@ func potentialWeekFromPhasePattern(
 	return result
 }
 
+func launchPossibleLengthRoutine(
+	ticker *models.PriceTicker,
+	thisPossibleLength int,
+	possibilityIndex int,
+	phaseIndex int,
+	allPossibleLengths []int,
+	patternPhases []models.PatternPhase,
+	weeksWorkSync *weekPredictionSync,
+) {
+	var newBranch []models.PatternPhase
+	if possibilityIndex < len(allPossibleLengths)-1 {
+		// duplicate our current pattern so we can set the possible length
+		// for this phase
+		newBranch = duplicatePhasePattern(patternPhases)
+	} else {
+		// If this is the last possible length, we can just re-use the current
+		// branch rather than making a new duplicate and throwing away our
+		// current
+		newBranch = patternPhases
+	}
+
+	// set the branch phases' length to this possibility
+	newBranch[phaseIndex].SetLength(thisPossibleLength)
+	// Tell the work group we are adding a new branch we need to wait for
+	weeksWorkSync.WaitGroup.Add(1)
+	// Launch the branch
+	go branchWeeks(ticker, newBranch, weeksWorkSync)
+}
+
 // Takes an array of pattern phases and recursively works through all un-computed
 // possible phase length patterns.
 func branchWeeks(
@@ -193,24 +222,15 @@ func branchWeeks(
 		// Otherwise we need to create a new possible pattern branch for each phase
 		// length and branch off of it.
 		for i, phaseLength := range possibleLengths {
-			var newBranch []models.PatternPhase
-			if i < len(possibleLengths)-1 {
-				// duplicate our current pattern so we can set the possible length
-				// for this phase
-				newBranch = duplicatePhasePattern(patternPhases)
-			} else {
-				// If this is the last possible length, we can just re-use the current
-				// branch rather than making a new duplicate and throwing away our
-				// current
-				newBranch = patternPhases
-			}
-
-			// set the branch phases' length to this possibility
-			newBranch[phaseIndex].SetLength(phaseLength)
-			// Tell the work group we are adding a new branch we need to wait for
-			weeksWorkSync.WaitGroup.Add(1)
-			// Launch the branch
-			go branchWeeks(ticker, newBranch, weeksWorkSync)
+			launchPossibleLengthRoutine(
+				ticker,
+				phaseLength,
+				i,
+				phaseIndex,
+				possibleLengths,
+				patternPhases,
+				weeksWorkSync,
+			)
 		}
 
 		// Once we have started all the possible branches for this phase, we can return

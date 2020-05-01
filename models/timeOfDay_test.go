@@ -1,5 +1,8 @@
 package models
 
+//revive:disable:import-shadowing reason: Disabled for assert := assert.New(), which is
+// the preferred method of using multiple asserts in a test.
+
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"

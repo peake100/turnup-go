@@ -105,13 +105,12 @@ func (pattern Pattern) PhasePatternTotal() int {
 	return [4]int{56, 7, 1, 8}[pattern]
 }
 
-
 const (
 	FLUCTUATING Pattern = 0
 	BIGSPIKE    Pattern = 1
 	DECREASING  Pattern = 2
 	SMALLSPIKE  Pattern = 3
-	UNKNOWN Pattern = 4
+	UNKNOWN     Pattern = 4
 )
 
 // An array of the possible patterns in index order
@@ -144,10 +143,10 @@ func PatternFromString(value string) (Pattern, error) {
 	value = strings.Replace(value, " ", "", -1)
 	pattern, ok := map[string]Pattern{
 		"FLUCTUATING": FLUCTUATING,
-		"BIGSPIKE": BIGSPIKE,
-		"DECREASING": DECREASING,
-		"SMALLSPIKE": SMALLSPIKE,
-		"UNKNOWN": UNKNOWN,
+		"BIGSPIKE":    BIGSPIKE,
+		"DECREASING":  DECREASING,
+		"SMALLSPIKE":  SMALLSPIKE,
+		"UNKNOWN":     UNKNOWN,
 	}[value]
 
 	if !ok {

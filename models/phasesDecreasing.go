@@ -17,7 +17,9 @@ func (phase *decreasingPattern) PossibleLengths(
 	return []int{12}
 }
 
-func (phase *decreasingPattern) BasePriceMultiplier(subPeriod int) (min float64, max float64) {
+func (phase *decreasingPattern) BasePriceMultiplier(
+	subPeriod int,
+) (min float64, max float64) {
 	return 0.85, 0.90
 }
 

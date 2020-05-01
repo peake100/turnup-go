@@ -11,7 +11,6 @@ func (period PricePeriod) Weekday() time.Weekday {
 func (period PricePeriod) ToD() ToD {
 	if period%2 == 0 {
 		return AM
-	} else {
-		return PM
 	}
+	return PM
 }

@@ -12,11 +12,15 @@ type increasingPhaseBase struct {
 	phaseCoreAuto
 }
 
-func (phase *increasingPhaseBase) BasePriceMultiplier(subPeriod int) (min float64, max float64) {
+func (phase *increasingPhaseBase) BasePriceMultiplier(
+	subPeriod int,
+) (min float64, max float64) {
 	return 0.9, 1.4
 }
 
-func (phase *increasingPhaseBase) SubPeriodPriceMultiplier() (min float64, max float64) {
+func (phase *increasingPhaseBase) SubPeriodPriceMultiplier() (
+	min float64, max float64,
+) {
 	return 0, 0
 }
 
@@ -32,11 +36,15 @@ type decreasingPhaseBase struct {
 	phaseCoreAuto
 }
 
-func (phase *decreasingPhaseBase) BasePriceMultiplier(subPeriod int) (min float64, max float64) {
+func (phase *decreasingPhaseBase) BasePriceMultiplier(
+	subPeriod int,
+) (min float64, max float64) {
 	return 0.6, 0.8
 }
 
-func (phase *decreasingPhaseBase) SubPeriodPriceMultiplier() (min float64, max float64) {
+func (phase *decreasingPhaseBase) SubPeriodPriceMultiplier() (
+	min float64, max float64,
+) {
 	return -0.1, -0.04
 }
 

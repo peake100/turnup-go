@@ -6,12 +6,28 @@ type smallSpikeDecreasingBase struct {
 	phaseCoreAuto
 }
 
-func (phase *smallSpikeDecreasingBase) BasePriceMultiplier(subPeriod int) (min float64, max float64) {
-	return 0.4, 0.9
-}
+func (phase *smallSpikeDecreasingBase) PotentialPeriod(
+	period PricePeriod, phasePeriod int,
+) *PotentialPricePeriod {
+	minFactor, maxFactor := 0.4, 0.9
 
-func (phase *smallSpikeDecreasingBase) SubPeriodPriceMultiplier() (min float64, max float64) {
-	return -0.03 - 0.02, -0.03
+	for i := 0; i < phasePeriod; i++ {
+		minFactor -= 0.03
+		minFactor -= 0.02
+
+		maxFactor -= 0.03
+	}
+
+	minPrice := RoundBells(float64(phase.ticker.PurchasePrice) * minFactor)
+	maxPrice := RoundBells(float64(phase.ticker.PurchasePrice) * maxFactor)
+
+	return &PotentialPricePeriod{
+		prices: prices{
+			min: minPrice,
+			max: maxPrice,
+		},
+		PricePeriod: period,
+	}
 }
 
 // DECREASING PHASE 1
@@ -30,7 +46,7 @@ func (phase *smallSpikeDecreasing1) PossibleLengths(
 	return []int{0, 1, 2, 3, 4, 5, 6, 7}
 }
 
-func (phase *smallSpikeDecreasing1) Duplicate() phaseImplement {
+func (phase *smallSpikeDecreasing1) Duplicate() PatternPhase {
 	return &smallSpikeDecreasing1{
 		smallSpikeDecreasingBase{
 			phase.smallSpikeDecreasingBase.phaseCoreAuto,
@@ -54,33 +70,44 @@ func (phase *smallSpikeIncreasing) PossibleLengths(
 	return []int{5}
 }
 
-func (phase *smallSpikeIncreasing) SubPeriodPriceMultiplier() (min float64, max float64) {
-	return 0, 0
-}
-
 func (phase *smallSpikeIncreasing) PotentialPeriod(
 	period PricePeriod, phasePeriod int,
 ) *PotentialPricePeriod {
+	// We need to implement this from scratch for this phase, because 2 of the price
+	// periods subtract one bell from the final price, which happens during no other
+	// phase of the game, so we cannot use our base class.
+	//
+	// Turnip prophet gets a minimum value of 139 bells for a 100 bell purchase price
+	// during this spike, but look at the source code here:
+	//
+	// https://gist.github.com/
+	// Treeki/85be14d297c80c8b3c0a76375743325b#file-turnipprices-cpp-L329
+	//
+	// I am almost certain the 140% value is the lowest the price can go on this day,
+	// and that turnip prophet is wrong. I am going to leave this as is for now and
+	// revisit as needed later
 	minFactor, maxFactor := 1.4, 2.0
 	var priceAdjustment int
 
 	switch {
 	case phasePeriod == 0 || phasePeriod == 1:
+		// Periods 1 and 2 are random between 90% and and 140% so alter the base rates.
 		minFactor, maxFactor = 0.9, 1.4
 	case phasePeriod == 2 || phasePeriod == 4:
+		// For period 3 and 5, we subtract 1 from the total after doing our calculation.
 		priceAdjustment = -1
 	case phasePeriod > 4:
 		panic("steady increase only has 5 sub periods")
 	}
-	
-	minPrice := RoundBells(float64(phase.ticker.PurchasePrice) * minFactor) +
+
+	minPrice := RoundBells(float64(phase.ticker.PurchasePrice)*minFactor) +
 		priceAdjustment
 
-	maxPrice := RoundBells(float64(phase.ticker.PurchasePrice) * maxFactor) +
+	maxPrice := RoundBells(float64(phase.ticker.PurchasePrice)*maxFactor) +
 		priceAdjustment
-	
+
 	return &PotentialPricePeriod{
-		prices:      prices{
+		prices: prices{
 			min: minPrice,
 			max: maxPrice,
 		},
@@ -110,7 +137,7 @@ func (phase *smallSpikeDecreasing2) PossibleLengths(
 	return []int{7 - phases[0].Length()}
 }
 
-func (phase *smallSpikeDecreasing2) Duplicate() phaseImplement {
+func (phase *smallSpikeDecreasing2) Duplicate() PatternPhase {
 	return &smallSpikeDecreasing2{
 		smallSpikeDecreasingBase{
 			phase.smallSpikeDecreasingBase.phaseCoreAuto,
@@ -121,9 +148,9 @@ func (phase *smallSpikeDecreasing2) Duplicate() phaseImplement {
 // Generates a new set of fluctuating phases to branch possible weeks off of.
 func smallSpikeProgression(ticker *PriceTicker) []PatternPhase {
 	phases := []PatternPhase{
-		&patternPhaseAuto{new(smallSpikeDecreasing1)},
+		new(smallSpikeDecreasing1),
 		new(smallSpikeIncreasing),
-		&patternPhaseAuto{new(smallSpikeDecreasing2)},
+		new(smallSpikeDecreasing2),
 	}
 
 	for _, thisPhase := range phases {

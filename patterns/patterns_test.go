@@ -8,6 +8,9 @@ import (
 	"testing"
 )
 
+//revive:disable:import-shadowing reason: Disabled for assert := assert.New(), which is
+// the preferred method of using multiple asserts in a test.
+
 // NAMES
 func TestNameUnknown(t *testing.T) {
 	assert.Equal(t, "UNKNOWN", UNKNOWN.String())

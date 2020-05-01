@@ -148,15 +148,19 @@ func (phase *patternPhaseAuto) calcPhasePeriodPrice(
 	// My first instinct was to calculate this periods rate factor by doing this:
 	//		baseMultiplier + (phasePeriod * subPeriodMultiplier)
 	//
-	// However, if we examine the game logic here: https://gist.github.com/Treeki/85be14d297c80c8b3c0a76375743325b#file-turnipprices-cpp-L320
-	// we see that the game itself adds the subPeriodMultiplier to the baseMultiplier
+	// However, if we examine the game logic here:
+	//
+	// https://gist.github.com/
+	// Treeki/85be14d297c80c8b3c0a76375743325b#file-turnipprices-cpp-L320
+	//
+	// ...we see that the game itself adds the subPeriodMultiplier to the baseMultiplier
 	// while looping through each price period.
 	//
 	// IN A PERFECT MATHEMATICAL WORLD these operations would be equivalent, but in
 	// practice we introduce subtle floating point errors that can result in our bell
 	// prices being off-by-one from the game. Therefore, we need to exactly imitate the
 	// game logic during this calculation.
-	for i := 0 ; i < phasePeriod ; i++ {
+	for i := 0; i < phasePeriod; i++ {
 		baseMultiplier += subPeriodMultiplier
 	}
 	return RoundBells(float64(purchasePrice) * baseMultiplier)

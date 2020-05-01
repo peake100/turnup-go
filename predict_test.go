@@ -1,5 +1,8 @@
 package turnup
 
+//revive:disable:import-shadowing reason: Disabled for assert := assert.New(), which is
+// the preferred method of using multiple asserts in a test.
+
 import (
 	"encoding/csv"
 	"fmt"
@@ -19,10 +22,10 @@ type priceBracket struct {
 }
 
 type expectedWeek struct {
-	Pattern models.Pattern
+	Pattern            models.Pattern
 	GuaranteedMinPrice int
 	MaxPrice           int
-	Prices 			   [12]*priceBracket
+	Prices             [12]*priceBracket
 }
 
 type expectedPattern struct {
@@ -33,11 +36,11 @@ type expectedPattern struct {
 }
 
 type expectedPrediction struct {
-	Fluctuating 		*expectedPattern
-	BigSpike 			*expectedPattern
-	Decreasing 			*expectedPattern
-	SmallSpike 			*expectedPattern
-	PriceCSV			string
+	Fluctuating        *expectedPattern
+	BigSpike           *expectedPattern
+	Decreasing         *expectedPattern
+	SmallSpike         *expectedPattern
+	PriceCSV           string
 	expectedWeekHashes map[string]interface{}
 }
 
@@ -50,46 +53,55 @@ func (expected *expectedPrediction) Patterns() []*expectedPattern {
 	}
 }
 
-func parsePriceRecord (
+func parsePriceRecordPattern(week *expectedWeek, dataString string) {
+	var err error
+	week.Pattern, err = models.PatternFromString(dataString)
+	if err != nil {
+		panic(fmt.Sprintf("cannot parse pattern %v", dataString))
+	}
+}
+
+func parsePriceRecordPeriod(week *expectedWeek, dataString string, pricePeriod int) {
+	prices := strings.Split(dataString, "-")
+	minPrice, err := strconv.Atoi(prices[0])
+	if err != nil {
+		panic(fmt.Sprintf("cannot parse min from %v", prices[0]))
+	}
+	maxPrice, err := strconv.Atoi(prices[1])
+	if err != nil {
+		panic(fmt.Sprintf("cannot parse max from %v", prices[1]))
+	}
+
+	week.Prices[pricePeriod] = &priceBracket{
+		Min: minPrice,
+		Max: maxPrice,
+	}
+}
+
+func parseWeekPriceBound(dataString string) int {
+	price, err := strconv.Atoi(dataString)
+	if err != nil {
+		panic(fmt.Sprintf("cannot parse week price from %v", dataString))
+	}
+	return price
+}
+
+func parsePriceRecord(
 	record []string,
 ) (week *expectedWeek) {
 	week = new(expectedWeek)
-	var err error
 
 	for column, dataString := range record {
 		switch {
 		case column == 0:
-			week.Pattern, err = models.PatternFromString(dataString)
-			if err != nil {
-				panic(fmt.Sprintf("cannot parse pattern %v", dataString))
-			}
+			parsePriceRecordPattern(week, dataString)
 		case column > 0 && column < 13:
-			prices := strings.Split(dataString, "-")
-			minPrice, err := strconv.Atoi(prices[0])
-			if err != nil {
-				panic(fmt.Sprintf("cannot parse min from %v", prices[0]))
-			}
-			maxPrice, err := strconv.Atoi(prices[1])
-			if err != nil {
-				panic(fmt.Sprintf("cannot parse max from %v", prices[1]))
-			}
-
-			week.Prices[column - 1] = &priceBracket{
-				Min: minPrice,
-				Max: maxPrice,
-			}
+			pricePeriod := column - 1
+			parsePriceRecordPeriod(week, dataString, pricePeriod)
 		case column == 13:
-			minWeekPrice, err := strconv.Atoi(dataString)
-			if err != nil {
-				panic(fmt.Sprintf("cannot parse week min from %v", dataString))
-			}
-			week.GuaranteedMinPrice = minWeekPrice
+			week.GuaranteedMinPrice = parseWeekPriceBound(dataString)
 		case column == 14:
-			maxWeekPrice, err := strconv.Atoi(dataString)
-			if err != nil {
-				panic(fmt.Sprintf("cannot parse week min from %v", dataString))
-			}
-			week.MaxPrice = maxWeekPrice
+			week.MaxPrice = parseWeekPriceBound(dataString)
 		}
 	}
 
@@ -146,7 +158,7 @@ func loadPriceData(t *testing.T, csvPath string) map[string]interface{} {
 
 func potentialWeekKey(pattern models.Pattern, week *models.PotentialWeek) string {
 	var priceBrackets [12]*priceBracket
-	for i, pricePeriod :=  range week.PricePeriods {
+	for i, pricePeriod := range week.PricePeriods {
 		periodBracket := &priceBracket{
 			Min: pricePeriod.MinPrice(),
 			Max: pricePeriod.MaxPrice(),
@@ -174,7 +186,7 @@ func testPriceData(
 	for _, pattern := range prediction.Patterns {
 		for _, week := range pattern.PotentialWeeks {
 			weekKey := potentialWeekKey(pattern.Pattern, week)
-			if _, ok := expected.expectedWeekHashes[weekKey] ; !ok {
+			if _, ok := expected.expectedWeekHashes[weekKey]; !ok {
 				t.Errorf("unexpected price pattern: %v", weekKey)
 				continue
 			}
@@ -198,7 +210,7 @@ func testPrediction(
 	expected.expectedWeekHashes = loadPriceData(t, expected.PriceCSV)
 
 	var thisExpected *expectedPattern
-	var thisPattern  *models.PotentialPattern
+	var thisPattern *models.PotentialPattern
 	var err error
 
 	testPattern := func(t *testing.T) {
@@ -227,7 +239,7 @@ func testPrediction(
 func testPattern(
 	t *testing.T, expected *expectedPattern, pattern *models.PotentialPattern,
 ) {
-	testPatternChance := func (t *testing.T) {
+	testPatternChance := func(t *testing.T) {
 		assert := assert.New(t)
 
 		assert.Equal(
@@ -238,7 +250,7 @@ func testPattern(
 
 	t.Run("chance", testPatternChance)
 
-	testPricePeriodCount := func (t *testing.T) {
+	testPricePeriodCount := func(t *testing.T) {
 		assert := assert.New(t)
 
 		for _, week := range pattern.PotentialWeeks {
@@ -299,19 +311,19 @@ func Test100BellPurchase(t *testing.T) {
 			MaxPotentialPrice:  600,
 			PossibleWeeks:      7,
 		},
-		Decreasing:  &expectedPattern{
+		Decreasing: &expectedPattern{
 			Chance:             0.1375,
 			MinGuaranteedPrice: 85,
 			MaxPotentialPrice:  90,
 			PossibleWeeks:      1,
 		},
-		SmallSpike:  &expectedPattern{
+		SmallSpike: &expectedPattern{
 			Chance:             0.25,
 			MinGuaranteedPrice: 140,
 			MaxPotentialPrice:  200,
 			PossibleWeeks:      8,
 		},
-		PriceCSV:    "./zdevelop/tests/100_bell_projection.csv",
+		PriceCSV: "./zdevelop/tests/100_bell_projection.csv",
 	}
 
 	testPrediction(t, expected, ticker)

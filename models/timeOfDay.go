@@ -10,9 +10,8 @@ type ToD string
 func (tod ToD) PhaseOffset() int {
 	if tod == AM {
 		return 0
-	} else {
-		return 1
 	}
+	return 1
 }
 
 const (

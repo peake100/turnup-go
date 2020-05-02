@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"github.com/illuscio-dev/turnup-go/errs"
+	"time"
+)
 
 type PricePeriod int
 
@@ -13,4 +16,23 @@ func (period PricePeriod) ToD() ToD {
 		return AM
 	}
 	return PM
+}
+
+// Converts price weekday and time of day to price period. Returns error if sunday is
+// passed
+func PricePeriodFromDay(weekday time.Weekday, tod ToD) (PricePeriod, error) {
+	if weekday == 6 {
+		return -1, errs.ErrNoSundayPricePeriod
+	}
+	pricePeriod := ((int(weekday) - 1) * 2) + tod.PhaseOffset()
+	return PricePeriod(pricePeriod), nil
+}
+
+func PricePeriodFromTime(priceTime time.Time) (PricePeriod, error) {
+	tod := PM
+	if priceTime.Hour() < 12 {
+		tod = AM
+	}
+
+	return PricePeriodFromDay(priceTime.Weekday(), tod)
 }

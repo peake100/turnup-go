@@ -1,0 +1,152 @@
+package turnup
+
+import (
+	"github.com/illuscio-dev/turnup-go/models"
+	"math"
+)
+
+type hasAnalysis interface {
+	Analysis() *models.Analysis
+}
+
+// Converts the chance on an Analysis() method from chance units to absolute chance
+// with a precision of 4 digits (XX.XX%).
+func convertFromChanceUnits(item hasAnalysis, totalChanceUnits float64) {
+	chance := item.Analysis().Chance / totalChanceUnits
+	// round to 4 digits (xx.xx%)
+	chance = math.Round(chance*10000) / 10000
+	item.Analysis().Chance = chance
+}
+
+func calculatePotentialWeekChanceUnits(
+	week *models.PotentialWeek,
+	pattern models.Pattern,
+	knownPricePeriods []models.PricePeriod,
+	ticker *PriceTicker,
+) float64 {
+	patternWeight := pattern.BaseChance(ticker.PreviousPattern)
+	patternPermutationCount := pattern.PermutationCount()
+
+	var weekChance float64
+
+	for _, pricePeriod := range knownPricePeriods {
+		// Get the min and max prices for this period
+		prices := week.PricePeriods[pricePeriod]
+
+		// Get the number of possible bell values (how many sides on this
+		// dice?). We need to add one since this is an inclusive range
+		periodRange := prices.MaxPrice() - prices.MinPrice() + 1
+
+		// Now compute the likelihood of any particular price in this bracket
+		// occurring.
+		periodChance := 1.0 / float64(periodRange)
+		// Weight it by the likelihood of this pattern occurring in the first
+		// place
+		periodChance *= patternWeight
+
+		// Add it to the total likelihood of this week permutation happening
+		weekChance += periodChance
+	}
+
+	// if there is no known price data, we will just use the pattern chance for
+	// this week divided by the number of possible patterns. This gives less
+	// weight to patterns who have had permutations eliminated vs those who
+	// have not.
+	if weekChance == 0 {
+		weekChance = patternWeight / float64(patternPermutationCount)
+	}
+
+	return weekChance
+}
+
+func calculatePatternChance(
+	potentialPattern *models.PotentialPattern,
+	knownPricePeriods []models.PricePeriod,
+	ticker *PriceTicker,
+) float64 {
+
+	var patternChance float64
+	for _, week := range potentialPattern.PotentialWeeks {
+		weekChance := calculatePotentialWeekChanceUnits(
+			week,
+			potentialPattern.Pattern,
+			knownPricePeriods,
+			ticker,
+		)
+
+		// Add this week's chance to the pattern chance
+		patternChance += weekChance
+		// Save it as an interim step
+		week.Analysis().Chance = weekChance
+	}
+
+	return patternChance
+}
+
+// Calculate the chances of each price pattern permutation once they have been
+// calculated.
+func calculateChances(ticker *PriceTicker, prediction *Prediction) {
+	// We are going to calculate the likelihood that a bell price in the ticker came
+	// from a given range by looping through the price periods we have data for and
+	// examining the likelihood that the results came from the one possible phase combo
+	// or another.
+	//
+	// Imagine we have two dice, a 6-sided die and an 20-sided die. We know that one of
+	// these dies was rolled and the result was 5. Originally, there was a 50/50 chance
+	// for what die was picked, but now we know the number was a 5, it becomes MORE
+	// LIKELY the result came from the 6-sided die, since the chances of rolling a 5
+	// on a six sided die are 1-in-6, while the chances for rolling a 5 on a 20-sided
+	// die are 1-in-20.
+	//
+	// We can compute the chance this was a 6-sided dire by adding 1/20 to 1/6 and then
+	// dividing 1/6 by the answer:
+	//
+	// 1/6 / (1/6 + 1/20) = 77% chance this was the result of a d6, which means a 23%
+	// chance this was a d20.
+	//
+	// We are going to apply the same logic to bell price brackets. If we have two
+	// possible patterns, and one has a bound  of 85-90 bells, and the other a bound of
+	// 90 - 140 bells, then we know it is much more likely that we are in the pattern
+	// with the bound of 85-90 bells when we have a price of 90 bells.
+	//
+	// We will weight these chances with the base chance for the pattern this week.
+
+	// First lets build a list of the price periods we have data for
+	var knownPricePeriods []models.PricePeriod
+
+	for pricePeriodIndex, price := range ticker.Prices {
+		pricePeriod := models.PricePeriod(pricePeriodIndex)
+		// If the price is 0, then it is unknown
+		if price == 0 {
+			continue
+		}
+
+		knownPricePeriods = append(knownPricePeriods, pricePeriod)
+	}
+
+	// We need to store the total likelihood of a given bell value (1/6 + 1/20 in the
+	// example above).
+	var totalChanceUnits float64
+
+	// Now let's loop through out patterns and start ass`igning chances.
+	for _, potentialPattern := range prediction.Patterns {
+		patternChance := calculatePatternChance(
+			potentialPattern, knownPricePeriods, ticker,
+		)
+		// Add the pattern's chance to the total chance units
+		totalChanceUnits += patternChance
+		// Remember it as an interim step
+		potentialPattern.Analysis().Chance = patternChance
+	}
+
+	// Now we can go through and figure out the final chance for each entry using our
+	// total chance units
+	for _, potentialPattern := range prediction.Patterns {
+		convertFromChanceUnits(potentialPattern, totalChanceUnits)
+		for _, week := range potentialPattern.PotentialWeeks {
+			convertFromChanceUnits(week, totalChanceUnits)
+		}
+	}
+
+	// And we're done! Phew!
+}

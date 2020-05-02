@@ -19,3 +19,5 @@ var ErrPhaseLengthFinalized = errors.New(
 var ErrBadPatternIndex = errors.New("pattern index value must be 0-4")
 
 var ErrPatternStringValue = errors.New("could not parse pattern from string")
+
+var ErrNoSundayPricePeriod = errors.New("there are no price periods on sunday")

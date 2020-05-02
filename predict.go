@@ -11,40 +11,11 @@ import (
 type PriceTicker = models.PriceTicker
 type Prediction = models.Prediction
 
+// Holds the sync objects for the goroutines handling the price phase permutations for
+// each pattern.
 type patternsPredictionSync struct {
-	// We're going to send predictions for a specific pattern back through this channel.
 	ResultChan chan *models.PotentialPattern
 	WaitGroup  *sync.WaitGroup
-}
-
-func Predict(currentWeek *PriceTicker) *Prediction {
-	// If we don't know the purchase price, we'll use the average price of 100 for now.
-	// TODO: better handling of unknown prices
-	if currentWeek.PurchasePrice == 0 {
-		currentWeek.PurchasePrice = 100
-	}
-
-	patternWorkSync := &patternsPredictionSync{
-		ResultChan: make(chan *models.PotentialPattern, len(patterns.PATTERNSGAME)),
-		WaitGroup:  new(sync.WaitGroup),
-	}
-
-	for _, pattern := range patterns.PATTERNSGAME {
-		patternWorkSync.WaitGroup.Add(1)
-		go predictPattern(currentWeek, pattern, patternWorkSync)
-	}
-
-	patternWorkSync.WaitGroup.Wait()
-	close(patternWorkSync.ResultChan)
-
-	result := new(Prediction)
-
-	for potentialPattern := range patternWorkSync.ResultChan {
-		result.Patterns = append(result.Patterns, potentialPattern)
-		result.Analysis().Update(potentialPattern.Analysis(), false)
-	}
-
-	return result
 }
 
 type weekPredictionSync struct {
@@ -52,6 +23,7 @@ type weekPredictionSync struct {
 	WaitGroup  *sync.WaitGroup
 }
 
+// Calculate all the possible phase permutations for a given price pattern.
 func predictPattern(
 	ticker *models.PriceTicker,
 	pattern models.Pattern,
@@ -88,10 +60,6 @@ func predictPattern(
 		)
 		resultPattern.Analysis().Update(potentialWeek.Analysis(), false)
 	}
-
-	resultPattern.Analysis().Chance = pattern.BaseChance(ticker.PreviousPattern) *
-		float64(len(resultPattern.PotentialWeeks)) /
-		float64(pattern.PhasePatternTotal())
 
 	patternWorkSync.ResultChan <- resultPattern
 }
@@ -138,6 +106,7 @@ func potentialWeekFromPhasePattern(
 		for phasePeriod = 0; phasePeriod < thisPhase.Length(); phasePeriod++ {
 			// Get the projected price for this price period, according to the phase.
 			potentialPeriod := thisPhase.PotentialPeriod(pricePeriod, phasePeriod)
+
 			if !potentialPeriod.IsValidPrice(ticker.Prices[pricePeriod]) {
 				return nil
 			}
@@ -155,35 +124,6 @@ func potentialWeekFromPhasePattern(
 	}
 
 	return result
-}
-
-func launchPossibleLengthRoutine(
-	ticker *models.PriceTicker,
-	thisPossibleLength int,
-	possibilityIndex int,
-	phaseIndex int,
-	allPossibleLengths []int,
-	patternPhases []models.PatternPhase,
-	weeksWorkSync *weekPredictionSync,
-) {
-	var newBranch []models.PatternPhase
-	if possibilityIndex < len(allPossibleLengths)-1 {
-		// duplicate our current pattern so we can set the possible length
-		// for this phase
-		newBranch = duplicatePhasePattern(patternPhases)
-	} else {
-		// If this is the last possible length, we can just re-use the current
-		// branch rather than making a new duplicate and throwing away our
-		// current
-		newBranch = patternPhases
-	}
-
-	// set the branch phases' length to this possibility
-	newBranch[phaseIndex].SetLength(thisPossibleLength)
-	// Tell the work group we are adding a new branch we need to wait for
-	weeksWorkSync.WaitGroup.Add(1)
-	// Launch the branch
-	go branchWeeks(ticker, newBranch, weeksWorkSync)
 }
 
 // Takes an array of pattern phases and recursively works through all un-computed
@@ -248,4 +188,66 @@ func branchWeeks(
 
 	// Otherwise, report the week to the results channel
 	weeksWorkSync.ResultChan <- potentialWeek
+}
+
+// Launches the goroutine for a new permutation of a price pattern.
+func launchPossibleLengthRoutine(
+	ticker *models.PriceTicker,
+	thisPossibleLength int,
+	possibilityIndex int,
+	phaseIndex int,
+	allPossibleLengths []int,
+	patternPhases []models.PatternPhase,
+	weeksWorkSync *weekPredictionSync,
+) {
+	var newBranch []models.PatternPhase
+	if possibilityIndex < len(allPossibleLengths)-1 {
+		// duplicate our current pattern so we can set the possible length
+		// for this phase
+		newBranch = duplicatePhasePattern(patternPhases)
+	} else {
+		// If this is the last possible length, we can just re-use the current
+		// branch rather than making a new duplicate and throwing away our
+		// current
+		newBranch = patternPhases
+	}
+
+	// set the branch phases' length to this possibility
+	newBranch[phaseIndex].SetLength(thisPossibleLength)
+	// Tell the work group we are adding a new branch we need to wait for
+	weeksWorkSync.WaitGroup.Add(1)
+	// Launch the branch
+	go branchWeeks(ticker, newBranch, weeksWorkSync)
+}
+
+// Predict the possible price patterns given the current week's turnip prices on an
+// island.
+func Predict(currentWeek *PriceTicker) *Prediction {
+	// If we don't know the purchase price, we'll use the average price of 100 for now.
+	// TODO: better handling of unknown prices. We really should get the totals for both
+	//   90 and 100 so we know the increased ranges.
+
+	patternWorkSync := &patternsPredictionSync{
+		ResultChan: make(chan *models.PotentialPattern, len(patterns.PATTERNSGAME)),
+		WaitGroup:  new(sync.WaitGroup),
+	}
+
+	for _, pattern := range patterns.PATTERNSGAME {
+		patternWorkSync.WaitGroup.Add(1)
+		go predictPattern(currentWeek, pattern, patternWorkSync)
+	}
+
+	patternWorkSync.WaitGroup.Wait()
+	close(patternWorkSync.ResultChan)
+
+	result := new(Prediction)
+
+	for potentialPattern := range patternWorkSync.ResultChan {
+		result.Patterns = append(result.Patterns, potentialPattern)
+		result.Analysis().Update(potentialPattern.Analysis(), false)
+	}
+
+	calculateChances(currentWeek, result)
+
+	return result
 }

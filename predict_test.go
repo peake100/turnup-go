@@ -207,7 +207,6 @@ func testPrediction(
 	t *testing.T, expected *expectedPrediction, ticker *PriceTicker,
 ) {
 	prediction := Predict(ticker)
-	expected.expectedWeekHashes = loadPriceData(t, expected.PriceCSV)
 
 	var thisExpected *expectedPattern
 	var thisPattern *models.PotentialPattern
@@ -228,11 +227,14 @@ func testPrediction(
 		t.Run(pattern.String(), testPattern)
 	}
 
-	patternTest := func(t *testing.T) {
-		testPriceData(t, expected, prediction)
-	}
+	if expected.PriceCSV != "" {
+		expected.expectedWeekHashes = loadPriceData(t, expected.PriceCSV)
+		testPrices := func(t *testing.T) {
+			testPriceData(t, expected, prediction)
+		}
 
-	t.Run("price_data_check", patternTest)
+		t.Run("price_data_check", testPrices)
+	}
 }
 
 // Test the expected values of a ticker against the actual result
@@ -296,6 +298,7 @@ func Test100BellPurchase(t *testing.T) {
 
 	ticker := &PriceTicker{
 		PreviousPattern: patterns.UNKNOWN,
+		PurchasePrice:   100,
 	}
 
 	expected := &expectedPrediction{
@@ -323,9 +326,181 @@ func Test100BellPurchase(t *testing.T) {
 			MaxPotentialPrice:  200,
 			PossibleWeeks:      8,
 		},
-		PriceCSV: "./zdevelop/tests/100_bell_projection.csv",
+		PriceCSV: "./zdevelop/tests/100_bell_no_ticker.csv",
 	}
 
 	testPrediction(t, expected, ticker)
 
+}
+
+// Test a pattern that results in a single large spike possibility
+func Test100BellPurchaseLargeSpike(t *testing.T) {
+
+	ticker := &PriceTicker{
+		PreviousPattern: patterns.UNKNOWN,
+		PurchasePrice:   100,
+	}
+	ticker.Prices[0] = 86
+	ticker.Prices[1] = 90
+	ticker.Prices[2] = 160
+
+	expected := &expectedPrediction{
+		Fluctuating: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+		BigSpike: &expectedPattern{
+			Chance:             1.0,
+			MinGuaranteedPrice: 200,
+			MaxPotentialPrice:  600,
+			PossibleWeeks:      1,
+		},
+		Decreasing: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+		SmallSpike: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+	}
+
+	testPrediction(t, expected, ticker)
+}
+
+// Test a pattern that results in a single large spike possibility
+func Test100BellPurchaseFluctuating(t *testing.T) {
+
+	ticker := &PriceTicker{
+		PreviousPattern: patterns.DECREASING,
+		PurchasePrice:   100,
+	}
+	ticker.Prices[0] = 140
+	ticker.Prices[1] = 140
+	ticker.Prices[2] = 140
+	ticker.Prices[3] = 140
+	ticker.Prices[4] = 140
+	ticker.Prices[5] = 140
+
+	expected := &expectedPrediction{
+		Fluctuating: &expectedPattern{
+			Chance:             1,
+			MinGuaranteedPrice: 90,
+			MaxPotentialPrice:  140,
+			PossibleWeeks:      2,
+		},
+		BigSpike: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+		Decreasing: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+		SmallSpike: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+	}
+
+	testPrediction(t, expected, ticker)
+}
+
+// Test a pattern that results in a decreasing possibility
+func Test100BellPurchaseDecreasing(t *testing.T) {
+
+	ticker := &PriceTicker{
+		PreviousPattern: patterns.DECREASING,
+		PurchasePrice:   100,
+	}
+	ticker.Prices[0] = 86
+	ticker.Prices[1] = 86
+	ticker.Prices[2] = 80
+	ticker.Prices[3] = 76
+	ticker.Prices[4] = 72
+	ticker.Prices[5] = 68
+	ticker.Prices[6] = 64
+	ticker.Prices[7] = 59
+
+	expected := &expectedPrediction{
+		Fluctuating: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+		BigSpike: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+		Decreasing: &expectedPattern{
+			Chance:             1,
+			MinGuaranteedPrice: 85,
+			MaxPotentialPrice:  90,
+			PossibleWeeks:      1,
+		},
+		SmallSpike: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+	}
+
+	testPrediction(t, expected, ticker)
+}
+
+// Test a pattern that results in a single large spike possibility
+func Test100BellPurchaseSmallSpike(t *testing.T) {
+
+	ticker := &PriceTicker{
+		PreviousPattern: patterns.SMALLSPIKE,
+		PurchasePrice:   100,
+	}
+	ticker.Prices[0] = 120
+	ticker.Prices[1] = 120
+	ticker.Prices[2] = 199
+
+	expected := &expectedPrediction{
+		Fluctuating: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+		BigSpike: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+		Decreasing: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+		SmallSpike: &expectedPattern{
+			Chance:             1,
+			MinGuaranteedPrice: 140,
+			MaxPotentialPrice:  200,
+			PossibleWeeks:      1,
+		},
+	}
+
+	testPrediction(t, expected, ticker)
 }

@@ -80,6 +80,13 @@ func (pattern Pattern) BaseChance(previous Pattern) float64 {
 	return initialChanceMatrix[previous][pattern]
 }
 
+// Return the liklihood of any individual phase combination. We get these numbers by
+// dividing the base chance for the pattern by the number of possible phase
+// permutations for it.
+func (pattern Pattern) PhasePermutationChance(previous Pattern) float64 {
+	return pattern.BaseChance(previous) / float64(pattern.PermutationCount())
+}
+
 // Returns a new set of phase definitions that can be used to calculate the possible
 // price values for a week.
 func (pattern Pattern) PhaseProgression(ticker *PriceTicker) []PatternPhase {
@@ -101,7 +108,7 @@ func (pattern Pattern) PhaseProgression(ticker *PriceTicker) []PatternPhase {
 
 // The total possible phase combinations for this pattern. Can be used to determine
 // actual chance of this pattern once possibilities have been removed by a ticker.
-func (pattern Pattern) PhasePatternTotal() int {
+func (pattern Pattern) PermutationCount() int {
 	return [4]int{56, 7, 1, 8}[pattern]
 }
 

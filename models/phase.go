@@ -166,20 +166,42 @@ func (phase *patternPhaseAuto) calcPhasePeriodPrice(
 	return RoundBells(float64(purchasePrice) * baseMultiplier)
 }
 
-func (phase *patternPhaseAuto) PotentialPeriod(
-	period PricePeriod, phasePeriod int,
-) *PotentialPricePeriod {
+func (phase *patternPhaseAuto) potentialPrice(
+	purchasePrice int, phasePeriod int,
+) (minPrice int, maxPrice int) {
 	baseMinFactor, baseMaxFactor := phase.BasePriceMultiplier(phasePeriod)
 	subMinFactor, subMaxFactor := phase.SubPeriodPriceMultiplier()
 
-	purchasePrice := phase.Ticker().PurchasePrice
-
-	minPrice := phase.calcPhasePeriodPrice(
+	minPrice = phase.calcPhasePeriodPrice(
 		baseMinFactor, subMinFactor, purchasePrice, phasePeriod,
 	)
-	maxPrice := phase.calcPhasePeriodPrice(
+	maxPrice = phase.calcPhasePeriodPrice(
 		baseMaxFactor, subMaxFactor, purchasePrice, phasePeriod,
 	)
+
+	return minPrice, maxPrice
+}
+
+func (phase *patternPhaseAuto) PotentialPeriod(
+	period PricePeriod, phasePeriod int,
+) *PotentialPricePeriod {
+	purchasePrice := phase.Ticker().PurchasePrice
+	if purchasePrice == 0 {
+		// If the purchase price is 0, then it is unknown. We need to compute the prices
+		// for both the lowest and highest possible base price. The lowest possible
+		// price is 90. Since sell prices are always a percentage of the purchase
+		// price, the lower purchase price will always yield the lowest sell price and
+		// vice versa.
+		purchasePrice = 90
+	}
+
+	minPrice, maxPrice := phase.potentialPrice(purchasePrice, phasePeriod)
+	if phase.Ticker().PurchasePrice == 0 {
+		// Now, if no purchase price was supplied, we need to run the numbers again
+		// with the highest possible base price to get the max bracket for what we
+		// know.
+		_, maxPrice = phase.potentialPrice(110, phasePeriod)
+	}
 
 	return &PotentialPricePeriod{
 		prices: prices{

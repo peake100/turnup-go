@@ -100,11 +100,19 @@ func (phase *smallSpikeIncreasing) PotentialPeriod(
 		panic("steady increase only has 5 sub periods")
 	}
 
-	minPrice := RoundBells(float64(phase.ticker.PurchasePrice)*minFactor) +
+	purchasePrice := phase.ticker.PurchasePrice
+	if purchasePrice == 0 {
+		purchasePrice = 90
+	}
+
+	minPrice := RoundBells(float64(purchasePrice)*minFactor) +
 		priceAdjustment
 
-	maxPrice := RoundBells(float64(phase.ticker.PurchasePrice)*maxFactor) +
-		priceAdjustment
+	maxPrice := RoundBells(float64(purchasePrice)*maxFactor)
+	if phase.ticker.PurchasePrice == 0 {
+		maxPrice = RoundBells(float64(110)*maxFactor)
+	}
+	maxPrice += priceAdjustment
 
 	return &PotentialPricePeriod{
 		prices: prices{

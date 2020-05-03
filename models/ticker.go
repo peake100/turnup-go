@@ -17,7 +17,7 @@ type PriceTicker struct {
 	Prices [12]int
 }
 
-// Return the price for a given weekday + time of day
+// Return the price for a given Weekday + time of day
 func (ticker *PriceTicker) PriceForDay(weekday time.Weekday, tod ToD) int {
 	if weekday == 0 {
 		return ticker.PurchasePrice
@@ -40,7 +40,7 @@ func (ticker *PriceTicker) PriceForTime(priceTime time.Time) int {
 	return ticker.Prices[pricePeriod]
 }
 
-// Set the price with a weekday / time of day for a little more ease in setting values.
+// Set the price with a Weekday / time of day for a little more ease in setting values.
 func (ticker *PriceTicker) SetPriceForDay(weekday time.Weekday, tod ToD, price int) {
 	if weekday == 0 {
 		ticker.PurchasePrice = price

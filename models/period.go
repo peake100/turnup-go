@@ -18,10 +18,10 @@ func (period PricePeriod) ToD() ToD {
 	return PM
 }
 
-// Converts price weekday and time of day to price period. Returns error if sunday is
+// Converts price Weekday and time of day to price period. Returns error if sunday is
 // passed
 func PricePeriodFromDay(weekday time.Weekday, tod ToD) (PricePeriod, error) {
-	if weekday == 6 {
+	if weekday == time.Sunday {
 		return -1, errs.ErrNoSundayPricePeriod
 	}
 	pricePeriod := ((int(weekday) - 1) * 2) + tod.PhaseOffset()

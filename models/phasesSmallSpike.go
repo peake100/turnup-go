@@ -35,6 +35,10 @@ type smallSpikeDecreasing1 struct {
 	smallSpikeDecreasingBase
 }
 
+func (phase *smallSpikeDecreasing1) BasePriceMultiplier(subPeriod int) (min float64, max float64) {
+	return 0.4, 0.9
+}
+
 func (phase *smallSpikeDecreasing1) Name() string {
 	return "steady decrease"
 }
@@ -60,7 +64,7 @@ type smallSpikeIncreasing struct {
 }
 
 func (phase *smallSpikeIncreasing) Name() string {
-	return "steady increase"
+	return "slight spike"
 }
 
 func (phase *smallSpikeIncreasing) PossibleLengths(
@@ -97,7 +101,7 @@ func (phase *smallSpikeIncreasing) PotentialPeriod(
 		// For period 3 and 5, we subtract 1 from the total after doing our calculation.
 		priceAdjustment = -1
 	case phasePeriod > 4:
-		panic("steady increase only has 5 sub periods")
+		panic("slight spike only has 5 sub periods")
 	}
 
 	purchasePrice := phase.ticker.PurchasePrice

@@ -504,3 +504,40 @@ func Test100BellPurchaseSmallSpike(t *testing.T) {
 
 	testPrediction(t, expected, ticker)
 }
+
+// Test getting doing a prediction when you don't know the purchase price.
+func TestUnknownBellPurchase(t *testing.T) {
+
+	ticker := &PriceTicker{
+		PreviousPattern: patterns.UNKNOWN,
+	}
+
+	expected := &expectedPrediction{
+		Fluctuating: &expectedPattern{
+			Chance:             0.35,
+			MinGuaranteedPrice: 81,
+			MaxPotentialPrice:  154,
+			PossibleWeeks:      56,
+		},
+		BigSpike: &expectedPattern{
+			Chance:             0.2625,
+			MinGuaranteedPrice: 180,
+			MaxPotentialPrice:  660,
+			PossibleWeeks:      7,
+		},
+		Decreasing: &expectedPattern{
+			Chance:             0.1375,
+			MinGuaranteedPrice: 77,
+			MaxPotentialPrice:  99,
+			PossibleWeeks:      1,
+		},
+		SmallSpike: &expectedPattern{
+			Chance:             0.25,
+			MinGuaranteedPrice: 126,
+			MaxPotentialPrice:  220,
+			PossibleWeeks:      8,
+		},
+	}
+
+	testPrediction(t, expected, ticker)
+}

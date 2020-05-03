@@ -1,5 +1,7 @@
 package models
 
+import "golang.org/x/xerrors"
+
 // STEADY DECREASE
 type steadyDecrease struct {
 	phaseCoreAuto
@@ -22,7 +24,7 @@ func (phase *steadyDecrease) BasePriceMultiplier(
 	return 0.85, 0.9
 }
 
-func (phase *steadyDecrease) SubPeriodPriceMultiplier() (min float64, max float64) {
+func (phase *steadyDecrease) SubPeriodPriceMultiplier(int) (min float64, max float64) {
 	return -0.05, -0.03
 }
 
@@ -59,12 +61,8 @@ func (phase *sharpIncrease) BasePriceMultiplier(
 	case subPeriod == 2:
 		return 2, 6
 	default:
-		panic("sharp increase only has 3 price periods")
+		panic(xerrors.New("sharp increase only has 3 price periods"))
 	}
-}
-
-func (phase *sharpIncrease) SubPeriodPriceMultiplier() (min float64, max float64) {
-	return 0, 0
 }
 
 func (phase *sharpIncrease) Duplicate() phaseImplement {
@@ -98,12 +96,8 @@ func (phase *sharpDecrease) BasePriceMultiplier(
 	case subPeriod == 1:
 		return 0.9, 1.4
 	default:
-		panic("sharp decrease only has 2 price periods")
+		panic(xerrors.New("sharp decrease only has 2 price periods"))
 	}
-}
-
-func (phase *sharpDecrease) SubPeriodPriceMultiplier() (min float64, max float64) {
-	return 0, 0
 }
 
 func (phase *sharpDecrease) Duplicate() phaseImplement {
@@ -132,10 +126,6 @@ func (phase *randomDecrease) BasePriceMultiplier(
 	subPeriod int,
 ) (min float64, max float64) {
 	return 0.4, 0.9
-}
-
-func (phase *randomDecrease) SubPeriodPriceMultiplier() (min float64, max float64) {
-	return 0, 0
 }
 
 func (phase *randomDecrease) Duplicate() phaseImplement {

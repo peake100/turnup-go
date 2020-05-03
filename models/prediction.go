@@ -1,7 +1,7 @@
 package models
 
 import (
-	"golang.org/x/xerrors"
+	"github.com/illuscio-dev/turnup-go/errs"
 )
 
 type Prediction struct {
@@ -25,5 +25,5 @@ func (prediction *Prediction) Pattern(pattern Pattern) (*PotentialPattern, error
 		}
 	}
 
-	return nil, xerrors.Errorf("'%v' is not a valid pattern", pattern)
+	return nil, errs.ErrPatternStringValue
 }

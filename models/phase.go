@@ -129,13 +129,28 @@ type phaseImplement interface {
 	Name() string
 	PossibleLengths(phases []PatternPhase) (possibilities []int)
 
+	// HELPER FUNCTIONS
 	// Returns the base price multiplier for a given sub-period.
 	BasePriceMultiplier(subPeriod int) (min float64, max float64)
-	// If this is a price pattern that gradually improves or degrades, return the
-	// min and max factor by which thus occurs. Should return 0, 0 if there is no
-	// gradual shift based on number of sub-periods
-	SubPeriodPriceMultiplier() (min float64, max float64)
+
+	// Create a copy of this object
 	Duplicate() phaseImplement
+}
+
+// If this is a price phase that gradually improves or degrades, return the
+// min and max factor by which this occurs. Only needs to be implemented by phases
+// that loose or gain a percentage of the previous period's price while the phase
+// is active
+type phaseCompoundingPrice interface {
+	SubPeriodPriceMultiplier(subPeriod int) (min float64, max float64)
+}
+
+// A phase may implement this interface if a final adjustment to the buying price
+// should be made after applying BasePriceMultiplier() and SubPeriodPriceMultiplier().
+// In practice only the increasing phase of the Small Spike pattern will need to
+// implement this interface.
+type phaseMakesFinalAdjustment interface {
+	FinalPriceAdjustment() int
 }
 
 type patternPhaseAuto struct {
@@ -143,7 +158,9 @@ type patternPhaseAuto struct {
 }
 
 func (phase *patternPhaseAuto) calcPhasePeriodPrice(
-	baseMultiplier, subPeriodMultiplier float64, purchasePrice, phasePeriod int,
+	baseMultiplier, subPeriodMultiplier float64,
+	purchasePrice, phasePeriod int,
+	finalAdjustment int,
 ) (price int) {
 	// My first instinct was to calculate this periods rate factor by doing this:
 	//		baseMultiplier + (phasePeriod * subPeriodMultiplier)
@@ -163,20 +180,34 @@ func (phase *patternPhaseAuto) calcPhasePeriodPrice(
 	for i := 0; i < phasePeriod; i++ {
 		baseMultiplier += subPeriodMultiplier
 	}
-	return RoundBells(float64(purchasePrice) * baseMultiplier)
+
+	price = RoundBells(float64(purchasePrice) * baseMultiplier)
+	price += finalAdjustment
+	return price
 }
 
 func (phase *patternPhaseAuto) potentialPrice(
 	purchasePrice int, phasePeriod int,
 ) (minPrice int, maxPrice int) {
 	baseMinFactor, baseMaxFactor := phase.BasePriceMultiplier(phasePeriod)
-	subMinFactor, subMaxFactor := phase.SubPeriodPriceMultiplier()
+
+	// Check and see if this phase has a gradual drop off or gain in prices so we can
+	// take that into consideration
+	var subMinFactor, subMaxFactor float64
+	if compounding, ok := phase.phaseImplement.(phaseCompoundingPrice) ; ok {
+		subMinFactor, subMaxFactor = compounding.SubPeriodPriceMultiplier(0)
+	}
+
+	var finalAdjustment int
+	if makesAdjustment, ok := phase.phaseImplement.(phaseMakesFinalAdjustment) ; ok {
+		finalAdjustment = makesAdjustment.FinalPriceAdjustment()
+	}
 
 	minPrice = phase.calcPhasePeriodPrice(
-		baseMinFactor, subMinFactor, purchasePrice, phasePeriod,
+		baseMinFactor, subMinFactor, purchasePrice, phasePeriod, finalAdjustment,
 	)
 	maxPrice = phase.calcPhasePeriodPrice(
-		baseMaxFactor, subMaxFactor, purchasePrice, phasePeriod,
+		baseMaxFactor, subMaxFactor, purchasePrice, phasePeriod, finalAdjustment,
 	)
 
 	return minPrice, maxPrice

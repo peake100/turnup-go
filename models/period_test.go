@@ -1,5 +1,8 @@
 package models
 
+//revive:disable:import-shadowing reason: Disabled for assert := assert.New(), which is
+// the preferred method of using multiple asserts in a test.
+
 import (
 	"fmt"
 	"github.com/illuscio-dev/turnup-go/errs"

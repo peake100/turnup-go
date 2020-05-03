@@ -11,9 +11,7 @@ func (phase *steadyDecrease) Name() string {
 	return "steady decrease"
 }
 
-func (phase *steadyDecrease) PossibleLengths(
-	phases []PatternPhase,
-) (possibilities []int) {
+func (phase *steadyDecrease) PossibleLengths([]PatternPhase) (possibilities []int) {
 	phase.PossibilitiesComplete()
 	return []int{1, 2, 3, 4, 5, 6, 7}
 }
@@ -24,8 +22,11 @@ func (phase *steadyDecrease) BasePriceMultiplier(
 	return 0.85, 0.9
 }
 
-func (phase *steadyDecrease) SubPeriodPriceMultiplier(int) (min float64, max float64) {
-	return -0.05, -0.03
+func (phase *steadyDecrease) AdjustPriceMultiplier(factor float64, min bool) float64 {
+	if min {
+		return factor - 0.05
+	}
+	return factor - 0.03
 }
 
 func (phase *steadyDecrease) Duplicate() phaseImplement {

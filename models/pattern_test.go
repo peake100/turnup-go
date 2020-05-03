@@ -1,5 +1,8 @@
 package models
 
+//revive:disable:import-shadowing reason: Disabled for assert := assert.New(), which is
+// the preferred method of using multiple asserts in a test.
+
 import (
 	"github.com/illuscio-dev/turnup-go/errs"
 	"github.com/stretchr/testify/assert"
@@ -35,7 +38,7 @@ func TestPanicOnPhaseProgressionInvalid(t *testing.T) {
 func TestPatternFromString(t *testing.T) {
 	type testCase struct {
 		StringVal string
-		Pattern Pattern
+		Pattern   Pattern
 	}
 
 	testCases := []*testCase{

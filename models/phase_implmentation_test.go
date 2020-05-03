@@ -34,7 +34,7 @@ func testPhaseNames(
 
 func TestPatternPhaseProgression(t *testing.T) {
 	type testCase struct {
-		Pattern Pattern
+		Pattern       Pattern
 		ExpectedNames []string
 	}
 
@@ -95,9 +95,9 @@ type hasBasePriceMultiplier interface {
 
 func TestBasePriceMultiplierPanics(t *testing.T) {
 	type testCase struct {
-		phase hasBasePriceMultiplier
+		phase    hasBasePriceMultiplier
 		panicsOn int
-		message string
+		message  string
 	}
 
 	testCases := []*testCase{
@@ -129,4 +129,3 @@ func TestBasePriceMultiplierPanics(t *testing.T) {
 		t.Run(thisCase.phase.Name(), test)
 	}
 }
-

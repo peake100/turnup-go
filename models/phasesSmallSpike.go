@@ -6,39 +6,24 @@ type smallSpikeDecreasingBase struct {
 	phaseCoreAuto
 }
 
-func (phase *smallSpikeDecreasingBase) PotentialPeriod(
-	period PricePeriod, phasePeriod int,
-) *PotentialPricePeriod {
-	minFactor, maxFactor := 0.4, 0.9
-
-	for i := 0; i < phasePeriod; i++ {
-		minFactor -= 0.03
-		minFactor -= 0.02
-
-		maxFactor -= 0.03
+func (phase *smallSpikeDecreasingBase) AdjustPriceMultiplier(
+	factor float64, min bool,
+) float64 {
+	if min {
+		return factor - 0.02 - 0.03
 	}
+	return factor - 0.03
+}
 
-	minPrice := RoundBells(float64(phase.ticker.PurchasePrice) * minFactor)
-	maxPrice := RoundBells(float64(phase.ticker.PurchasePrice) * maxFactor)
-
-	return &PotentialPricePeriod{
-		prices: prices{
-			min: minPrice,
-			max: maxPrice,
-		},
-		PricePeriod: period,
-	}
+func (phase *smallSpikeDecreasingBase) BasePriceMultiplier(
+	int,
+) (min float64, max float64) {
+	return 0.4, 0.9
 }
 
 // DECREASING PHASE 1
 type smallSpikeDecreasing1 struct {
 	smallSpikeDecreasingBase
-}
-
-func (phase *smallSpikeDecreasing1) BasePriceMultiplier(
-	int,
-) (min float64, max float64) {
-	return 0.4, 0.9
 }
 
 func (phase *smallSpikeDecreasing1) Name() string {
@@ -52,7 +37,7 @@ func (phase *smallSpikeDecreasing1) PossibleLengths(
 	return []int{0, 1, 2, 3, 4, 5, 6, 7}
 }
 
-func (phase *smallSpikeDecreasing1) Duplicate() PatternPhase {
+func (phase *smallSpikeDecreasing1) Duplicate() phaseImplement {
 	return &smallSpikeDecreasing1{
 		smallSpikeDecreasingBase{
 			phase.smallSpikeDecreasingBase.phaseCoreAuto,
@@ -119,7 +104,7 @@ func (phase *smallSpikeDecreasing2) PossibleLengths(
 	return []int{7 - phases[0].Length()}
 }
 
-func (phase *smallSpikeDecreasing2) Duplicate() PatternPhase {
+func (phase *smallSpikeDecreasing2) Duplicate() phaseImplement {
 	return &smallSpikeDecreasing2{
 		smallSpikeDecreasingBase{
 			phase.smallSpikeDecreasingBase.phaseCoreAuto,
@@ -130,9 +115,9 @@ func (phase *smallSpikeDecreasing2) Duplicate() PatternPhase {
 // Generates a new set of fluctuating phases to branch possible weeks off of.
 func smallSpikeProgression(ticker *PriceTicker) []PatternPhase {
 	phases := []PatternPhase{
-		new(smallSpikeDecreasing1),
+		&patternPhaseAuto{new(smallSpikeDecreasing1)},
 		&patternPhaseAuto{new(smallSpikeIncreasing)},
-		new(smallSpikeDecreasing2),
+		&patternPhaseAuto{new(smallSpikeDecreasing2)},
 	}
 
 	for _, thisPhase := range phases {

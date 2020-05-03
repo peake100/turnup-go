@@ -16,12 +16,6 @@ func (phase *increasingPhaseBase) BasePriceMultiplier(int) (min float64, max flo
 	return 0.9, 1.4
 }
 
-func (phase *increasingPhaseBase) SubPeriodPriceMultiplier(
-	int,
-) (min float64, max float64) {
-	return 0, 0
-}
-
 func (phase *increasingPhaseBase) DuplicateBase() increasingPhaseBase {
 	return increasingPhaseBase{
 		phase.phaseCoreAuto,
@@ -38,10 +32,13 @@ func (phase *decreasingPhaseBase) BasePriceMultiplier(int) (min float64, max flo
 	return 0.6, 0.8
 }
 
-func (phase *decreasingPhaseBase) SubPeriodPriceMultiplier(
-	int,
-) (min float64, max float64) {
-	return -0.1, -0.04
+func (phase *decreasingPhaseBase) AdjustPriceMultiplier(
+	factor float64, min bool,
+) float64 {
+	if min {
+		return factor - 0.1
+	}
+	return factor - 0.04
 }
 
 func (phase *decreasingPhaseBase) DuplicateBase() decreasingPhaseBase {
@@ -84,10 +81,6 @@ func (phase *decreasing1) Name() string {
 }
 
 func (phase *decreasing1) PossibleLengths([]PatternPhase) (possibilities []int) {
-	if phase.IsFinal() {
-		panic(errs.ErrPhaseLengthFinalized)
-	}
-
 	// We only are going to call this possibility once, so we can finalize it
 	phase.PossibilitiesComplete()
 	return []int{2, 3}

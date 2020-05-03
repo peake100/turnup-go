@@ -1,5 +1,8 @@
 package models
 
+//revive:disable:import-shadowing reason: Disabled for assert := assert.New(), which is
+// the preferred method of using multiple asserts in a test.
+
 import (
 	"fmt"
 	"github.com/stretchr/testify/assert"
@@ -10,9 +13,9 @@ import (
 func TestPriceTicker_PriceForDay(t *testing.T) {
 
 	type testCase struct {
-		Weekday time.Weekday
-		ToD ToD
-		ExpectedPeriod  PricePeriod
+		Weekday        time.Weekday
+		ToD            ToD
+		ExpectedPeriod PricePeriod
 	}
 
 	cases := []*testCase{
@@ -131,7 +134,7 @@ func TestTickerWeekdayPurchasePrice(t *testing.T) {
 
 func TestTickerPriceForTime(t *testing.T) {
 	monday := time.Date(
-		2020, 4, 6, 10,0,0,0,time.UTC,
+		2020, 4, 6, 10, 0, 0, 0, time.UTC,
 	)
 	var periodIndex int
 	var testTime time.Time
@@ -150,7 +153,7 @@ func TestTickerPriceForTime(t *testing.T) {
 		)
 	}
 
-	for i := 0 ; i < 6 ; i++ {
+	for i := 0; i < 6; i++ {
 		testTime = monday.AddDate(0, 0, i)
 		for _, tod := range []ToD{AM, PM} {
 			if tod == PM {
@@ -169,7 +172,7 @@ func TestTickerPriceForTimeSunday(t *testing.T) {
 	assert := assert.New(t)
 
 	sunday := time.Date(
-		2020, 4, 5, 10,0,0,0,time.UTC,
+		2020, 4, 5, 10, 0, 0, 0, time.UTC,
 	)
 
 	ticker := new(PriceTicker)

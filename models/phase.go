@@ -142,7 +142,16 @@ type phaseImplement interface {
 // that loose or gain a percentage of the previous period's price while the phase
 // is active
 type phaseCompoundingPrice interface {
-	SubPeriodPriceMultiplier(phasePeriod int) (min float64, max float64)
+	// Applies the phase period multiplier to the current min and max factors. Will be
+	// called once for each phase period after the first.
+	//
+	// We need to implement this as an addition rather than a value return because some
+	// sub period multipliers are created from adding multiple floats on each iteration,
+	// so returning a single value to add to the base factor results in floating point
+	// rounding errors.
+	//
+	// `Min` is set to true when this is the minimum factor.
+	AdjustPriceMultiplier(factor float64, min bool) float64
 }
 
 // A phase may implement this interface if a final adjustment to the buying price
@@ -158,9 +167,10 @@ type patternPhaseAuto struct {
 }
 
 func (phase *patternPhaseAuto) calcPhasePeriodPrice(
-	baseMultiplier, subPeriodMultiplier float64,
+	baseMultiplier float64,
 	purchasePrice, phasePeriod int,
 	finalAdjustment int,
+	min bool,
 ) (price int) {
 	// My first instinct was to calculate this periods rate factor by doing this:
 	//		baseMultiplier + (phasePeriod * subPeriodMultiplier)
@@ -177,8 +187,12 @@ func (phase *patternPhaseAuto) calcPhasePeriodPrice(
 	// practice we introduce subtle floating point errors that can result in our bell
 	// prices being off-by-one from the game. Therefore, we need to exactly imitate the
 	// game logic during this calculation.
-	for i := 0; i < phasePeriod; i++ {
-		baseMultiplier += subPeriodMultiplier
+	if compounding, ok := phase.phaseImplement.(phaseCompoundingPrice); ok {
+		for i := 0; i < phasePeriod; i++ {
+			baseMultiplier = compounding.AdjustPriceMultiplier(
+				baseMultiplier, min,
+			)
+		}
 	}
 
 	price = RoundBells(float64(purchasePrice) * baseMultiplier)
@@ -191,23 +205,16 @@ func (phase *patternPhaseAuto) potentialPrice(
 ) (minPrice int, maxPrice int) {
 	baseMinFactor, baseMaxFactor := phase.BasePriceMultiplier(phasePeriod)
 
-	// Check and see if this phase has a gradual drop off or gain in prices so we can
-	// take that into consideration
-	var subMinFactor, subMaxFactor float64
-	if compounding, ok := phase.phaseImplement.(phaseCompoundingPrice) ; ok {
-		subMinFactor, subMaxFactor = compounding.SubPeriodPriceMultiplier(0)
-	}
-
 	var finalAdjustment int
-	if makesAdjustment, ok := phase.phaseImplement.(phaseMakesFinalAdjustment) ; ok {
+	if makesAdjustment, ok := phase.phaseImplement.(phaseMakesFinalAdjustment); ok {
 		finalAdjustment = makesAdjustment.FinalPriceAdjustment(phasePeriod)
 	}
 
 	minPrice = phase.calcPhasePeriodPrice(
-		baseMinFactor, subMinFactor, purchasePrice, phasePeriod, finalAdjustment,
+		baseMinFactor, purchasePrice, phasePeriod, finalAdjustment, true,
 	)
 	maxPrice = phase.calcPhasePeriodPrice(
-		baseMaxFactor, subMaxFactor, purchasePrice, phasePeriod, finalAdjustment,
+		baseMaxFactor, purchasePrice, phasePeriod, finalAdjustment, false,
 	)
 
 	return minPrice, maxPrice

@@ -23,10 +23,13 @@ func (phase *decreasingPattern) BasePriceMultiplier(int) (min float64, max float
 	return 0.85, 0.90
 }
 
-func (phase *decreasingPattern) SubPeriodPriceMultiplier(
-	int,
-) (min float64, max float64) {
-	return -0.05, -0.03
+func (phase *decreasingPattern) AdjustPriceMultiplier(
+	factor float64, min bool,
+) float64 {
+	if min {
+		return factor - 0.05
+	}
+	return factor - 0.03
 }
 
 func (phase *decreasingPattern) Duplicate() phaseImplement {

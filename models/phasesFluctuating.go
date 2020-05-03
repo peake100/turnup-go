@@ -12,13 +12,13 @@ type increasingPhaseBase struct {
 	phaseCoreAuto
 }
 
-func (phase *increasingPhaseBase) BasePriceMultiplier(
-	subPeriod int,
-) (min float64, max float64) {
+func (phase *increasingPhaseBase) BasePriceMultiplier(int) (min float64, max float64) {
 	return 0.9, 1.4
 }
 
-func (phase *increasingPhaseBase) SubPeriodPriceMultiplier(int) (min float64, max float64) {
+func (phase *increasingPhaseBase) SubPeriodPriceMultiplier(
+	int,
+) (min float64, max float64) {
 	return 0, 0
 }
 
@@ -34,13 +34,13 @@ type decreasingPhaseBase struct {
 	phaseCoreAuto
 }
 
-func (phase *decreasingPhaseBase) BasePriceMultiplier(
-	subPeriod int,
-) (min float64, max float64) {
+func (phase *decreasingPhaseBase) BasePriceMultiplier(int) (min float64, max float64) {
 	return 0.6, 0.8
 }
 
-func (phase *decreasingPhaseBase) SubPeriodPriceMultiplier(int) (min float64, max float64) {
+func (phase *decreasingPhaseBase) SubPeriodPriceMultiplier(
+	int,
+) (min float64, max float64) {
 	return -0.1, -0.04
 }
 
@@ -59,9 +59,7 @@ func (phase *increasing1) Name() string {
 	return "mild increase"
 }
 
-func (phase *increasing1) PossibleLengths(
-	phases []PatternPhase,
-) (possibilities []int) {
+func (phase *increasing1) PossibleLengths([]PatternPhase) (possibilities []int) {
 	// We only are going to call this possibility once, so we can finalize it
 	if !phase.IsFinal() {
 		phase.PossibilitiesComplete()
@@ -85,9 +83,7 @@ func (phase *decreasing1) Name() string {
 	return "mild decrease"
 }
 
-func (phase *decreasing1) PossibleLengths(
-	phases []PatternPhase,
-) (possibilities []int) {
+func (phase *decreasing1) PossibleLengths([]PatternPhase) (possibilities []int) {
 	if phase.IsFinal() {
 		panic(errs.ErrPhaseLengthFinalized)
 	}

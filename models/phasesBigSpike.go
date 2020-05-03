@@ -43,22 +43,20 @@ func (phase *sharpIncrease) Name() string {
 	return "sharp increase"
 }
 
-func (phase *sharpIncrease) PossibleLengths(
-	phases []PatternPhase,
-) (possibilities []int) {
+func (phase *sharpIncrease) PossibleLengths([]PatternPhase) (possibilities []int) {
 	phase.PossibilitiesComplete()
 	return []int{3}
 }
 
 func (phase *sharpIncrease) BasePriceMultiplier(
-	subPeriod int,
+	phasePeriod int,
 ) (min float64, max float64) {
 	switch {
-	case subPeriod == 0:
+	case phasePeriod == 0:
 		return 0.9, 1.4
-	case subPeriod == 1:
+	case phasePeriod == 1:
 		return 1.4, 2
-	case subPeriod == 2:
+	case phasePeriod == 2:
 		return 2, 6
 	default:
 		panic(xerrors.New("sharp increase only has 3 price periods"))
@@ -88,12 +86,12 @@ func (phase *sharpDecrease) PossibleLengths(
 }
 
 func (phase *sharpDecrease) BasePriceMultiplier(
-	subPeriod int,
+	phasePeriod int,
 ) (min float64, max float64) {
 	switch {
-	case subPeriod == 0:
+	case phasePeriod == 0:
 		return 1.4, 2
-	case subPeriod == 1:
+	case phasePeriod == 1:
 		return 0.9, 1.4
 	default:
 		panic(xerrors.New("sharp decrease only has 2 price periods"))
@@ -122,9 +120,7 @@ func (phase *randomDecrease) PossibleLengths(
 	return []int{12 - phases[0].Length() - 5}
 }
 
-func (phase *randomDecrease) BasePriceMultiplier(
-	subPeriod int,
-) (min float64, max float64) {
+func (phase *randomDecrease) BasePriceMultiplier(int) (min float64, max float64) {
 	return 0.4, 0.9
 }
 

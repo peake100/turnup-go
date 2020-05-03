@@ -142,7 +142,7 @@ type phaseImplement interface {
 // that loose or gain a percentage of the previous period's price while the phase
 // is active
 type phaseCompoundingPrice interface {
-	SubPeriodPriceMultiplier(subPeriod int) (min float64, max float64)
+	SubPeriodPriceMultiplier(phasePeriod int) (min float64, max float64)
 }
 
 // A phase may implement this interface if a final adjustment to the buying price
@@ -150,7 +150,7 @@ type phaseCompoundingPrice interface {
 // In practice only the increasing phase of the Small Spike pattern will need to
 // implement this interface.
 type phaseMakesFinalAdjustment interface {
-	FinalPriceAdjustment() int
+	FinalPriceAdjustment(phasePeriod int) int
 }
 
 type patternPhaseAuto struct {
@@ -200,7 +200,7 @@ func (phase *patternPhaseAuto) potentialPrice(
 
 	var finalAdjustment int
 	if makesAdjustment, ok := phase.phaseImplement.(phaseMakesFinalAdjustment) ; ok {
-		finalAdjustment = makesAdjustment.FinalPriceAdjustment()
+		finalAdjustment = makesAdjustment.FinalPriceAdjustment(phasePeriod)
 	}
 
 	minPrice = phase.calcPhasePeriodPrice(

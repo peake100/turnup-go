@@ -1,13 +1,25 @@
 package models
 
-// Phases must implement this interface, these are the methods the prediction algorithm
-// needs to be able to call to compute the possible phase patterns for a week.
+// A phase is a period of time within a price pattern that follows a single algorithm.
+// When making predictions for a given pattern, we will iterate over a set of phases.
+//
+// A phase is responsible for:
+//
+//		1. Communicating a set of possible lengths.
+//		2. Reporting if it's length has been set in stone when the predictor is
+//		   iterating over the phases to set all possible lengths.
+//      3. Returning the price range for a given price period within itself.
+//      4. Copying itself for spawning a new set of phase length possibilities.
+//
+// This interface describes the methods necessary to accomplish these four goals,
+// and is used by the predictor to map out all possible phase combinations, and get all
+// possible price ranges for a given price period.
 type PatternPhase interface {
 	// The name of the phase
 	Name() string
 
-	// The predictor will set the ticker for this operation to make it available to
-	// internal calculations
+	// The predictor will set the ticker during setup to make it available for
+	// calculations. The phase, in turn promises NOT to mutate the ticker.
 	SetTicker(ticker *PriceTicker)
 
 	// Returns a list of possible lengths. Should return nil if it cannot yet be
@@ -21,25 +33,26 @@ type PatternPhase interface {
 	PossibleLengths(phases []PatternPhase) (possibilities []int)
 
 	// Sets the length we want to assume for this phase. This does not need be the
-	// final length, many phases go through a temp length
+	// final length, many phases go through a temp length. This method is called by
+	// the predictor when setting up a series of possible phase combinations.
 	SetLength(length int)
 
 	// Returns the length set by ``.SetLength()`` for other phases to inspect when
 	// making calculations.
 	Length() int
 
-	// Whether the value returned by Length() is the final length.
+	// Whether the value returned by .Length() is the final length.
 	IsFinal() bool
 
 	// Returns a potential price bracket for a given day of this Phase. ``period`` is
-	// the absolute period for the week, while ``subPeriod`` is the number of price
-	// periods we have been in this phase, starting at 0.
+	// the absolute period for the week, while ``subPeriod`` is the price period
+	// relative to the start of this phase, beginning at 0.
 	PotentialPeriod(
-		period PricePeriod, phasePeriod int,
+		period PricePeriod, subPeriod int,
 	) *PotentialPricePeriod
 
 	// Creates a duplicate of this phase in the current state. Used for making
-	// permutations
+	// permutations.
 	Duplicate() PatternPhase
 }
 
@@ -114,7 +127,7 @@ func (phase *phaseCoreAuto) PossibilitiesComplete() {
 // phaseCoreAuto, which has default implementations for reporting prices.
 //
 // NOTE: many of these methods can be implemented for free by embedding phaseCoreAuto
-// in a phase implementation
+// in a phase implementation.
 type phaseImplement interface {
 	// IMPLEMENTED BY phaseCoreAuto. See for descriptions.
 	SetTicker(ticker *PriceTicker)
@@ -129,8 +142,10 @@ type phaseImplement interface {
 	Name() string
 	PossibleLengths(phases []PatternPhase) (possibilities []int)
 
-	// HELPER FUNCTIONS
-	// Returns the base price multiplier for a given sub-period.
+	// Returns the min and max base price multipliers for a given subPeriod within the
+	// phase. This function is the real point of this interface. By implementing this
+	// function, patternPhaseAuto can do most of the math for us to calculate the price
+	// range.
 	BasePriceMultiplier(subPeriod int) (min float64, max float64)
 
 	// Create a copy of this object
@@ -159,7 +174,7 @@ type phaseCompoundingPrice interface {
 // In practice only the increasing phase of the Small Spike pattern will need to
 // implement this interface.
 type phaseMakesFinalAdjustment interface {
-	FinalPriceAdjustment(phasePeriod int) int
+	FinalPriceAdjustment(subPeriod int) int
 }
 
 type patternPhaseAuto struct {

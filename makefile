@@ -15,18 +15,7 @@ test:
 	# happen here to send stdout and stderr to tee separately ( in order to
 	# both save and display them ), but the internet says this is the solution and it
 	# works.
-	-(\
-		go test \
-			-v \
-			-failfast \
-			-covermode=count \
-			-coverprofile=$(COVERAGE_LOG) \
-            -coverpkg=./... \
-			./... \
-			--minimum-coverage=0.85 \
-        | tee "$(STD_OUT_LOG)" \
-    ) 3>&1 1>&2 2>&3 \
-        | tee "$(STD_ERR_LOG)"
+	-python3 ./zdevelop/make_scripts/make_test.py
     # Build Reports
 	-go tool cover -html=$(COVERAGE_LOG)
 	-go-test-html "$(STD_OUT_LOG)" "$(STD_ERR_LOG)" "$(TEST_REPORT)"

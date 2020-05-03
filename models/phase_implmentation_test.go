@@ -5,8 +5,6 @@ import (
 	"testing"
 )
 
-type ProgressionFunc = func(ticker *PriceTicker) []PatternPhase
-
 func testPhaseNames(
 	t *testing.T,
 	pattern Pattern,

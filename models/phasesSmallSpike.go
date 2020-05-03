@@ -54,8 +54,8 @@ type smallSpikeIncreasing struct {
 	phaseCoreAuto
 }
 
-func (phase *smallSpikeIncreasing) FinalPriceAdjustment(phasePeriod int) int {
-	if phasePeriod == 2 || phasePeriod == 4 {
+func (phase *smallSpikeIncreasing) FinalPriceAdjustment(subPeriod int) int {
+	if subPeriod == 2 || subPeriod == 4 {
 		return -1
 	}
 	// For period 3 and 5, we subtract 1 from the total after doing our calculation.
@@ -63,10 +63,10 @@ func (phase *smallSpikeIncreasing) FinalPriceAdjustment(phasePeriod int) int {
 }
 
 func (phase *smallSpikeIncreasing) BasePriceMultiplier(
-	phasePeriod int,
+	subPeriod int,
 ) (min float64, max float64) {
 	switch {
-	case phasePeriod == 0 || phasePeriod == 1:
+	case subPeriod == 0 || subPeriod == 1:
 		// Periods 1 and 2 are random between 90% and and 140%.
 		return 0.9, 1.4
 	default:

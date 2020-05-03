@@ -1,5 +1,6 @@
 package models
 
+// Describes the potential prices and chance of a given price pattern.
 type PotentialPattern struct {
 	// The pattern
 	Pattern Pattern
@@ -9,6 +10,7 @@ type PotentialPattern struct {
 	PotentialWeeks []*PotentialWeek
 }
 
+// The chance, min price and max price
 func (potential *PotentialPattern) Analysis() *Analysis {
 	if potential.analysis == nil {
 		potential.analysis = new(Analysis)

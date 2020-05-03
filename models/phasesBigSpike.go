@@ -46,12 +46,12 @@ func (phase *sharpIncrease) PossibleLengths([]PatternPhase) (possibilities []int
 }
 
 func (phase *sharpIncrease) BasePriceMultiplier(
-	phasePeriod int,
+	subPeriod int,
 ) (min float64, max float64) {
 	switch {
-	case phasePeriod == 0:
+	case subPeriod == 0:
 		return 0.9, 1.4
-	case phasePeriod == 1:
+	case subPeriod == 1:
 		return 1.4, 2
 	default:
 		return 2, 6
@@ -79,9 +79,9 @@ func (phase *sharpDecrease) PossibleLengths([]PatternPhase) (possibilities []int
 }
 
 func (phase *sharpDecrease) BasePriceMultiplier(
-	phasePeriod int,
+	subPeriod int,
 ) (min float64, max float64) {
-	if phasePeriod == 0 {
+	if subPeriod == 0 {
 		return 1.4, 2
 	}
 

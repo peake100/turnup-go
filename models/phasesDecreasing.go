@@ -12,9 +12,7 @@ func (phase *decreasingPattern) Name() string {
 	return "whomp whomp"
 }
 
-func (phase *decreasingPattern) PossibleLengths(
-	phases []PatternPhase,
-) (possibilities []int) {
+func (phase *decreasingPattern) PossibleLengths([]PatternPhase) (possibilities []int) {
 	phase.PossibilitiesComplete()
 	return []int{12}
 }

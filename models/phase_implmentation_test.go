@@ -86,46 +86,16 @@ func TestPatternPhaseProgression(t *testing.T) {
 
 }
 
-// We're going to use this interface to test that we get panics when we ask a phase
-// for a base price multiplier outside of a possible sub period
-type hasBasePriceMultiplier interface {
-	Name() string
-	BasePriceMultiplier(subPeriod int) (min float64, max float64)
-}
+// Tests that we panic if we try to duplicate the decreasing pattern phase
+func TestPhaseDecreasingDuplicatePanics(t *testing.T) {
+	defer func() {
+		recovered := recover()
+		err, ok := recovered.(error)
+		assert.True(t, ok, "recovered error")
+		assert.EqualError(
+			t, err, "decreasing phase should never be duplicated",
+		)
+	}()
 
-func TestBasePriceMultiplierPanics(t *testing.T) {
-	type testCase struct {
-		phase    hasBasePriceMultiplier
-		panicsOn int
-		message  string
-	}
-
-	testCases := []*testCase{
-		{
-			&sharpIncrease{},
-			4,
-			"sharp increase only has 3 price periods",
-		},
-		{
-			&sharpDecrease{},
-			2,
-			"sharp decrease only has 2 price periods",
-		},
-	}
-
-	var thisCase *testCase
-
-	test := func(t *testing.T) {
-		defer func() {
-			recovered := recover()
-			err, ok := recovered.(error)
-			assert.True(t, ok, "panic is err")
-			assert.EqualError(t, err, thisCase.message, "panic message")
-		}()
-		thisCase.phase.BasePriceMultiplier(thisCase.panicsOn)
-	}
-
-	for _, thisCase = range testCases {
-		t.Run(thisCase.phase.Name(), test)
-	}
+	new(decreasingPattern).Duplicate()
 }

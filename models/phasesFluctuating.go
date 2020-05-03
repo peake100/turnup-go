@@ -1,9 +1,5 @@
 package models
 
-import (
-	"github.com/illuscio-dev/turnup-go/errs"
-)
-
 // FLUCTUATING ///////////////////////
 
 // Every increasing phase follows the same bell-price formula, so we will implement
@@ -58,11 +54,8 @@ func (phase *increasing1) Name() string {
 
 func (phase *increasing1) PossibleLengths([]PatternPhase) (possibilities []int) {
 	// We only are going to call this possibility once, so we can finalize it
-	if !phase.IsFinal() {
-		phase.PossibilitiesComplete()
-		return []int{0, 1, 2, 3, 4, 5, 6}
-	}
-	panic(errs.ErrPhaseLengthFinalized)
+	phase.PossibilitiesComplete()
+	return []int{0, 1, 2, 3, 4, 5, 6}
 }
 
 func (phase *increasing1) Duplicate() phaseImplement {
@@ -125,10 +118,6 @@ func (phase *increasing2) PossibleLengths(
 		phase.PossibilitiesComplete()
 		return []int{phase.Length() - phases[4].Length()}
 
-	case phase.IsFinal():
-		// If we are finalized, then panic, as this should not have been called.
-		panic(errs.ErrPhaseLengthFinalized)
-
 	default:
 		// Otherwise we are waiting for increasing phase 3 to resolve, return no
 		// possibilities, but report we are not done.
@@ -155,10 +144,6 @@ func (phase *decreasing2) Name() string {
 func (phase *decreasing2) PossibleLengths(
 	phases []PatternPhase,
 ) (possibilities []int) {
-	if phase.IsFinal() {
-		panic(errs.ErrPhaseLengthFinalized)
-	}
-
 	phase.PossibilitiesComplete()
 	return []int{5 - phases[1].Length()}
 }
@@ -181,11 +166,6 @@ func (phase *increasing3) Name() string {
 func (phase *increasing3) PossibleLengths(
 	phases []PatternPhase,
 ) (possibilities []int) {
-
-	if phase.IsFinal() {
-		panic(errs.ErrPhaseLengthFinalized)
-	}
-
 	// This phase is a random length between 0 and the temp length of Increasing
 	// Phase 2 - 1
 	minDays := 0

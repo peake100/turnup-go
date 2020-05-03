@@ -10,6 +10,10 @@ func (phase *smallSpikeDecreasingBase) AdjustPriceMultiplier(
 	factor float64, min bool,
 ) float64 {
 	if min {
+		// In order to match the EXACT calculations from the game, we need to subtract
+		// both 0.02 and 0.03 discreetly, otherwise we end up with a SLIGHTLY different
+		// float value that can result in a perice different from what the game would
+		// yield.
 		return factor - 0.02 - 0.03
 	}
 	return factor - 0.03

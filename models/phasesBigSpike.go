@@ -1,7 +1,5 @@
 package models
 
-import "golang.org/x/xerrors"
-
 // STEADY DECREASE
 type steadyDecrease struct {
 	phaseCoreAuto
@@ -16,9 +14,7 @@ func (phase *steadyDecrease) PossibleLengths([]PatternPhase) (possibilities []in
 	return []int{1, 2, 3, 4, 5, 6, 7}
 }
 
-func (phase *steadyDecrease) BasePriceMultiplier(
-	subPeriod int,
-) (min float64, max float64) {
+func (phase *steadyDecrease) BasePriceMultiplier(int) (min float64, max float64) {
 	return 0.85, 0.9
 }
 
@@ -57,10 +53,8 @@ func (phase *sharpIncrease) BasePriceMultiplier(
 		return 0.9, 1.4
 	case phasePeriod == 1:
 		return 1.4, 2
-	case phasePeriod == 2:
-		return 2, 6
 	default:
-		panic(xerrors.New("sharp increase only has 3 price periods"))
+		return 2, 6
 	}
 }
 
@@ -79,9 +73,7 @@ func (phase *sharpDecrease) Name() string {
 	return "sharp decrease"
 }
 
-func (phase *sharpDecrease) PossibleLengths(
-	phases []PatternPhase,
-) (possibilities []int) {
+func (phase *sharpDecrease) PossibleLengths([]PatternPhase) (possibilities []int) {
 	phase.PossibilitiesComplete()
 	return []int{2}
 }
@@ -89,14 +81,11 @@ func (phase *sharpDecrease) PossibleLengths(
 func (phase *sharpDecrease) BasePriceMultiplier(
 	phasePeriod int,
 ) (min float64, max float64) {
-	switch {
-	case phasePeriod == 0:
+	if phasePeriod == 0 {
 		return 1.4, 2
-	case phasePeriod == 1:
-		return 0.9, 1.4
-	default:
-		panic(xerrors.New("sharp decrease only has 2 price periods"))
 	}
+
+	return 0.9, 1.4
 }
 
 func (phase *sharpDecrease) Duplicate() phaseImplement {

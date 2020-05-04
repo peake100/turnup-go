@@ -7,7 +7,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"github.com/peake100/turnup-go/models"
-	"github.com/peake100/turnup-go/patterns"
+	"github.com/peake100/turnup-go/models/patterns"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"os"

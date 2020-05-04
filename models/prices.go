@@ -6,8 +6,14 @@ type hasPrices interface {
 }
 
 type prices struct {
+	// Price info
 	min int
 	max int
+
+	// Chance info
+	minChance float64
+	maxChance float64
+	midChance float64
 }
 
 func (prices *prices) MinPrice() int {
@@ -16,6 +22,18 @@ func (prices *prices) MinPrice() int {
 
 func (prices *prices) MaxPrice() int {
 	return prices.max
+}
+
+// Returns the chance of this price range resulting in this price
+func (prices *prices) PriceChance(price int) float64 {
+	switch {
+	case price == prices.max:
+		return prices.maxChance
+	case price == prices.min:
+		return prices.minChance
+	default:
+		return prices.midChance
+	}
 }
 
 func (prices *prices) UpdateMin(value int, useHigher bool) {

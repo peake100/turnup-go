@@ -1,6 +1,7 @@
 package turnup
 
 import (
+	"fmt"
 	"github.com/peake100/turnup-go/models"
 	"math"
 )
@@ -9,16 +10,16 @@ type hasAnalysis interface {
 	Analysis() *models.Analysis
 }
 
-// Converts the chance on an Analysis() method from chance units to absolute chance
+// Converts the chance on an Analysis() method from chance width to absolute chance
 // with a precision of 4 digits (XX.XX%).
-func convertFromChanceUnits(item hasAnalysis, totalChanceUnits float64) {
-	chance := item.Analysis().Chance / totalChanceUnits
+func setChanceFromWidth(item hasAnalysis, totalWidth float64) {
+	chance := item.Analysis().Chance / totalWidth
 	// round to 4 digits (xx.xx%)
 	chance = math.Round(chance*10000) / 10000
 	item.Analysis().Chance = chance
 }
 
-func calculatePotentialWeekChanceUnits(
+func calculatePotentialWeekWidth(
 	week *models.PotentialWeek,
 	pattern models.PricePattern,
 	knownPricePeriods []models.PricePeriod,
@@ -27,7 +28,7 @@ func calculatePotentialWeekChanceUnits(
 	patternWeight := pattern.BaseChance(ticker.PreviousPattern)
 	patternPermutationCount := pattern.PermutationCount()
 
-	var weekChance float64
+	var weekWidth float64
 
 	for _, pricePeriod := range knownPricePeriods {
 		// Get the min and max prices for this period
@@ -38,40 +39,50 @@ func calculatePotentialWeekChanceUnits(
 		periodRange := prices.MaxPrice() - prices.MinPrice() + 1
 
 		// Now compute the likelihood of any particular price in this bracket
-		// occurring.
-		periodChance := 1.0 / float64(periodRange)
+		// occurring divided by the total number of prices. For many combinations
+		// the minimum and maximum prices are far less likely to occur because of how
+		// the price math is implemented. We divide by the period range to get the
+		// likelihood that this price would occur in this range relative to other
+		// ranges.
+		knownPrice :=  ticker.Prices[pricePeriod]
+		priceChance := prices.PriceChance(knownPrice)
+		periodWidth := 0.0
+		if priceChance != 0.0 {
+			periodWidth = priceChance / float64(periodRange)
+		}
+
 		// Weight it by the likelihood of this pattern occurring in the first
 		// place
-		periodChance *= patternWeight
+		periodWidth *= patternWeight
 
 		// Add it to the total likelihood of this week permutation happening
-		weekChance += periodChance
+		weekWidth += periodWidth
 	}
 
 	// if there is no known price data, we will just use the pattern chance for
 	// this week divided by the number of possible patterns. This gives less
 	// weight to patterns who have had permutations eliminated vs those who
 	// have not.
-	if weekChance == 0 {
-		weekChance = patternWeight
+	if len(knownPricePeriods) == 0 {
+		weekWidth = patternWeight
 	}
 
 	// Now weight each week by the number of possible weeks. As we knock out possible
 	// phase combinations for a pattern, the likelihood of this pattern goes down.
-	weekChance /= float64(patternPermutationCount)
+	weekWidth /= float64(patternPermutationCount)
 
-	return weekChance
+	return weekWidth
 }
 
-func calculatePatternChance(
+func calculatePatternWidth(
 	potentialPattern *models.PotentialPattern,
 	knownPricePeriods []models.PricePeriod,
 	ticker *models.PriceTicker,
 ) float64 {
 
-	var patternChance float64
+	var patternWidth float64
 	for _, week := range potentialPattern.PotentialWeeks {
-		weekChance := calculatePotentialWeekChanceUnits(
+		weekChance := calculatePotentialWeekWidth(
 			week,
 			potentialPattern.Pattern,
 			knownPricePeriods,
@@ -79,12 +90,12 @@ func calculatePatternChance(
 		)
 
 		// Add this week's chance to the pattern chance
-		patternChance += weekChance
+		patternWidth += weekChance
 		// Save it as an interim step
 		week.Analysis().Chance = weekChance
 	}
 
-	return patternChance
+	return patternWidth
 }
 
 // Calculate the chances of each price pattern permutation once they have been
@@ -128,27 +139,44 @@ func calculateChances(ticker *models.PriceTicker, prediction *Prediction) {
 		knownPricePeriods = append(knownPricePeriods, pricePeriod)
 	}
 
-	// We need to store the total likelihood of a given bell value (1/6 + 1/20 in the
+	// We need to store the total chance width of this price space (1/6 + 1/20 in the
 	// example above).
-	var totalChanceUnits float64
+	var totalWidth float64
 
 	// Now let's loop through out patterns and start ass`igning chances.
 	for _, potentialPattern := range prediction.Patterns {
-		patternChance := calculatePatternChance(
+		patternWidth := calculatePatternWidth(
 			potentialPattern, knownPricePeriods, ticker,
 		)
 		// Add the pattern's chance to the total chance units
-		totalChanceUnits += patternChance
+		totalWidth += patternWidth
 		// Remember it as an interim step
-		potentialPattern.Analysis().Chance = patternChance
+		potentialPattern.Analysis().Chance = patternWidth
 	}
+
+	// There's a potential that total width is going to be zero if we're in a super rare
+	// price pattern with a price that only has a 1-in-a-billion chance of happening.
+	// If that's the case we want to use the number of existing weeks for a pattern
+	// divided by the number of possible weeks.
+	if totalWidth == 0 {
+		for _, potentialPattern := range prediction.Patterns {
+			patternChance :=
+				float64(len(potentialPattern.PotentialWeeks)) /
+				float64(potentialPattern.Pattern.PermutationCount())
+				potentialPattern.Pattern.BaseChance(ticker.PreviousPattern)
+			totalWidth += patternChance
+			potentialPattern.Analysis().Chance = patternChance
+		}
+	}
+
+	fmt.Println("TOTAL WIDTH:", totalWidth)
 
 	// Now we can go through and figure out the final chance for each entry using our
 	// total chance units
 	for _, potentialPattern := range prediction.Patterns {
-		convertFromChanceUnits(potentialPattern, totalChanceUnits)
+		setChanceFromWidth(potentialPattern, totalWidth)
 		for _, week := range potentialPattern.PotentialWeeks {
-			convertFromChanceUnits(week, totalChanceUnits)
+			setChanceFromWidth(week, totalWidth)
 		}
 	}
 

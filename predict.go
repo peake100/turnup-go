@@ -2,7 +2,7 @@ package turnup
 
 import (
 	"github.com/peake100/turnup-go/models"
-	"github.com/peake100/turnup-go/patterns"
+	"github.com/peake100/turnup-go/models/patterns"
 	"sync"
 )
 

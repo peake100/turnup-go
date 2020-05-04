@@ -181,12 +181,15 @@ type patternPhaseAuto struct {
 	phaseImplement
 }
 
+// Calculates the minimum or maximum price of a given period and the bin width (chance)
+// of it happening.
 func (phase *patternPhaseAuto) calcPhasePeriodPrice(
 	baseMultiplier float64,
 	purchasePrice, phasePeriod int,
 	finalAdjustment int,
 	min bool,
-) (price int) {
+) (price int, binWidth float64) {
+	// COMPOUNDING FACTORS
 	// My first instinct was to calculate this periods rate factor by doing this:
 	//		baseMultiplier + (phasePeriod * subPeriodMultiplier)
 	//
@@ -202,37 +205,87 @@ func (phase *patternPhaseAuto) calcPhasePeriodPrice(
 	// practice we introduce subtle floating point errors that can result in our bell
 	// prices being off-by-one from the game. Therefore, we need to exactly imitate the
 	// game logic during this calculation.
+
+	// BIN WIDTH
+	// We want to figure out the chance width BEFORE we make the final adjustment. The
+	// adjustment always gets made uniformly, so its really the chance of the
+	// pre-adjusted max and min we need to compute
+	//
+	// The chance width of a price is the rounded price minus the non-rounded extreme
+	// price value. Prices in the middle of a range will always have a bin width of 1.
+	//
+	// This is important for figuring out the likelihood we are in a pattern. If we
+	// have a purchase price of 100 bells, and a buy price of 90 bells in a price period
+	// where the random multiplier is between 0.9 and 100, we know the chance of 90
+	// bells occurring is essentially 0, since the random float generator would have to
+	// return EXACTLY 0.9 out of many millions of possible values.
+	price = RoundBells(float64(purchasePrice) * baseMultiplier)
+	binWidth = float64(price) - (float64(purchasePrice) * baseMultiplier)
+
+	var compoundCount int
 	if compounding, ok := phase.phaseImplement.(phaseCompoundingPrice); ok {
-		for i := 0; i < phasePeriod; i++ {
+		// If phasePeriod is 0, this loop does not occur
+		for compoundCount = 0 ; compoundCount < phasePeriod; compoundCount++ {
 			baseMultiplier = compounding.AdjustPriceMultiplier(
 				baseMultiplier, min,
 			)
+
+			// We need to update the bin width here, as the likelihood of repeated
+			// lower bounds is compounding. To do that we need to know the price for
+			// this period.
+			price = RoundBells(float64(purchasePrice) * baseMultiplier)
+			subBinWidth := float64(price) - (float64(purchasePrice) * baseMultiplier)
+			binWidth *= subBinWidth
 		}
 	}
 
-	price = RoundBells(float64(purchasePrice) * baseMultiplier)
+	// Make any final adjustment that needs to be made to the price after randomization.
 	price += finalAdjustment
-	return price
+	return price, binWidth
 }
 
 func (phase *patternPhaseAuto) potentialPrice(
 	purchasePrice int, phasePeriod int,
-) (minPrice int, maxPrice int) {
+) *prices {
 	baseMinFactor, baseMaxFactor := phase.BasePriceMultiplier(phasePeriod)
 
+	// Check if we need to make a final adjustment to a price
 	var finalAdjustment int
 	if makesAdjustment, ok := phase.phaseImplement.(phaseMakesFinalAdjustment); ok {
 		finalAdjustment = makesAdjustment.FinalPriceAdjustment(phasePeriod)
 	}
 
-	minPrice = phase.calcPhasePeriodPrice(
+	minPrice, minWidth := phase.calcPhasePeriodPrice(
 		baseMinFactor, purchasePrice, phasePeriod, finalAdjustment, true,
 	)
-	maxPrice = phase.calcPhasePeriodPrice(
+	maxPrice, maxWidth := phase.calcPhasePeriodPrice(
 		baseMaxFactor, purchasePrice, phasePeriod, finalAdjustment, false,
 	)
 
-	return minPrice, maxPrice
+	possibilityCount := maxPrice - minPrice + 1
+
+	// Every  number  that is not the min or max has a width of 1, so the total width
+	// of the mid range is all the possible prices - 2
+	midWidth := float64(possibilityCount - 2)
+
+	totalWidth := minWidth + midWidth + maxWidth
+
+	// To get the final chances take the min, mid, and max widths and divide them by
+	// the total width
+	minChance := minWidth / totalWidth
+	midChance := midWidth / totalWidth
+	maxChance := maxWidth / totalWidth
+
+	result := &prices{
+		min: minPrice,
+		max: maxPrice,
+
+		minChance: minChance,
+		midChance: midChance,
+		maxChance: maxChance,
+	}
+
+	return result
 }
 
 func (phase *patternPhaseAuto) PotentialPeriod(
@@ -248,19 +301,19 @@ func (phase *patternPhaseAuto) PotentialPeriod(
 		purchasePrice = 90
 	}
 
-	minPrice, maxPrice := phase.potentialPrice(purchasePrice, phasePeriod)
+	prices := phase.potentialPrice(purchasePrice, phasePeriod)
 	if phase.Ticker().PurchasePrice == 0 {
 		// Now, if no purchase price was supplied, we need to run the numbers again
 		// with the highest possible base price to get the max bracket for what we
 		// know.
-		_, maxPrice = phase.potentialPrice(110, phasePeriod)
+		pricesMax := phase.potentialPrice(110, phasePeriod)
+		prices.max = pricesMax.max
+		prices.maxChance = pricesMax.maxChance
+		prices.midChance = 1.0 - prices.minChance - prices.maxChance
 	}
 
 	return &PotentialPricePeriod{
-		prices: prices{
-			min: minPrice,
-			max: maxPrice,
-		},
+		prices: *prices,
 		PricePeriod: period,
 		PatternPhase: phase,
 	}

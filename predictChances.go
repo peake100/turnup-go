@@ -97,6 +97,30 @@ func calculatePatternWidth(
 	return patternWidth
 }
 
+// If we are in a price pattern which is VANISHINGLY unlikely, to the point that the
+// effective chance is 0, we are going to base the likelihood of each pattern off it's
+// base chance and the number of permutations we can eliminate.
+func fallBackToPatternCount(
+	prediction *models.Prediction, ticker *models.PriceTicker,
+) (totalWidth float64) {
+	for _, potentialPattern := range prediction.Patterns {
+		potentialMatches := len(potentialPattern.PotentialWeeks)
+		maxPermutations := potentialPattern.Pattern.PermutationCount()
+
+		// Pattern chance is the number of active possibilities / the number of
+		// eliminated possibilities, weighted by the base chance
+		patternChance :=
+			float64(potentialMatches) /
+				float64(maxPermutations) *
+				potentialPattern.Pattern.BaseChance(ticker.PreviousPattern)
+
+		totalWidth += patternChance
+		potentialPattern.Analysis().Chance = patternChance
+	}
+
+	return totalWidth
+}
+
 // Calculate the chances of each price pattern permutation once they have been
 // calculated.
 func calculateChances(ticker *models.PriceTicker, prediction *Prediction) {
@@ -142,7 +166,7 @@ func calculateChances(ticker *models.PriceTicker, prediction *Prediction) {
 	// example above).
 	var totalWidth float64
 
-	// Now let's loop through out patterns and start ass`igning chances.
+	// Now let's loop through out patterns and start assigning chances.
 	for _, potentialPattern := range prediction.Patterns {
 		patternWidth := calculatePatternWidth(
 			potentialPattern, knownPricePeriods, ticker,
@@ -158,18 +182,7 @@ func calculateChances(ticker *models.PriceTicker, prediction *Prediction) {
 	// If that's the case we want to use the number of existing weeks for a pattern
 	// divided by the number of possible weeks.
 	if totalWidth == 0 {
-		for _, potentialPattern := range prediction.Patterns {
-			potentialMatches := len(potentialPattern.PotentialWeeks)
-			maxPermutations := potentialPattern.Pattern.PermutationCount()
-
-			patternChance :=
-				float64(potentialMatches) /
-					float64(maxPermutations) *
-					potentialPattern.Pattern.BaseChance(ticker.PreviousPattern)
-
-			totalWidth += patternChance
-			potentialPattern.Analysis().Chance = patternChance
-		}
+		totalWidth = fallBackToPatternCount(prediction, ticker)
 	}
 
 	// Now we can go through and figure out the final chance for each entry using our

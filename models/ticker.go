@@ -44,7 +44,9 @@ func (ticker *PriceTicker) PriceForTime(priceTime time.Time) int {
 }
 
 // Set the price with a Weekday / time of day for a little more ease in setting values.
-func (ticker *PriceTicker) SetPriceForDay(weekday time.Weekday, tod timeofday.ToD, price int) {
+func (ticker *PriceTicker) SetPriceForDay(
+	weekday time.Weekday, tod timeofday.ToD, price int,
+) {
 	if weekday == 0 {
 		ticker.PurchasePrice = price
 		return

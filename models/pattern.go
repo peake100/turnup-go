@@ -118,7 +118,6 @@ var PATTERNS = [5]PricePattern{FLUCTUATING, BIGSPIKE, DECREASING, SMALLSPIKE, UN
 
 // All the valid patterns in the game. Unknown is not a valid pattern, and only
 // one we need include because of incomplete game information
-// var PATTERNSGAME = [4]models.PricePattern{FLUCTUATING, DECREASING, SMALLSPIKE, BIGSPIKE}
 var PATTERNSGAME = [4]PricePattern{FLUCTUATING, BIGSPIKE, DECREASING, SMALLSPIKE}
 
 // Returns a pattern from a string: The following values are valid. The four names are:

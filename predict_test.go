@@ -6,6 +6,7 @@ package turnup
 import (
 	"encoding/csv"
 	"fmt"
+	"github.com/peake100/turnup-go/errs"
 	"github.com/peake100/turnup-go/models"
 	"github.com/peake100/turnup-go/models/patterns"
 	"github.com/stretchr/testify/assert"
@@ -206,11 +207,11 @@ func testPriceData(
 func testPrediction(
 	t *testing.T, expected *expectedPrediction, ticker *models.PriceTicker,
 ) {
-	prediction := Predict(ticker)
+	prediction, err := Predict(ticker)
+	assert.NoError(t, err, "prices are not possible")
 
 	var thisExpected *expectedPattern
 	var thisPattern *models.PotentialPattern
-	var err error
 
 	testPattern := func(t *testing.T) {
 		testPattern(t, thisExpected, thisPattern)
@@ -414,13 +415,13 @@ func Test100BellPurchaseDecreasing(t *testing.T) {
 
 	ticker := NewPriceTicker(100, patterns.DECREASING)
 	ticker.Prices[0] = 86
-	ticker.Prices[1] = 86
-	ticker.Prices[2] = 80
-	ticker.Prices[3] = 76
-	ticker.Prices[4] = 72
-	ticker.Prices[5] = 68
-	ticker.Prices[6] = 64
-	ticker.Prices[7] = 59
+	ticker.Prices[1] = 82
+	ticker.Prices[2] = 78
+	ticker.Prices[3] = 74
+	ticker.Prices[4] = 70
+	ticker.Prices[5] = 66
+	ticker.Prices[6] = 62
+	ticker.Prices[7] = 58
 
 	expected := &expectedPrediction{
 		Fluctuating: &expectedPattern{
@@ -523,4 +524,20 @@ func TestUnknownBellPurchase(t *testing.T) {
 	}
 
 	testPrediction(t, expected, ticker)
+}
+
+// Test submitting an impossible price pattern
+func TestImpossiblePattern(t *testing.T) {
+	assert := assert.New(t)
+
+	ticker := NewPriceTicker(0, patterns.UNKNOWN)
+	ticker.Prices[0] = 10
+
+	result, err := Predict(ticker)
+	assert.Nil(result, "result nil")
+	assert.EqualError(
+		err,
+		errs.ErrImpossibleTickerPrices.Error(),
+		"impossible prices error",
+	)
 }

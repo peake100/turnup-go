@@ -9,5 +9,6 @@ const (
 	SMALLSPIKE  = models.SMALLSPIKE
 	UNKNOWN     = models.UNKNOWN
 )
+
 var PATTERNS = models.PATTERNS
 var PATTERNSGAME = models.PATTERNSGAME

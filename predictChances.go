@@ -1,7 +1,6 @@
 package turnup
 
 import (
-	"fmt"
 	"github.com/peake100/turnup-go/models"
 	"math"
 )
@@ -44,7 +43,7 @@ func calculatePotentialWeekWidth(
 		// the price math is implemented. We divide by the period range to get the
 		// likelihood that this price would occur in this range relative to other
 		// ranges.
-		knownPrice :=  ticker.Prices[pricePeriod]
+		knownPrice := ticker.Prices[pricePeriod]
 		priceChance := prices.PriceChance(knownPrice)
 		periodWidth := 0.0
 		if priceChance != 0.0 {
@@ -160,20 +159,24 @@ func calculateChances(ticker *models.PriceTicker, prediction *Prediction) {
 	// divided by the number of possible weeks.
 	if totalWidth == 0 {
 		for _, potentialPattern := range prediction.Patterns {
+			potentialMatches := len(potentialPattern.PotentialWeeks)
+			maxPermutations := potentialPattern.Pattern.PermutationCount()
+
 			patternChance :=
-				float64(len(potentialPattern.PotentialWeeks)) /
-				float64(potentialPattern.Pattern.PermutationCount())
-				potentialPattern.Pattern.BaseChance(ticker.PreviousPattern)
+				float64(potentialMatches) /
+					float64(maxPermutations) *
+					potentialPattern.Pattern.BaseChance(ticker.PreviousPattern)
+
 			totalWidth += patternChance
 			potentialPattern.Analysis().Chance = patternChance
 		}
 	}
 
-	fmt.Println("TOTAL WIDTH:", totalWidth)
-
 	// Now we can go through and figure out the final chance for each entry using our
 	// total chance units
 	for _, potentialPattern := range prediction.Patterns {
+		// Otherwise refactor the individual chances by dividing their width by the
+		// total width.
 		setChanceFromWidth(potentialPattern, totalWidth)
 		for _, week := range potentialPattern.PotentialWeeks {
 			setChanceFromWidth(week, totalWidth)

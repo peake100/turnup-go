@@ -2,7 +2,7 @@ package models
 
 type PotentialPricePeriod struct {
 	prices
-	PricePeriod PricePeriod
+	PricePeriod  PricePeriod
 	PatternPhase PatternPhase
 
 	// We're going to store the chances of any particular price happening. Because of

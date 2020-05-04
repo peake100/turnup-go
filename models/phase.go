@@ -1,5 +1,9 @@
 package models
 
+import (
+	"math"
+)
+
 // A phase is a period of time within a price pattern that follows a single algorithm.
 // When making predictions for a given pattern, we will iterate over a set of phases.
 //
@@ -185,7 +189,9 @@ type patternPhaseAuto struct {
 // of it happening.
 func (phase *patternPhaseAuto) calcPhasePeriodPrice(
 	baseMultiplier float64,
-	purchasePrice, phasePeriod int,
+	purchasePrice int,
+	pricePeriod PricePeriod,
+	phasePeriod int,
 	finalAdjustment int,
 	min bool,
 ) (price int, binWidth float64) {
@@ -222,20 +228,64 @@ func (phase *patternPhaseAuto) calcPhasePeriodPrice(
 	price = RoundBells(float64(purchasePrice) * baseMultiplier)
 	binWidth = float64(price) - (float64(purchasePrice) * baseMultiplier)
 
-	var compoundCount int
+	// Get the starting price period for this phase
+	pricePeriod = pricePeriod - PricePeriod(phasePeriod)
+
+	// We want to adjust our multiplier based on the price history, so we're going to
+	// to keep track of an adjusted multiplier based on island prices. We ALSO need to
+	// track the extreme possible ends of this pattern overall to bound this multiplier
+	// when accounting for rounding.
+	historicMultiplier := baseMultiplier
 	if compounding, ok := phase.phaseImplement.(phaseCompoundingPrice); ok {
 		// If phasePeriod is 0, this loop does not occur
-		for compoundCount = 0 ; compoundCount < phasePeriod; compoundCount++ {
+		for i := 0; i < phasePeriod; i++ {
+
+			// If we know the price for the day before, then we can make a more accurate
+			// projection of what this period's prices will be by multiplying the real
+			// world price by the upper and lower sub-period bounds. Each time we know
+			// the real price for the previous price period, we are going to reset the
+			// multiplier to
+			previousPrice := phase.Ticker().Prices[pricePeriod]
+			if previousPrice != 0 {
+				// We need to get the most extreme pre-rounded price that could have
+				// resulted in the known price. For the max price, this is the price
+				// itself. For min, this is the number - 1 + the smallest possible
+				// float value.
+				previousPriceFloat := float64(previousPrice)
+				previousPriceFloor := previousPriceFloat - 1
+				previousPriceFloat = math.Nextafter(
+					previousPriceFloor, previousPriceFloat,
+				)
+
+				// now work out the extreme end of the previous multiplier
+				historicMultiplier = previousPriceFloat / float64(purchasePrice)
+
+				// if it is lower than the min multiplier or higher than the
+				// max multiplier, we need to bring it in line with the
+				// possible range
+				if (min && historicMultiplier < baseMultiplier) ||
+					(!min && historicMultiplier > baseMultiplier) {
+					historicMultiplier = baseMultiplier
+				}
+			}
+
+			// Alter the base multiplier by the phase period amount.
 			baseMultiplier = compounding.AdjustPriceMultiplier(
 				baseMultiplier, min,
+			)
+
+			historicMultiplier = compounding.AdjustPriceMultiplier(
+				historicMultiplier, min,
 			)
 
 			// We need to update the bin width here, as the likelihood of repeated
 			// lower bounds is compounding. To do that we need to know the price for
 			// this period.
-			price = RoundBells(float64(purchasePrice) * baseMultiplier)
-			subBinWidth := float64(price) - (float64(purchasePrice) * baseMultiplier)
+			price = RoundBells(float64(purchasePrice) * historicMultiplier)
+			subBinWidth := float64(price) - (float64(purchasePrice) * historicMultiplier)
 			binWidth *= subBinWidth
+
+			pricePeriod++
 		}
 	}
 
@@ -245,7 +295,7 @@ func (phase *patternPhaseAuto) calcPhasePeriodPrice(
 }
 
 func (phase *patternPhaseAuto) potentialPrice(
-	purchasePrice int, phasePeriod int,
+	purchasePrice int, pricePeriod PricePeriod, phasePeriod int,
 ) *prices {
 	baseMinFactor, baseMaxFactor := phase.BasePriceMultiplier(phasePeriod)
 
@@ -256,10 +306,20 @@ func (phase *patternPhaseAuto) potentialPrice(
 	}
 
 	minPrice, minWidth := phase.calcPhasePeriodPrice(
-		baseMinFactor, purchasePrice, phasePeriod, finalAdjustment, true,
+		baseMinFactor,
+		purchasePrice,
+		pricePeriod,
+		phasePeriod,
+		finalAdjustment,
+		true,
 	)
 	maxPrice, maxWidth := phase.calcPhasePeriodPrice(
-		baseMaxFactor, purchasePrice, phasePeriod, finalAdjustment, false,
+		baseMaxFactor,
+		purchasePrice,
+		pricePeriod,
+		phasePeriod,
+		finalAdjustment,
+		false,
 	)
 
 	possibilityCount := maxPrice - minPrice + 1
@@ -301,20 +361,20 @@ func (phase *patternPhaseAuto) PotentialPeriod(
 		purchasePrice = 90
 	}
 
-	prices := phase.potentialPrice(purchasePrice, phasePeriod)
+	prices := phase.potentialPrice(purchasePrice, period, phasePeriod)
 	if phase.Ticker().PurchasePrice == 0 {
 		// Now, if no purchase price was supplied, we need to run the numbers again
 		// with the highest possible base price to get the max bracket for what we
 		// know.
-		pricesMax := phase.potentialPrice(110, phasePeriod)
+		pricesMax := phase.potentialPrice(110, period, phasePeriod)
 		prices.max = pricesMax.max
 		prices.maxChance = pricesMax.maxChance
 		prices.midChance = 1.0 - prices.minChance - prices.maxChance
 	}
 
 	return &PotentialPricePeriod{
-		prices: *prices,
-		PricePeriod: period,
+		prices:       *prices,
+		PricePeriod:  period,
 		PatternPhase: phase,
 	}
 }

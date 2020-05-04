@@ -1,6 +1,7 @@
 package turnup
 
 import (
+	"github.com/peake100/turnup-go/errs"
 	"github.com/peake100/turnup-go/models"
 	"github.com/peake100/turnup-go/models/patterns"
 	"sync"
@@ -9,6 +10,7 @@ import (
 // Make an alias to the ticker model here. The high level API is just the ticker and
 // Predict function
 var NewPriceTicker = models.NewTicker
+
 type Prediction = models.Prediction
 
 // Holds the sync objects for the goroutines handling the price phase permutations for
@@ -222,7 +224,7 @@ func launchPossibleLengthRoutine(
 
 // Predict the possible price patterns given the current week's turnip prices on an
 // island.
-func Predict(currentWeek *models.PriceTicker) *Prediction {
+func Predict(currentWeek *models.PriceTicker) (*Prediction, error) {
 	// If we don't know the purchase price, we'll use the average price of 100 for now.
 	// TODO: better handling of unknown prices. We really should get the totals for both
 	//   90 and 100 so we know the increased ranges.
@@ -242,12 +244,20 @@ func Predict(currentWeek *models.PriceTicker) *Prediction {
 
 	result := new(Prediction)
 
+	validPrices := false
 	for potentialPattern := range patternWorkSync.ResultChan {
+		if len(potentialPattern.PotentialWeeks) > 0 {
+			validPrices = true
+		}
 		result.Patterns = append(result.Patterns, potentialPattern)
 		result.Analysis().Update(potentialPattern.Analysis(), false)
 	}
 
+	// If there are no possible price patterns based on this ticker, return an error
+	if !validPrices {
+		return nil, errs.ErrImpossibleTickerPrices
+	}
 	calculateChances(currentWeek, result)
 
-	return result
+	return result, nil
 }

@@ -1,11 +1,7 @@
-# Islelib
+# Turnup-go
 
-Islelib is Illuscio's Golang Library template. "Isle" is the naming convention
-for Illuscio code, chosen for its auditory similarity to "I-L" ("AYE_ELL"), as
-opposed to illib which would be phonetically sounded out as "ill".
-
-Islelib comes pre-built with a number of tools for formatting, linting and 
-testing.
+Turn-up your turn-ip profits with turnup-go, a turnip price prediction library for
+golang!
 
 ## Getting Started
 For full documentation:

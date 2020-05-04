@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#375EAB">
 
-  <title>turnup - Go Documentation Server</title>
+  <title>patterns - Go Documentation Server</title>
 
 <link type="text/css" rel="stylesheet" href="style.css">
 
@@ -26,7 +26,7 @@
 <div id="topbar" class="wide"><div class="container">
 <div class="top-heading" id="heading-wide"><a href="http://localhost:6161/pkg/">Go Documentation Server</a></div>
 <div class="top-heading" id="heading-narrow"><a href="http://localhost:6161/pkg/">GoDoc</a></div>
-<a href="turnup-go.html#" id="menu-button"><span id="menu-button-arrow">&#9661;</span></a>
+<a href="godoc.5.html#" id="menu-button"><span id="menu-button-arrow">&#9661;</span></a>
 <form method="GET" action="http://localhost:6161/search">
 <div id="menu">
 
@@ -43,7 +43,7 @@
 
 
   <h1>
-    Package turnup
+    Package patterns
     <span class="text-muted"></span>
   </h1>
 
@@ -77,14 +77,12 @@
 		
 		<div id="short-nav">
 			<dl>
-			<dd><code>import "github.com/peake100/turnup-go"</code></dd>
+			<dd><code>import "github.com/peake100/turnup-go/patterns"</code></dd>
 			</dl>
 			<dl>
-			<dd><a href="turnup-go.html#pkg-overview" class="overviewLink">Overview</a></dd>
-			<dd><a href="turnup-go.html#pkg-index" class="indexLink">Index</a></dd>
+			<dd><a href="godoc.5.html#pkg-overview" class="overviewLink">Overview</a></dd>
+			<dd><a href="godoc.5.html#pkg-index" class="indexLink">Index</a></dd>
 			
-			
-				<dd><a href="turnup-go.html#pkg-subdirectories">Subdirectories</a></dd>
 			
 			</dl>
 		</div>
@@ -95,10 +93,7 @@
 			</div>
 			<div class="expanded">
 				<h2 class="toggleButton" title="Click to hide Overview section">Overview ▾</h2>
-				<p>
-Here we describe the package turnup general for the API docs.
-</p>
-
+				
 				
 			</div>
 		</div>
@@ -114,18 +109,12 @@ Here we describe the package turnup general for the API docs.
 			<div id="manual-nav">
 			<dl>
 			
-			
-				<dd><a href="turnup-go.html#pkg-variables">Variables</a></dd>
-			
+				<dd><a href="godoc.5.html#pkg-constants">Constants</a></dd>
 			
 			
-				
-				<dd><a href="turnup-go.html#Prediction">type Prediction</a></dd>
-				
-					
-					<dd>&nbsp; &nbsp; <a href="turnup-go.html#Predict">func Predict(currentWeek *models.PriceTicker) *Prediction</a></dd>
-				
-				
+				<dd><a href="godoc.5.html#pkg-variables">Variables</a></dd>
+			
+			
 			
 			
 			</dl>
@@ -138,11 +127,7 @@ Here we describe the package turnup general for the API docs.
 			<p>
 			<span style="font-size:90%">
 			
-				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/doc_api.go">doc_api.go</a>
-			
-				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/predict.go">predict.go</a>
-			
-				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/predictChances.go">predictChances.go</a>
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/patterns/patterns.go">patterns.go</a>
 			
 			</span>
 			</p>
@@ -153,56 +138,30 @@ Here we describe the package turnup general for the API docs.
 		
 
 		
+			<h2 id="pkg-constants">Constants</h2>
+			
+				
+				<pre>const (
+    <span id="FLUCTUATING">FLUCTUATING</span> = <a href="godoc.8.html">models</a>.<a href="godoc.8.html#FLUCTUATING">FLUCTUATING</a>
+    <span id="BIGSPIKE">BIGSPIKE</span>    = <a href="godoc.8.html">models</a>.<a href="godoc.8.html#BIGSPIKE">BIGSPIKE</a>
+    <span id="DECREASING">DECREASING</span>  = <a href="godoc.8.html">models</a>.<a href="godoc.8.html#DECREASING">DECREASING</a>
+    <span id="SMALLSPIKE">SMALLSPIKE</span>  = <a href="godoc.8.html">models</a>.<a href="godoc.8.html#SMALLSPIKE">SMALLSPIKE</a>
+    <span id="UNKNOWN">UNKNOWN</span>     = <a href="godoc.8.html">models</a>.<a href="godoc.8.html#UNKNOWN">UNKNOWN</a>
+)</pre>
+			
+		
 		
 			<h2 id="pkg-variables">Variables</h2>
 			
-				<p>
-Make an alias to the ticker model here. The high level API is just the ticker and
-Predict function
-</p>
-
-				<pre>var <span id="NewPriceTicker">NewPriceTicker</span> = <a href="godoc.8.html">models</a>.<a href="godoc.8.html#NewTicker">NewTicker</a></pre>
+				
+				<pre>var <span id="PATTERNS">PATTERNS</span> = <a href="godoc.8.html">models</a>.<a href="godoc.8.html#PATTERNS">PATTERNS</a></pre>
+			
+				
+				<pre>var <span id="PATTERNSGAME">PATTERNSGAME</span> = <a href="godoc.8.html">models</a>.<a href="godoc.8.html#PATTERNSGAME">PATTERNSGAME</a></pre>
 			
 		
 		
 		
-			
-			
-			<h2 id="Prediction">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/predict.go?s=261:296#L2">Prediction</a>
-				<a class="permalink" href="turnup-go.html#Prediction">&#xb6;</a>
-				
-				
-			</h2>
-			
-			<pre>type Prediction = <a href="godoc.8.html">models</a>.<a href="godoc.8.html#Prediction">Prediction</a></pre>
-
-			
-
-			
-
-			
-			
-			
-
-			
-				
-				<h3 id="Predict">func <a href="http://localhost:6161/src/github.com/peake100/turnup-go/predict.go?s=6976:7033#L215">Predict</a>
-					<a class="permalink" href="turnup-go.html#Predict">&#xb6;</a>
-					
-					
-				</h3>
-				<pre>func Predict(currentWeek *<a href="godoc.8.html">models</a>.<a href="godoc.8.html#PriceTicker">PriceTicker</a>) *<a href="turnup-go.html#Prediction">Prediction</a></pre>
-				<p>
-Predict the possible price patterns given the current week&#39;s turnip prices on an
-island.
-</p>
-
-				
-				
-			
-
-			
-		
 	
 
 	
@@ -210,93 +169,6 @@ island.
 
 
 
-
-	
-	
-		<h2 id="pkg-subdirectories">Subdirectories</h2>
-	
-	<div class="pkg-dir">
-		<table>
-			<tr>
-				<th class="pkg-name">Name</th>
-				<th class="pkg-synopsis">Synopsis</th>
-			</tr>
-
-			
-			<tr>
-				<td colspan="2"><a href="http://localhost:6161/pkg/github.com/peake100/">..</a></td>
-			</tr>
-			
-
-			
-				<tr>
-				
-					<td class="pkg-name" style="padding-left: 0px;">
-						<a href="godoc.3.html">errs</a>
-					</td>
-				
-					<td class="pkg-synopsis">
-						
-					</td>
-				</tr>
-			
-				<tr>
-				
-					<td class="pkg-name" style="padding-left: 0px;">
-						<a href="godoc.8.html">models</a>
-					</td>
-				
-					<td class="pkg-synopsis">
-						
-					</td>
-				</tr>
-			
-				<tr>
-				
-					<td class="pkg-name" style="padding-left: 20px;">
-						<a href="godoc.4.html">timeofday</a>
-					</td>
-				
-					<td class="pkg-synopsis">
-						
-					</td>
-				</tr>
-			
-				<tr>
-				
-					<td class="pkg-name" style="padding-left: 0px;">
-						<a href="godoc.5.html">patterns</a>
-					</td>
-				
-					<td class="pkg-synopsis">
-						
-					</td>
-				</tr>
-			
-				<tr>
-				
-					<td class="pkg-name" style="padding-left: 0px;">
-						<a href="godoc.6.html">zdevelop</a>
-					</td>
-				
-					<td class="pkg-synopsis">
-						
-					</td>
-				</tr>
-			
-				<tr>
-				
-					<td class="pkg-name" style="padding-left: 20px;">
-						<a href="godoc.7.html">scratch</a>
-					</td>
-				
-					<td class="pkg-synopsis">
-						
-					</td>
-				</tr>
-			
-		</table>
-	</div>
 
 
 

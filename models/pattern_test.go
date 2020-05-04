@@ -4,7 +4,7 @@ package models
 // the preferred method of using multiple asserts in a test.
 
 import (
-	"github.com/illuscio-dev/turnup-go/errs"
+	"github.com/peake100/turnup-go/errs"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -32,13 +32,13 @@ func TestPanicOnPhaseProgressionInvalid(t *testing.T) {
 		assert.EqualError(err, errs.ErrBadPatternIndex.Error())
 	}()
 
-	Pattern(10).PhaseProgression(nil)
+	PricePattern(10).PhaseProgression(nil)
 }
 
 func TestPatternFromString(t *testing.T) {
 	type testCase struct {
 		StringVal string
-		Pattern   Pattern
+		Pattern   PricePattern
 	}
 
 	testCases := []*testCase{
@@ -128,6 +128,6 @@ func TestPatternFromStringErr(t *testing.T) {
 	assert := assert.New(t)
 
 	pattern, err := PatternFromString("blah")
-	assert.Equal(Pattern(5), pattern)
+	assert.Equal(PricePattern(5), pattern)
 	assert.EqualError(err, errs.ErrPatternStringValue.Error())
 }

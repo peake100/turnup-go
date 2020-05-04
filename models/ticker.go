@@ -1,10 +1,13 @@
 package models
 
-import "time"
+import (
+	"github.com/peake100/turnup-go/models/timeofday"
+	"time"
+)
 
 type PriceTicker struct {
 	// The previous week's price pattern
-	PreviousPattern Pattern
+	PreviousPattern PricePattern
 
 	// The purchase price on sunday for this week
 	PurchasePrice int
@@ -18,7 +21,7 @@ type PriceTicker struct {
 }
 
 // Return the price for a given Weekday + time of day
-func (ticker *PriceTicker) PriceForDay(weekday time.Weekday, tod ToD) int {
+func (ticker *PriceTicker) PriceForDay(weekday time.Weekday, tod timeofday.ToD) int {
 	if weekday == 0 {
 		return ticker.PurchasePrice
 	}
@@ -41,7 +44,7 @@ func (ticker *PriceTicker) PriceForTime(priceTime time.Time) int {
 }
 
 // Set the price with a Weekday / time of day for a little more ease in setting values.
-func (ticker *PriceTicker) SetPriceForDay(weekday time.Weekday, tod ToD, price int) {
+func (ticker *PriceTicker) SetPriceForDay(weekday time.Weekday, tod timeofday.ToD, price int) {
 	if weekday == 0 {
 		ticker.PurchasePrice = price
 		return
@@ -62,4 +65,12 @@ func (ticker *PriceTicker) SetPriceForTime(priceTime time.Time, price int) {
 	}
 	pricePeriod, _ := PricePeriodFromTime(priceTime)
 	ticker.Prices[pricePeriod] = price
+}
+
+func NewTicker(purchasePrice int, previousPattern PricePattern) *PriceTicker {
+	return &PriceTicker{
+		PreviousPattern: previousPattern,
+		PurchasePrice:   purchasePrice,
+		Prices:          [12]int{},
+	}
 }

@@ -1,13 +1,13 @@
 package models
 
 import (
-	"github.com/illuscio-dev/turnup-go/errs"
+	"github.com/peake100/turnup-go/errs"
 	"strings"
 )
 
-type Pattern int
+type PricePattern int
 
-func (pattern Pattern) String() string {
+func (pattern PricePattern) String() string {
 	return [5]string{
 		"FLUCTUATING",
 		"BIG SPIKE",
@@ -72,7 +72,7 @@ var initialChanceMatrix = [5][4]float64{
 }
 
 // Returns a the chance of this pattern occurring based on the pattern from last week
-func (pattern Pattern) BaseChance(previous Pattern) float64 {
+func (pattern PricePattern) BaseChance(previous PricePattern) float64 {
 	if pattern == UNKNOWN {
 		panic(errs.ErrUnknownBaseChanceInvalid)
 	}
@@ -82,7 +82,7 @@ func (pattern Pattern) BaseChance(previous Pattern) float64 {
 
 // Returns a new set of phase definitions that can be used to calculate the possible
 // price values for a week.
-func (pattern Pattern) PhaseProgression(ticker *PriceTicker) []PatternPhase {
+func (pattern PricePattern) PhaseProgression(ticker *PriceTicker) []PatternPhase {
 	switch {
 	case pattern == FLUCTUATING:
 		return fluctuatingProgression(ticker)
@@ -101,25 +101,25 @@ func (pattern Pattern) PhaseProgression(ticker *PriceTicker) []PatternPhase {
 
 // The total possible phase combinations for this pattern. Can be used to determine
 // actual chance of this pattern once possibilities have been removed by a ticker.
-func (pattern Pattern) PermutationCount() int {
+func (pattern PricePattern) PermutationCount() int {
 	return [4]int{56, 7, 1, 8}[pattern]
 }
 
 const (
-	FLUCTUATING Pattern = 0
-	BIGSPIKE    Pattern = 1
-	DECREASING  Pattern = 2
-	SMALLSPIKE  Pattern = 3
-	UNKNOWN     Pattern = 4
+	FLUCTUATING PricePattern = 0
+	BIGSPIKE    PricePattern = 1
+	DECREASING  PricePattern = 2
+	SMALLSPIKE  PricePattern = 3
+	UNKNOWN     PricePattern = 4
 )
 
 // An array of the possible patterns in index order
-var PATTERNS = [5]Pattern{FLUCTUATING, BIGSPIKE, DECREASING, SMALLSPIKE, UNKNOWN}
+var PATTERNS = [5]PricePattern{FLUCTUATING, BIGSPIKE, DECREASING, SMALLSPIKE, UNKNOWN}
 
 // All the valid patterns in the game. Unknown is not a valid pattern, and only
 // one we need include because of incomplete game information
-// var PATTERNSGAME = [4]models.Pattern{FLUCTUATING, DECREASING, SMALLSPIKE, BIGSPIKE}
-var PATTERNSGAME = [4]Pattern{FLUCTUATING, BIGSPIKE, DECREASING, SMALLSPIKE}
+// var PATTERNSGAME = [4]models.PricePattern{FLUCTUATING, DECREASING, SMALLSPIKE, BIGSPIKE}
+var PATTERNSGAME = [4]PricePattern{FLUCTUATING, BIGSPIKE, DECREASING, SMALLSPIKE}
 
 // Returns a pattern from a string: The following values are valid. The four names are:
 //
@@ -138,10 +138,10 @@ var PATTERNSGAME = [4]Pattern{FLUCTUATING, BIGSPIKE, DECREASING, SMALLSPIKE}
 //		- Big Spike
 //		- big spike
 //		- etc.
-func PatternFromString(value string) (Pattern, error) {
+func PatternFromString(value string) (PricePattern, error) {
 	value = strings.ToUpper(value)
 	value = strings.Replace(value, " ", "", -1)
-	pattern, ok := map[string]Pattern{
+	pattern, ok := map[string]PricePattern{
 		"FLUCTUATING": FLUCTUATING,
 		"BIGSPIKE":    BIGSPIKE,
 		"DECREASING":  DECREASING,

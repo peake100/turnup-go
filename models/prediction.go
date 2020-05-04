@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/illuscio-dev/turnup-go/errs"
+	"github.com/peake100/turnup-go/errs"
 )
 
 type Prediction struct {
@@ -18,7 +18,7 @@ func (prediction *Prediction) Analysis() *Analysis {
 
 // Returns the potential pattern predictions for a given pattern. Returns nil if
 // ``pattern`` is not a valid pattern.
-func (prediction *Prediction) Pattern(pattern Pattern) (*PotentialPattern, error) {
+func (prediction *Prediction) Pattern(pattern PricePattern) (*PotentialPattern, error) {
 	for _, potentialPattern := range prediction.Patterns {
 		if potentialPattern.Pattern == pattern {
 			return potentialPattern, nil

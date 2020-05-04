@@ -1,7 +1,8 @@
 package models
 
 import (
-	"github.com/illuscio-dev/turnup-go/errs"
+	"github.com/peake100/turnup-go/errs"
+	"github.com/peake100/turnup-go/models/timeofday"
 	"time"
 )
 
@@ -11,16 +12,16 @@ func (period PricePeriod) Weekday() time.Weekday {
 	return time.Weekday(period/2 + 1)
 }
 
-func (period PricePeriod) ToD() ToD {
+func (period PricePeriod) ToD() timeofday.ToD {
 	if period%2 == 0 {
-		return AM
+		return timeofday.AM
 	}
-	return PM
+	return timeofday.PM
 }
 
 // Converts price Weekday and time of day to price period. Returns error if sunday is
 // passed
-func PricePeriodFromDay(weekday time.Weekday, tod ToD) (PricePeriod, error) {
+func PricePeriodFromDay(weekday time.Weekday, tod timeofday.ToD) (PricePeriod, error) {
 	if weekday == time.Sunday {
 		return -1, errs.ErrNoSundayPricePeriod
 	}
@@ -29,9 +30,9 @@ func PricePeriodFromDay(weekday time.Weekday, tod ToD) (PricePeriod, error) {
 }
 
 func PricePeriodFromTime(priceTime time.Time) (PricePeriod, error) {
-	tod := PM
+	tod := timeofday.PM
 	if priceTime.Hour() < 12 {
-		tod = AM
+		tod = timeofday.AM
 	}
 
 	return PricePeriodFromDay(priceTime.Weekday(), tod)

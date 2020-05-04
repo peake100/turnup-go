@@ -262,6 +262,7 @@ func (phase *patternPhaseAuto) PotentialPeriod(
 			max: maxPrice,
 		},
 		PricePeriod: period,
+		PatternPhase: phase,
 	}
 }
 

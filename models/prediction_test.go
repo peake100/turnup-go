@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/illuscio-dev/turnup-go/errs"
+	"github.com/peake100/turnup-go/errs"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

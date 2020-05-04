@@ -7,7 +7,7 @@ import (
 
 func testPhaseNames(
 	t *testing.T,
-	pattern Pattern,
+	pattern PricePattern,
 	expectedNames []string,
 ) {
 	var name string
@@ -32,7 +32,7 @@ func testPhaseNames(
 
 func TestPatternPhaseProgression(t *testing.T) {
 	type testCase struct {
-		Pattern       Pattern
+		Pattern       PricePattern
 		ExpectedNames []string
 	}
 

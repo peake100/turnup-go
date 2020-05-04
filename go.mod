@@ -1,4 +1,4 @@
-module github.com/illuscio-dev/turnup-go
+module github.com/peake100/turnup-go
 
 go 1.14
 

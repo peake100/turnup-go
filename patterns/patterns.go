@@ -1,6 +1,6 @@
 package patterns
 
-import "github.com/illuscio-dev/turnup-go/models"
+import "github.com/peake100/turnup-go/models"
 
 const (
 	FLUCTUATING = models.FLUCTUATING
@@ -9,6 +9,5 @@ const (
 	SMALLSPIKE  = models.SMALLSPIKE
 	UNKNOWN     = models.UNKNOWN
 )
-
 var PATTERNS = models.PATTERNS
 var PATTERNSGAME = models.PATTERNSGAME

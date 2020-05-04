@@ -1,7 +1,7 @@
 package turnup
 
 import (
-	"github.com/illuscio-dev/turnup-go/models"
+	"github.com/peake100/turnup-go/models"
 	"math"
 )
 
@@ -20,9 +20,9 @@ func convertFromChanceUnits(item hasAnalysis, totalChanceUnits float64) {
 
 func calculatePotentialWeekChanceUnits(
 	week *models.PotentialWeek,
-	pattern models.Pattern,
+	pattern models.PricePattern,
 	knownPricePeriods []models.PricePeriod,
-	ticker *PriceTicker,
+	ticker *models.PriceTicker,
 ) float64 {
 	patternWeight := pattern.BaseChance(ticker.PreviousPattern)
 	patternPermutationCount := pattern.PermutationCount()
@@ -53,8 +53,12 @@ func calculatePotentialWeekChanceUnits(
 	// weight to patterns who have had permutations eliminated vs those who
 	// have not.
 	if weekChance == 0 {
-		weekChance = patternWeight / float64(patternPermutationCount)
+		weekChance = patternWeight
 	}
+
+	// Now weight each week by the number of possible weeks. As we knock out possible
+	// phase combinations for a pattern, the likelihood of this pattern goes down.
+	weekChance /= float64(patternPermutationCount)
 
 	return weekChance
 }
@@ -62,7 +66,7 @@ func calculatePotentialWeekChanceUnits(
 func calculatePatternChance(
 	potentialPattern *models.PotentialPattern,
 	knownPricePeriods []models.PricePeriod,
-	ticker *PriceTicker,
+	ticker *models.PriceTicker,
 ) float64 {
 
 	var patternChance float64
@@ -85,7 +89,7 @@ func calculatePatternChance(
 
 // Calculate the chances of each price pattern permutation once they have been
 // calculated.
-func calculateChances(ticker *PriceTicker, prediction *Prediction) {
+func calculateChances(ticker *models.PriceTicker, prediction *Prediction) {
 	// We are going to calculate the likelihood that a bell price in the ticker came
 	// from a given range by looping through the price periods we have data for and
 	// examining the likelihood that the results came from the one possible phase combo

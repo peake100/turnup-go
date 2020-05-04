@@ -1,4 +1,4 @@
-package models
+package timeofday
 
 // Each non-sunday day in animal crossing is divided into two periods where the price is
 // set, we are going to call that the time-of-day. The first period will be AM, and the

@@ -6,8 +6,8 @@ package turnup
 import (
 	"encoding/csv"
 	"fmt"
-	"github.com/illuscio-dev/turnup-go/models"
-	"github.com/illuscio-dev/turnup-go/patterns"
+	"github.com/peake100/turnup-go/models"
+	"github.com/peake100/turnup-go/patterns"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"os"
@@ -22,7 +22,7 @@ type priceBracket struct {
 }
 
 type expectedWeek struct {
-	Pattern            models.Pattern
+	Pattern            models.PricePattern
 	GuaranteedMinPrice int
 	MaxPrice           int
 	Prices             [12]*priceBracket
@@ -111,7 +111,7 @@ func parsePriceRecord(
 // We're going to make a unique string for a weekly price pattern, which we can add to
 // a dict like a set.
 func makeWeekKey(
-	pattern models.Pattern, prices [12]*priceBracket, min int, max int,
+	pattern models.PricePattern, prices [12]*priceBracket, min int, max int,
 ) string {
 	key := pattern.String()
 	for i, price := range prices {
@@ -156,7 +156,7 @@ func loadPriceData(t *testing.T, csvPath string) map[string]interface{} {
 	return result
 }
 
-func potentialWeekKey(pattern models.Pattern, week *models.PotentialWeek) string {
+func potentialWeekKey(pattern models.PricePattern, week *models.PotentialWeek) string {
 	var priceBrackets [12]*priceBracket
 	for i, pricePeriod := range week.PricePeriods {
 		periodBracket := &priceBracket{
@@ -204,7 +204,7 @@ func testPriceData(
 // We can use this function to test a prediction for a given ticker against our expected
 // results
 func testPrediction(
-	t *testing.T, expected *expectedPrediction, ticker *PriceTicker,
+	t *testing.T, expected *expectedPrediction, ticker *models.PriceTicker,
 ) {
 	prediction := Predict(ticker)
 
@@ -296,10 +296,7 @@ func testPattern(
 // We are going to use data from turnip prophet to validate our predictions
 func Test100BellPurchase(t *testing.T) {
 
-	ticker := &PriceTicker{
-		PreviousPattern: patterns.UNKNOWN,
-		PurchasePrice:   100,
-	}
+	ticker := NewPriceTicker(100, patterns.UNKNOWN)
 
 	expected := &expectedPrediction{
 		Fluctuating: &expectedPattern{
@@ -336,10 +333,7 @@ func Test100BellPurchase(t *testing.T) {
 // Test a pattern that results in a single large spike possibility
 func Test100BellPurchaseLargeSpike(t *testing.T) {
 
-	ticker := &PriceTicker{
-		PreviousPattern: patterns.UNKNOWN,
-		PurchasePrice:   100,
-	}
+	ticker := NewPriceTicker(100, patterns.UNKNOWN)
 	ticker.Prices[0] = 86
 	ticker.Prices[1] = 90
 	ticker.Prices[2] = 160
@@ -377,10 +371,7 @@ func Test100BellPurchaseLargeSpike(t *testing.T) {
 // Test a pattern that results in a single large spike possibility
 func Test100BellPurchaseFluctuating(t *testing.T) {
 
-	ticker := &PriceTicker{
-		PreviousPattern: patterns.DECREASING,
-		PurchasePrice:   100,
-	}
+	ticker := NewPriceTicker(100, patterns.DECREASING)
 	ticker.Prices[0] = 140
 	ticker.Prices[1] = 140
 	ticker.Prices[2] = 140
@@ -421,10 +412,7 @@ func Test100BellPurchaseFluctuating(t *testing.T) {
 // Test a pattern that results in a decreasing possibility
 func Test100BellPurchaseDecreasing(t *testing.T) {
 
-	ticker := &PriceTicker{
-		PreviousPattern: patterns.DECREASING,
-		PurchasePrice:   100,
-	}
+	ticker := NewPriceTicker(100, patterns.DECREASING)
 	ticker.Prices[0] = 86
 	ticker.Prices[1] = 86
 	ticker.Prices[2] = 80
@@ -467,10 +455,7 @@ func Test100BellPurchaseDecreasing(t *testing.T) {
 // Test a pattern that results in a single large spike possibility
 func Test100BellPurchaseSmallSpike(t *testing.T) {
 
-	ticker := &PriceTicker{
-		PreviousPattern: patterns.SMALLSPIKE,
-		PurchasePrice:   100,
-	}
+	ticker := NewPriceTicker(100, patterns.SMALLSPIKE)
 	ticker.Prices[0] = 120
 	ticker.Prices[1] = 120
 	ticker.Prices[2] = 199
@@ -508,9 +493,7 @@ func Test100BellPurchaseSmallSpike(t *testing.T) {
 // Test getting doing a prediction when you don't know the purchase price.
 func TestUnknownBellPurchase(t *testing.T) {
 
-	ticker := &PriceTicker{
-		PreviousPattern: patterns.UNKNOWN,
-	}
+	ticker := NewPriceTicker(0, patterns.UNKNOWN)
 
 	expected := &expectedPrediction{
 		Fluctuating: &expectedPattern{

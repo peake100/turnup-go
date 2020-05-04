@@ -5,7 +5,8 @@ package models
 
 import (
 	"fmt"
-	"github.com/illuscio-dev/turnup-go/errs"
+	"github.com/peake100/turnup-go/errs"
+	"github.com/peake100/turnup-go/models/timeofday"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -22,13 +23,13 @@ func TestPeriod(t *testing.T) {
 		time.Saturday, time.Saturday,
 	}
 
-	timeOfDays := []ToD{
-		AM, PM,
-		AM, PM,
-		AM, PM,
-		AM, PM,
-		AM, PM,
-		AM, PM,
+	timeOfDays := []timeofday.ToD{
+		timeofday.AM, timeofday.PM,
+		timeofday.AM, timeofday.PM,
+		timeofday.AM, timeofday.PM,
+		timeofday.AM, timeofday.PM,
+		timeofday.AM, timeofday.PM,
+		timeofday.AM, timeofday.PM,
 	}
 
 	for i := 0; i < 12; i++ {
@@ -56,57 +57,57 @@ func TestPeriod(t *testing.T) {
 func TestPeriodFromWeekday(t *testing.T) {
 	type testCase struct {
 		Weekday time.Weekday
-		ToD     ToD
+		ToD     timeofday.ToD
 	}
 
 	cases := []*testCase{
 		{
 			time.Monday,
-			AM,
+			timeofday.AM,
 		},
 		{
 			time.Monday,
-			PM,
+			timeofday.PM,
 		},
 		{
 			time.Tuesday,
-			AM,
+			timeofday.AM,
 		},
 		{
 			time.Tuesday,
-			PM,
+			timeofday.PM,
 		},
 		{
 			time.Wednesday,
-			AM,
+			timeofday.AM,
 		},
 		{
 			time.Wednesday,
-			PM,
+			timeofday.PM,
 		},
 		{
 			time.Thursday,
-			AM,
+			timeofday.AM,
 		},
 		{
 			time.Thursday,
-			PM,
+			timeofday.PM,
 		},
 		{
 			time.Friday,
-			AM,
+			timeofday.AM,
 		},
 		{
 			time.Friday,
-			PM,
+			timeofday.PM,
 		},
 		{
 			time.Saturday,
-			AM,
+			timeofday.AM,
 		},
 		{
 			time.Saturday,
-			PM,
+			timeofday.PM,
 		},
 	}
 
@@ -129,7 +130,7 @@ func TestPeriodFromWeekday(t *testing.T) {
 }
 
 func TestPricePeriodFromWeekdaySundayErr(t *testing.T) {
-	_, err := PricePeriodFromDay(time.Sunday, AM)
+	_, err := PricePeriodFromDay(time.Sunday, timeofday.AM)
 	assert.EqualError(t, err, errs.ErrNoSundayPricePeriod.Error())
 }
 

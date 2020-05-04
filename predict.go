@@ -1,14 +1,14 @@
 package turnup
 
 import (
-	"github.com/illuscio-dev/turnup-go/models"
-	"github.com/illuscio-dev/turnup-go/patterns"
+	"github.com/peake100/turnup-go/models"
+	"github.com/peake100/turnup-go/patterns"
 	"sync"
 )
 
 // Make an alias to the ticker model here. The high level API is just the ticker and
 // Predict function
-type PriceTicker = models.PriceTicker
+var NewPriceTicker = models.NewTicker
 type Prediction = models.Prediction
 
 // Holds the sync objects for the goroutines handling the price phase permutations for
@@ -26,7 +26,7 @@ type weekPredictionSync struct {
 // Calculate all the possible phase permutations for a given price pattern.
 func predictPattern(
 	ticker *models.PriceTicker,
-	pattern models.Pattern,
+	pattern models.PricePattern,
 	patternWorkSync *patternsPredictionSync,
 ) {
 	defer patternWorkSync.WaitGroup.Done()
@@ -90,7 +90,7 @@ func duplicatePhasePattern(
 // prices for each price period. Returns nil if this pattern is impossible given the
 // ticker's real-world values
 func potentialWeekFromPhasePattern(
-	patternPhases []models.PatternPhase, ticker *PriceTicker,
+	patternPhases []models.PatternPhase, ticker *models.PriceTicker,
 ) *models.PotentialWeek {
 	result := new(models.PotentialWeek)
 
@@ -222,7 +222,7 @@ func launchPossibleLengthRoutine(
 
 // Predict the possible price patterns given the current week's turnip prices on an
 // island.
-func Predict(currentWeek *PriceTicker) *Prediction {
+func Predict(currentWeek *models.PriceTicker) *Prediction {
 	// If we don't know the purchase price, we'll use the average price of 100 for now.
 	// TODO: better handling of unknown prices. We really should get the totals for both
 	//   90 and 100 so we know the increased ranges.

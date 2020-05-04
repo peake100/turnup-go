@@ -2,8 +2,8 @@ package patterns
 
 import (
 	"fmt"
-	"github.com/illuscio-dev/turnup-go/errs"
-	"github.com/illuscio-dev/turnup-go/models"
+	"github.com/peake100/turnup-go/errs"
+	"github.com/peake100/turnup-go/models"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -57,8 +57,8 @@ func TestIntUnknown(t *testing.T) {
 // Base Chances
 func TestBaseChances(t *testing.T) {
 	type testCase struct {
-		previousWeek   models.Pattern
-		thisWeek       models.Pattern
+		previousWeek   models.PricePattern
+		thisWeek       models.PricePattern
 		chanceExpected float64
 	}
 

@@ -3,7 +3,7 @@ package models
 // Describes the potential prices and chance of a given price pattern.
 type PotentialPattern struct {
 	// The pattern
-	Pattern Pattern
+	Pattern PricePattern
 	// The chance, min price and max price
 	analysis *Analysis
 	// The potential week's price patterns

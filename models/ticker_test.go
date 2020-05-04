@@ -5,6 +5,7 @@ package models
 
 import (
 	"fmt"
+	"github.com/peake100/turnup-go/models/timeofday"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
@@ -14,7 +15,7 @@ func TestPriceTicker_PriceForDay(t *testing.T) {
 
 	type testCase struct {
 		Weekday        time.Weekday
-		ToD            ToD
+		ToD            timeofday.ToD
 		ExpectedPeriod PricePeriod
 	}
 
@@ -22,72 +23,72 @@ func TestPriceTicker_PriceForDay(t *testing.T) {
 		// MONDAY
 		{
 			time.Monday,
-			AM,
+			timeofday.AM,
 			0,
 		},
 		{
 			time.Monday,
-			PM,
+			timeofday.PM,
 			1,
 		},
 
 		// TUESDAY
 		{
 			time.Tuesday,
-			AM,
+			timeofday.AM,
 			2,
 		},
 		{
 			time.Tuesday,
-			PM,
+			timeofday.PM,
 			3,
 		},
 
 		// WEDNESDAY
 		{
 			time.Wednesday,
-			AM,
+			timeofday.AM,
 			4,
 		},
 		{
 			time.Wednesday,
-			PM,
+			timeofday.PM,
 			5,
 		},
 
 		// THURSDAY
 		{
 			time.Thursday,
-			AM,
+			timeofday.AM,
 			6,
 		},
 		{
 			time.Thursday,
-			PM,
+			timeofday.PM,
 			7,
 		},
 
 		// FRIDAY
 		{
 			time.Friday,
-			AM,
+			timeofday.AM,
 			8,
 		},
 		{
 			time.Friday,
-			PM,
+			timeofday.PM,
 			9,
 		},
 
 		// SATURDAY
 		{
 			time.Saturday,
-			AM,
+			timeofday.AM,
 			10,
 		},
 		{
 			time.Saturday,
-			PM,
+			timeofday.PM,
 			11,
 		},
 	}
@@ -121,12 +122,12 @@ func TestPriceTicker_PriceForDay(t *testing.T) {
 
 func TestTickerWeekdayPurchasePrice(t *testing.T) {
 	ticker := new(PriceTicker)
-	ticker.SetPriceForDay(time.Sunday, AM, 100)
+	ticker.SetPriceForDay(time.Sunday, timeofday.AM, 100)
 
 	assert.Equal(t, ticker.PurchasePrice, 100, "purchase price")
 	assert.Equal(
 		t,
-		ticker.PriceForDay(time.Sunday, PM),
+		ticker.PriceForDay(time.Sunday, timeofday.PM),
 		100,
 		"purchase price from weekday",
 	)
@@ -155,8 +156,8 @@ func TestTickerPriceForTime(t *testing.T) {
 
 	for i := 0; i < 6; i++ {
 		testTime = monday.AddDate(0, 0, i)
-		for _, tod := range []ToD{AM, PM} {
-			if tod == PM {
+		for _, tod := range []timeofday.ToD{timeofday.AM, timeofday.PM} {
+			if tod == timeofday.PM {
 				testTime = testTime.Add(time.Hour * 3)
 			}
 

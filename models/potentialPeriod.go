@@ -3,6 +3,7 @@ package models
 type PotentialPricePeriod struct {
 	prices
 	PricePeriod PricePeriod
+	PatternPhase PatternPhase
 }
 
 // Returns ``true`` if ``price`` falls within the price range of this potential period.

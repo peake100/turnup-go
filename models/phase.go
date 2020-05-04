@@ -247,6 +247,12 @@ func (phase *patternPhaseAuto) calcPhasePeriodPrice(
 			// multiplier to
 			previousPrice := phase.Ticker().Prices[pricePeriod]
 			if previousPrice != 0 {
+				// Un-adjust this price if it has an adjustment (price adjustments
+				// never happen in the actual game during compounding phases, but we'll
+				// put it here for max compatibility in case that ever changes with an
+				// update, it should always be 0 when this code block is executed).
+				previousPrice -= finalAdjustment
+
 				// We need to get the most extreme pre-rounded price that could have
 				// resulted in the known price. For the max price, this is the price
 				// itself. For min, this is the number - 1 + the smallest possible

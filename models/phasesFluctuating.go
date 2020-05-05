@@ -8,7 +8,7 @@ type increasingPhaseBase struct {
 	phaseCoreAuto
 }
 
-func (phase *increasingPhaseBase) BasePriceMultiplier(int) (min float64, max float64) {
+func (phase *increasingPhaseBase) BasePriceMultiplier(int) (min float32, max float32) {
 	return 0.9, 1.4
 }
 
@@ -24,14 +24,12 @@ type decreasingPhaseBase struct {
 	phaseCoreAuto
 }
 
-func (phase *decreasingPhaseBase) BasePriceMultiplier(int) (min float64, max float64) {
+func (phase *decreasingPhaseBase) BasePriceMultiplier(int) (min float32, max float32) {
 	return 0.6, 0.8
 }
 
-func (phase *decreasingPhaseBase) AdjustPriceMultiplier(
-	factor float64, min bool,
-) float64 {
-	if min {
+func (phase *decreasingPhaseBase) AdjustPriceMultiplier(factor float32, isMin bool) float32 {
+	if isMin {
 		return factor - 0.1
 	}
 	return factor - 0.04

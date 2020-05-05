@@ -148,7 +148,7 @@ type phaseImplement interface {
 	// phase. This function is the real point of this interface. By implementing this
 	// function, patternPhaseAuto can do most of the math for us to calculate the price
 	// range.
-	BasePriceMultiplier(subPeriod int) (min float64, max float64)
+	BasePriceMultiplier(subPeriod int) (min float32, max float32)
 
 	// Create a copy of this object
 	Duplicate() phaseImplement
@@ -168,7 +168,7 @@ type phaseCompoundingPrice interface {
 	// rounding errors.
 	//
 	// `Min` is set to true when this is the minimum factor.
-	AdjustPriceMultiplier(factor float64, min bool) float64
+	AdjustPriceMultiplier(factor float32, isMin bool) float32
 }
 
 // A phase may implement this interface if a final adjustment to the buying price
@@ -187,10 +187,10 @@ type patternPhaseAuto struct {
 func (phase *patternPhaseAuto) calcPhasePeriodHistoricalMultiplier(
 	purchasePrice int,
 	previousPrice int,
-	baseMultiplier float64,
+	baseMultiplier float32,
 	finalAdjustment int,
 	isMin bool,
-) (historicMultiplier float64) {
+) (historicMultiplier float32) {
 	// Un-adjust this price if it has an adjustment (price adjustments
 	// never happen in the actual game during compounding phases, but we'll
 	// put it here for max compatibility in case that ever changes with an
@@ -201,14 +201,14 @@ func (phase *patternPhaseAuto) calcPhasePeriodHistoricalMultiplier(
 	// resulted in the known price. For the max price, this is the price
 	// itself. For isMin, this is the number - 1 + the smallest possible
 	// float value.
-	previousPriceFloat := float64(previousPrice)
+	previousPriceFloat := float32(previousPrice)
 	previousPriceFloor := previousPriceFloat - 1
-	previousPriceFloat = math.Nextafter(
+	previousPriceFloat = math.Nextafter32(
 		previousPriceFloor, previousPriceFloat,
 	)
 
 	// now work out the extreme end of the previous multiplier
-	historicMultiplier = previousPriceFloat / float64(purchasePrice)
+	historicMultiplier = previousPriceFloat / float32(purchasePrice)
 
 	// if it is lower than the isMin multiplier or higher than the
 	// max multiplier, we need to bring it in line with the
@@ -225,7 +225,7 @@ func (phase *patternPhaseAuto) calcPhasePeriodPriceCompounding(
 	compounding phaseCompoundingPrice,
 	currentPrice int,
 	binWidth float64,
-	baseMultiplier float64,
+	baseMultiplier float32,
 	purchasePrice int,
 	pricePeriod PricePeriod,
 	phasePeriod int,
@@ -269,9 +269,11 @@ func (phase *patternPhaseAuto) calcPhasePeriodPriceCompounding(
 		// We need to update the bin width here, as the likelihood of repeated
 		// lower bounds is compounding. To do that we need to know the price for
 		// this period.
-		compoundedPrice = RoundBells(float64(purchasePrice) * historicMultiplier)
+		//
+		// Convert everything to float64 so our prediction math is more precise.
+		compoundedPrice = RoundBells(float32(purchasePrice) * historicMultiplier)
 		subBinWidth := float64(compoundedPrice) -
-			(float64(purchasePrice) * historicMultiplier)
+			(float64(purchasePrice) * float64(historicMultiplier))
 
 		binWidth *= subBinWidth
 
@@ -284,7 +286,7 @@ func (phase *patternPhaseAuto) calcPhasePeriodPriceCompounding(
 // Calculates the minimum or maximum price of a given period and the bin width (chance)
 // of it happening.
 func (phase *patternPhaseAuto) calcPhasePeriodPrice(
-	baseMultiplier float64,
+	baseMultiplier float32,
 	purchasePrice int,
 	pricePeriod PricePeriod,
 	phasePeriod int,
@@ -321,8 +323,8 @@ func (phase *patternPhaseAuto) calcPhasePeriodPrice(
 	// where the random multiplier is between 0.9 and 100, we know the chance of 90
 	// bells occurring is essentially 0, since the random float generator would have to
 	// return EXACTLY 0.9 out of many millions of possible values.
-	price = RoundBells(float64(purchasePrice) * baseMultiplier)
-	binWidth = float64(price) - (float64(purchasePrice) * baseMultiplier)
+	price = RoundBells(float32(purchasePrice) * baseMultiplier)
+	binWidth = float64(price) - (float64(purchasePrice) * float64(baseMultiplier))
 
 	// We want to adjust our multiplier based on the price history, so we're going to
 	// to keep track of an adjusted multiplier based on island prices. We ALSO need to

@@ -6,10 +6,8 @@ type smallSpikeDecreasingBase struct {
 	phaseCoreAuto
 }
 
-func (phase *smallSpikeDecreasingBase) AdjustPriceMultiplier(
-	factor float64, min bool,
-) float64 {
-	if min {
+func (phase *smallSpikeDecreasingBase) AdjustPriceMultiplier(factor float32, isMin bool) float32 {
+	if isMin {
 		// In order to match the EXACT calculations from the game, we need to subtract
 		// both 0.02 and 0.03 discreetly, otherwise we end up with a SLIGHTLY different
 		// float value that can result in a perice different from what the game would
@@ -19,9 +17,7 @@ func (phase *smallSpikeDecreasingBase) AdjustPriceMultiplier(
 	return factor - 0.03
 }
 
-func (phase *smallSpikeDecreasingBase) BasePriceMultiplier(
-	int,
-) (min float64, max float64) {
+func (phase *smallSpikeDecreasingBase) BasePriceMultiplier(int) (min float32, max float32) {
 	return 0.4, 0.9
 }
 
@@ -62,9 +58,7 @@ func (phase *smallSpikeIncreasing) FinalPriceAdjustment(subPeriod int) int {
 	return 0
 }
 
-func (phase *smallSpikeIncreasing) BasePriceMultiplier(
-	subPeriod int,
-) (min float64, max float64) {
+func (phase *smallSpikeIncreasing) BasePriceMultiplier(subPeriod int) (min float32, max float32) {
 	switch {
 	case subPeriod == 0 || subPeriod == 1:
 		// Periods 1 and 2 are random between 90% and and 140%.

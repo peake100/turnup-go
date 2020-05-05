@@ -17,14 +17,12 @@ func (phase *decreasingPattern) PossibleLengths([]PatternPhase) (possibilities [
 	return []int{12}
 }
 
-func (phase *decreasingPattern) BasePriceMultiplier(int) (min float64, max float64) {
+func (phase *decreasingPattern) BasePriceMultiplier(int) (min float32, max float32) {
 	return 0.85, 0.90
 }
 
-func (phase *decreasingPattern) AdjustPriceMultiplier(
-	factor float64, min bool,
-) float64 {
-	if min {
+func (phase *decreasingPattern) AdjustPriceMultiplier(factor float32, isMin bool) float32 {
+	if isMin {
 		return factor - 0.05
 	}
 	return factor - 0.03

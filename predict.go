@@ -227,10 +227,6 @@ func launchPossibleLengthRoutine(
 // Predict the possible price patterns given the current week's turnip prices on an
 // island.
 func Predict(currentWeek *models.PriceTicker) (*Prediction, error) {
-	// If we don't know the purchase price, we'll use the average price of 100 for now.
-	// TODO: better handling of unknown prices. We really should get the totals for both
-	//   90 and 100 so we know the increased ranges.
-
 	patternWorkSync := &patternsPredictionSync{
 		ResultChan: make(chan *models.PotentialPattern, len(patterns.PATTERNSGAME)),
 		WaitGroup:  new(sync.WaitGroup),
@@ -253,6 +249,7 @@ func Predict(currentWeek *models.PriceTicker) (*Prediction, error) {
 		}
 		result.Patterns = append(result.Patterns, potentialPattern)
 		result.Analysis().Update(potentialPattern.Analysis(), false)
+		result.UpdateSpikeFromRange(potentialPattern)
 	}
 
 	// If there are no possible price patterns based on this ticker, return an error

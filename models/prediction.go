@@ -5,6 +5,7 @@ import (
 )
 
 type Prediction struct {
+	SpikeRange
 	analysis *Analysis
 	Patterns []*PotentialPattern
 }

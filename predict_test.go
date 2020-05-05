@@ -53,6 +53,7 @@ type expectedPrediction struct {
 	Decreasing         *expectedPattern
 	SmallSpike         *expectedPattern
 	PriceCSV           string
+	Spike              expectedSpike
 	expectedWeekHashes map[string]interface{}
 }
 
@@ -312,6 +313,11 @@ func testPrediction(
 		t.Run(pattern.String(), testPattern)
 	}
 
+	testSpike := func(t *testing.T) {
+		testExpectedSpike(t, &expected.Spike, prediction)
+	}
+	t.Run("spike_info", testSpike)
+
 	if expected.PriceCSV != "" {
 		expected.expectedWeekHashes = loadPriceData(t, expected.PriceCSV)
 		testPrices := func(t *testing.T) {
@@ -441,6 +447,14 @@ func Test100BellPurchase(t *testing.T) {
 				BigEnd:     0,
 			},
 		},
+		Spike: expectedSpike{
+			Small:      true,
+			SmallStart: 2,
+			SmallEnd:   11,
+			Big:        true,
+			BigStart:   3,
+			BigEnd:     9,
+		},
 		PriceCSV: "./zdevelop/tests/100_bell_no_ticker.csv",
 	}
 
@@ -488,6 +502,14 @@ func Test100BellPurchaseLargeSpike(t *testing.T) {
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+		},
+		Spike: expectedSpike{
+			Small:      false,
+			SmallStart: 0,
+			SmallEnd:   0,
+			Big:        true,
+			BigStart:   3,
+			BigEnd:     3,
 		},
 	}
 
@@ -619,6 +641,14 @@ func Test100BellPurchaseSmallSpike(t *testing.T) {
 				BigEnd:     0,
 			},
 		},
+		Spike: expectedSpike{
+			Small:      true,
+			SmallStart: 2,
+			SmallEnd:   4,
+			Big:        false,
+			BigStart:   0,
+			BigEnd:     0,
+		},
 	}
 
 	testPrediction(t, expected, ticker)
@@ -669,6 +699,14 @@ func TestUnknownBellPurchase(t *testing.T) {
 				BigStart:   0,
 				BigEnd:     0,
 			},
+		},
+		Spike: expectedSpike{
+			Small:      true,
+			SmallStart: 2,
+			SmallEnd:   11,
+			Big:        true,
+			BigStart:   3,
+			BigEnd:     9,
 		},
 	}
 
@@ -736,6 +774,14 @@ func TestMultiplePossibleMatches(t *testing.T) {
 				BigStart:   0,
 				BigEnd:     0,
 			},
+		},
+		Spike: expectedSpike{
+			Small:      true,
+			SmallStart: 4,
+			SmallEnd:   11,
+			Big:        true,
+			BigStart:   4,
+			BigEnd:     9,
 		},
 	}
 

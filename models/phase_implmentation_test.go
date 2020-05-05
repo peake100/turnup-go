@@ -66,7 +66,7 @@ func TestPatternPhaseProgression(t *testing.T) {
 			SMALLSPIKE,
 			[]string{
 				"steady decrease",
-				"slight spike",
+				"small hasSpikeAny",
 				"steady decrease",
 			},
 		},

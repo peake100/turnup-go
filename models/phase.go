@@ -173,10 +173,19 @@ type phaseCompoundingPrice interface {
 
 // A phase may implement this interface if a final adjustment to the buying price
 // should be made after applying BasePriceMultiplier() and SubPeriodPriceMultiplier().
-// In practice only the increasing phase of the Small Spike pattern will need to
+// In practice only the increasing phase of the Small HasSpikeAny pattern will need to
 // implement this interface.
 type phaseMakesFinalAdjustment interface {
 	FinalPriceAdjustment(subPeriod int) int
+}
+
+// A phase can implement this method if it has a price hasSpikeAny in it's bounds. Returns
+// whether a given sub period is a spiked price, and whether it's a large hasSpikeAny or small
+// hasSpikeAny. NOTE: Small spikes are defined as the peak price day for the small hasSpikeAny
+// pattern, along with the day to either side, as the potential prices for that day are
+// just one bell less than the peak price itself.
+type phaseHasSpike interface {
+	IsSpike(subPeriod int) (isSpike bool, isBig bool)
 }
 
 type patternPhaseAuto struct {
@@ -404,7 +413,7 @@ func (phase *patternPhaseAuto) potentialPrice(
 }
 
 func (phase *patternPhaseAuto) PotentialPeriod(
-	period PricePeriod, phasePeriod int,
+	period PricePeriod, subPeriod int,
 ) *PotentialPricePeriod {
 	purchasePrice := phase.Ticker().PurchasePrice
 	if purchasePrice == 0 {
@@ -416,21 +425,33 @@ func (phase *patternPhaseAuto) PotentialPeriod(
 		purchasePrice = 90
 	}
 
-	prices := phase.potentialPrice(purchasePrice, period, phasePeriod)
+	prices := phase.potentialPrice(purchasePrice, period, subPeriod)
 	if phase.Ticker().PurchasePrice == 0 {
 		// Now, if no purchase price was supplied, we need to run the numbers again
 		// with the highest possible base price to get the max bracket for what we
 		// know.
-		pricesMax := phase.potentialPrice(110, period, phasePeriod)
+		pricesMax := phase.potentialPrice(110, period, subPeriod)
 		prices.max = pricesMax.max
 		prices.maxChance = pricesMax.maxChance
 		prices.midChance = 1.0 - prices.minChance - prices.maxChance
+	}
+
+	var isSpike, isBigSpike, isSmallSpike bool
+	if hasSpike, ok := phase.phaseImplement.(phaseHasSpike); ok {
+		isSpike, isBigSpike = hasSpike.IsSpike(subPeriod)
+		isSmallSpike = isSpike && !isBigSpike
 	}
 
 	return &PotentialPricePeriod{
 		prices:       *prices,
 		PricePeriod:  period,
 		PatternPhase: phase,
+
+		Spike: Spike{
+			hasSpikeAny:   isSpike,
+			hasSpikeBig:   isBigSpike,
+			hasSpikeSmall: isSmallSpike,
+		},
 	}
 }
 

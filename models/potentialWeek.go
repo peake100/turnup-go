@@ -1,6 +1,7 @@
 package models
 
 type PotentialWeek struct {
+	SpikeRange
 	analysis     *Analysis
 	PricePeriods []*PotentialPricePeriod
 }

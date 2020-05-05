@@ -54,6 +54,13 @@ type smallSpikeIncreasing struct {
 	phaseCoreAuto
 }
 
+func (phase *smallSpikeIncreasing) IsSpike(subPeriod int) (isSpike bool, isBig bool) {
+	if subPeriod < 2 {
+		return false, false
+	}
+	return true, false
+}
+
 func (phase *smallSpikeIncreasing) FinalPriceAdjustment(subPeriod int) int {
 	if subPeriod == 2 || subPeriod == 4 {
 		return -1
@@ -65,18 +72,14 @@ func (phase *smallSpikeIncreasing) FinalPriceAdjustment(subPeriod int) int {
 func (phase *smallSpikeIncreasing) BasePriceMultiplier(
 	subPeriod int,
 ) (min float32, max float32) {
-	switch {
-	case subPeriod == 0 || subPeriod == 1:
-		// Periods 1 and 2 are random between 90% and and 140%.
+	if subPeriod < 2 {
 		return 0.9, 1.4
-	default:
-		// The rest of the phase periods are random between 140% and 200%
-		return 1.4, 2.0
 	}
+	return 1.4, 2.0
 }
 
 func (phase *smallSpikeIncreasing) Name() string {
-	return "slight spike"
+	return "small hasSpikeAny"
 }
 
 func (phase *smallSpikeIncreasing) PossibleLengths(

@@ -61,6 +61,7 @@ func predictPattern(
 			resultPattern.PotentialWeeks, potentialWeek,
 		)
 		resultPattern.Analysis().Update(potentialWeek.Analysis(), false)
+		resultPattern.UpdateSpikeFromRange(potentialWeek)
 	}
 
 	patternWorkSync.ResultChan <- resultPattern
@@ -118,6 +119,7 @@ func potentialWeekFromPhasePattern(
 			// We want to find the highest minimum for this potential week and use that
 			// as the week's guaranteed minimum
 			result.Analysis().Update(potentialPeriod, true)
+			result.UpdateSpikeFromPeriod(potentialPeriod.PricePeriod, potentialPeriod)
 
 			// Increment the overall price period
 			pricePeriod++

@@ -36,6 +36,13 @@ type sharpIncrease struct {
 	phaseCoreAuto
 }
 
+func (phase *sharpIncrease) IsSpike(subPeriod int) (isSpike bool, isBig bool) {
+	if subPeriod == 2 {
+		return true, true
+	}
+	return false, false
+}
+
 func (phase *sharpIncrease) Name() string {
 	return "sharp increase"
 }

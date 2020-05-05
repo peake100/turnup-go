@@ -17,6 +17,16 @@ import (
 	"testing"
 )
 
+type expectedSpike struct {
+	Small      bool
+	SmallStart models.PricePeriod
+	SmallEnd   models.PricePeriod
+
+	Big      bool
+	BigStart models.PricePeriod
+	BigEnd   models.PricePeriod
+}
+
 type priceBracket struct {
 	Min int
 	Max int
@@ -34,6 +44,7 @@ type expectedPattern struct {
 	MinGuaranteedPrice int
 	MaxPotentialPrice  int
 	PossibleWeeks      int
+	Spike              expectedSpike
 }
 
 type expectedPrediction struct {
@@ -199,7 +210,80 @@ func testPriceData(
 	for key := range expected.expectedWeekHashes {
 		t.Errorf("pattern not generated: %v", key)
 	}
+}
 
+func testExpectedSpike(
+	t *testing.T,
+	expected *expectedSpike,
+	predicted models.HasSpikeRange,
+) {
+	assert := assert.New(t)
+
+	assert.Equal(expected.Big, predicted.HasSpikeBig(), "has big spike")
+	assert.Equal(
+		expected.Small, predicted.HasSpikeSmall(), "has small spike",
+	)
+
+	assert.Equal(
+		expected.BigStart, predicted.SpikeBigStart(), "big spike start",
+	)
+	assert.Equal(
+		expected.BigEnd, predicted.SpikeBigEnd(), "big spike end",
+	)
+
+	assert.Equal(
+		expected.SmallStart,
+		predicted.SpikeSmallStart(),
+		"small spike start",
+	)
+	assert.Equal(
+		expected.SmallEnd, predicted.SpikeSmallEnd(), "big spike end",
+	)
+
+	if expected.Big || expected.Small {
+		assert.True(predicted.HasSpikeAny(), "has any spike")
+
+		var expectedStart models.PricePeriod
+		var expectedEnd models.PricePeriod
+
+		if expected.Big {
+			expectedStart = expected.BigStart
+			expectedEnd = expected.BigEnd
+		}
+
+		if expected.Small {
+			if !expected.Big || expected.SmallStart < expectedStart {
+				expectedStart = expected.SmallStart
+			}
+			if !expected.Big || expected.SmallEnd > expectedEnd {
+				expectedEnd = expected.SmallEnd
+			}
+		}
+
+		assert.Equal(
+			expectedStart,
+			predicted.SpikeAnyStart(),
+			"start for any spike",
+		)
+
+		assert.Equal(
+			expectedEnd,
+			predicted.SpikeAnyEnd(),
+			"end for any spike",
+		)
+	} else {
+		assert.False(predicted.HasSpikeAny(), "does not have any spike")
+		assert.Equal(
+			models.PricePeriod(0),
+			predicted.SpikeAnyStart(),
+			"no spike start",
+		)
+		assert.Equal(
+			models.PricePeriod(0),
+			predicted.SpikeAnyEnd(),
+			"no spike end",
+		)
+	}
 }
 
 // We can use this function to test a prediction for a given ticker against our expected
@@ -300,6 +384,12 @@ func testPattern(
 	}
 
 	t.Run("max price", testPriceMax)
+
+	testSpikeInfo := func(t *testing.T) {
+		testExpectedSpike(t, &expected.Spike, pattern)
+	}
+
+	t.Run("spike info", testSpikeInfo)
 }
 
 // Tests that we get ALL the correct possibilities with a purchase price of 100 bells
@@ -322,6 +412,14 @@ func Test100BellPurchase(t *testing.T) {
 			MinGuaranteedPrice: 200,
 			MaxPotentialPrice:  600,
 			PossibleWeeks:      7,
+			Spike: expectedSpike{
+				Small:      false,
+				SmallStart: 0,
+				SmallEnd:   0,
+				Big:        true,
+				BigStart:   3,
+				BigEnd:     9,
+			},
 		},
 		Decreasing: &expectedPattern{
 			Chance:             0.1375,
@@ -334,6 +432,14 @@ func Test100BellPurchase(t *testing.T) {
 			MinGuaranteedPrice: 140,
 			MaxPotentialPrice:  200,
 			PossibleWeeks:      8,
+			Spike: expectedSpike{
+				Small:      true,
+				SmallStart: 2,
+				SmallEnd:   11,
+				Big:        false,
+				BigStart:   0,
+				BigEnd:     0,
+			},
 		},
 		PriceCSV: "./zdevelop/tests/100_bell_no_ticker.csv",
 	}
@@ -362,6 +468,14 @@ func Test100BellPurchaseLargeSpike(t *testing.T) {
 			MinGuaranteedPrice: 200,
 			MaxPotentialPrice:  600,
 			PossibleWeeks:      1,
+			Spike: expectedSpike{
+				Small:      false,
+				SmallStart: 0,
+				SmallEnd:   0,
+				Big:        true,
+				BigStart:   3,
+				BigEnd:     3,
+			},
 		},
 		Decreasing: &expectedPattern{
 			Chance:             0,
@@ -496,6 +610,14 @@ func Test100BellPurchaseSmallSpike(t *testing.T) {
 			MinGuaranteedPrice: 140,
 			MaxPotentialPrice:  200,
 			PossibleWeeks:      1,
+			Spike: expectedSpike{
+				Small:      true,
+				SmallStart: 2,
+				SmallEnd:   4,
+				Big:        false,
+				BigStart:   0,
+				BigEnd:     0,
+			},
 		},
 	}
 
@@ -519,6 +641,14 @@ func TestUnknownBellPurchase(t *testing.T) {
 			MinGuaranteedPrice: 180,
 			MaxPotentialPrice:  660,
 			PossibleWeeks:      7,
+			Spike: expectedSpike{
+				Small:      false,
+				SmallStart: 0,
+				SmallEnd:   0,
+				Big:        true,
+				BigStart:   3,
+				BigEnd:     9,
+			},
 		},
 		Decreasing: &expectedPattern{
 			Chance:             0.1375,
@@ -531,6 +661,14 @@ func TestUnknownBellPurchase(t *testing.T) {
 			MinGuaranteedPrice: 126,
 			MaxPotentialPrice:  220,
 			PossibleWeeks:      8,
+			Spike: expectedSpike{
+				Small:      true,
+				SmallStart: 2,
+				SmallEnd:   11,
+				Big:        false,
+				BigStart:   0,
+				BigEnd:     0,
+			},
 		},
 	}
 
@@ -570,6 +708,14 @@ func TestMultiplePossibleMatches(t *testing.T) {
 			MinGuaranteedPrice: 200,
 			MaxPotentialPrice:  600,
 			PossibleWeeks:      6,
+			Spike: expectedSpike{
+				Small:      false,
+				SmallStart: 0,
+				SmallEnd:   0,
+				Big:        true,
+				BigStart:   4,
+				BigEnd:     9,
+			},
 		},
 		Decreasing: &expectedPattern{
 			Chance:             0.088,
@@ -582,6 +728,14 @@ func TestMultiplePossibleMatches(t *testing.T) {
 			MinGuaranteedPrice: 140,
 			MaxPotentialPrice:  200,
 			PossibleWeeks:      6,
+			Spike: expectedSpike{
+				Small:      true,
+				SmallStart: 4,
+				SmallEnd:   11,
+				Big:        false,
+				BigStart:   0,
+				BigEnd:     0,
+			},
 		},
 	}
 

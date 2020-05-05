@@ -62,7 +62,10 @@ Now we can make some predictions based on our prices:
 
 .. code-block:: go
 
-	prediction := turnup.Predict(ticker)
+	prediction, err := turnup.Predict(ticker)
+    if err != nil {
+        panic(err)
+    }
 
 	for _, potentialPattern := range prediction.Patterns {
 
@@ -102,6 +105,11 @@ Output:
     Chance:         0%
     Min Guaranteed: 0
     Max Potential:  0
+
+.. note::
+
+    If the ticker describes an impossible price pattern, it will be reported by ``err``
+    and ``prediction`` will be ``nil``.
 
 We can get some more information about specific potential price trends within each
 over-arching pattern:

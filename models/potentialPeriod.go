@@ -2,12 +2,12 @@ package models
 
 type PotentialPricePeriod struct {
 	prices
-	PricePeriod  PricePeriod
-	PatternPhase PatternPhase
+	Spike
+	// The price period
+	PricePeriod PricePeriod
 
-	// We're going to store the chances of any particular price happening. Because of
-	// the way prices are rounded, the upper and lower bounds will often have a lower
-	// chance of happening than prices in the center.
+	// The pattern phase used to generate this period.
+	PatternPhase PatternPhase
 }
 
 // Returns ``true`` if ``price`` falls within the price range of this potential period.

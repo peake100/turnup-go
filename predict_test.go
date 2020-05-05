@@ -242,6 +242,17 @@ func testPrediction(
 func testPattern(
 	t *testing.T, expected *expectedPattern, pattern *models.PotentialPattern,
 ) {
+	testPatternPermutations := func(t *testing.T) {
+		assert := assert.New(t)
+
+		assert.Equal(
+			expected.PossibleWeeks, len(pattern.PotentialWeeks),
+			fmt.Sprintf("%v permutations", pattern.Pattern),
+		)
+	}
+
+	t.Run("permutation_count", testPatternPermutations)
+
 	testPatternChance := func(t *testing.T) {
 		assert := assert.New(t)
 
@@ -540,4 +551,39 @@ func TestImpossiblePattern(t *testing.T) {
 		errs.ErrImpossibleTickerPrices.Error(),
 		"impossible prices error",
 	)
+}
+
+func TestMultiplePossibleMatches(t *testing.T) {
+	ticker := NewPriceTicker(100, patterns.DECREASING)
+	ticker.Prices[0] = 86
+	ticker.Prices[1] = 82
+
+	expected := &expectedPrediction{
+		Fluctuating: &expectedPattern{
+			Chance:             0.0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+		},
+		BigSpike: &expectedPattern{
+			Chance:             0.679,
+			MinGuaranteedPrice: 200,
+			MaxPotentialPrice:  600,
+			PossibleWeeks:      6,
+		},
+		Decreasing: &expectedPattern{
+			Chance:             0.088,
+			MinGuaranteedPrice: 85,
+			MaxPotentialPrice:  90,
+			PossibleWeeks:      1,
+		},
+		SmallSpike: &expectedPattern{
+			Chance:             0.233,
+			MinGuaranteedPrice: 140,
+			MaxPotentialPrice:  200,
+			PossibleWeeks:      6,
+		},
+	}
+
+	testPrediction(t, expected, ticker)
 }

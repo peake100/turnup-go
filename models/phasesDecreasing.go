@@ -21,7 +21,9 @@ func (phase *decreasingPattern) BasePriceMultiplier(int) (min float32, max float
 	return 0.85, 0.90
 }
 
-func (phase *decreasingPattern) AdjustPriceMultiplier(factor float32, isMin bool) float32 {
+func (phase *decreasingPattern) AdjustPriceMultiplier(
+	factor float32, isMin bool,
+) float32 {
 	if isMin {
 		return factor - 0.05
 	}

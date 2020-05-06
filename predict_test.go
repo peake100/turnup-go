@@ -213,6 +213,76 @@ func testPriceData(
 	}
 }
 
+func testExpectedSpikeAnyHasSpike(
+	t *testing.T,
+	expected *expectedSpike,
+	predicted models.HasSpikeRange,
+) {
+	assert := assert.New(t)
+	assert.True(predicted.HasSpikeAny(), "has any spike")
+
+	var expectedStart models.PricePeriod
+	var expectedEnd models.PricePeriod
+
+	if expected.Big {
+		expectedStart = expected.BigStart
+		expectedEnd = expected.BigEnd
+	}
+
+	if expected.Small {
+		if !expected.Big || expected.SmallStart < expectedStart {
+			expectedStart = expected.SmallStart
+		}
+		if !expected.Big || expected.SmallEnd > expectedEnd {
+			expectedEnd = expected.SmallEnd
+		}
+	}
+
+	assert.Equal(
+		expectedStart,
+		predicted.SpikeAnyStart(),
+		"start for any spike",
+	)
+
+	assert.Equal(
+		expectedEnd,
+		predicted.SpikeAnyEnd(),
+		"end for any spike",
+	)
+}
+
+func testExpectedSpikeAnyNoSpike(
+	t *testing.T,
+	predicted models.HasSpikeRange,
+) {
+	assert := assert.New(t)
+
+	assert.False(predicted.HasSpikeAny(), "does not have any spike")
+	assert.Equal(
+		models.PricePeriod(0),
+		predicted.SpikeAnyStart(),
+		"no spike start",
+	)
+	assert.Equal(
+		models.PricePeriod(0),
+		predicted.SpikeAnyEnd(),
+		"no spike end",
+	)
+}
+
+func testExpectedSpikeAny(
+	t *testing.T,
+	expected *expectedSpike,
+	predicted models.HasSpikeRange,
+) {
+
+	if expected.Big || expected.Small {
+		testExpectedSpikeAnyHasSpike(t, expected, predicted)
+	} else {
+		testExpectedSpikeAnyNoSpike(t, predicted)
+	}
+}
+
 func testExpectedSpike(
 	t *testing.T,
 	expected *expectedSpike,
@@ -241,50 +311,7 @@ func testExpectedSpike(
 		expected.SmallEnd, predicted.SpikeSmallEnd(), "big spike end",
 	)
 
-	if expected.Big || expected.Small {
-		assert.True(predicted.HasSpikeAny(), "has any spike")
-
-		var expectedStart models.PricePeriod
-		var expectedEnd models.PricePeriod
-
-		if expected.Big {
-			expectedStart = expected.BigStart
-			expectedEnd = expected.BigEnd
-		}
-
-		if expected.Small {
-			if !expected.Big || expected.SmallStart < expectedStart {
-				expectedStart = expected.SmallStart
-			}
-			if !expected.Big || expected.SmallEnd > expectedEnd {
-				expectedEnd = expected.SmallEnd
-			}
-		}
-
-		assert.Equal(
-			expectedStart,
-			predicted.SpikeAnyStart(),
-			"start for any spike",
-		)
-
-		assert.Equal(
-			expectedEnd,
-			predicted.SpikeAnyEnd(),
-			"end for any spike",
-		)
-	} else {
-		assert.False(predicted.HasSpikeAny(), "does not have any spike")
-		assert.Equal(
-			models.PricePeriod(0),
-			predicted.SpikeAnyStart(),
-			"no spike start",
-		)
-		assert.Equal(
-			models.PricePeriod(0),
-			predicted.SpikeAnyEnd(),
-			"no spike end",
-		)
-	}
+	testExpectedSpikeAny(t, expected, predicted)
 }
 
 // We can use this function to test a prediction for a given ticker against our expected

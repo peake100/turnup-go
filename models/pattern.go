@@ -22,24 +22,24 @@ func (pattern PricePattern) String() string {
 // decision of how likely each pattern is if the previous chance is unknown, since
 // the overall aggregate of the likelihoods for a pattern are not uniform.
 //
-// Lets treat each percentage chance as a 'likelihood unit.' The Small hasSpikeAny pattern
+// Lets treat each percentage chance as a 'likelihood unit.' The Small Spike pattern
 // gets 35 units for being 35% likely after a Random pattern, 25 units for being 25%
-// likely after a Large hasSpikeAny, etc.
+// likely after a Large Spike, etc.
 //
 // We end up with the following scores:
 //
 //	  Random: 140
-//    Large HasSpikeAny: 105
+//    Large Spike: 105
 //    Decreasing: 55
-//    Small HasSpikeAny: 100
+//    Small Spike: 100
 //
 // Now we can divide each by 400 (the total units) to see how likely each pattern is
 // *on average*.
 //
 //	  Random: 35%
-//    Large HasSpikeAny: 26.25%
+//    Large Spike: 26.25%
 //    Decreasing: 13.75%
-//    Small HasSpikeAny: 25%
+//    Small Spike: 25%
 //
 // We end up with a probability matrix that looks like this, where the left column is
 // last week's pattern and the top row is the likelihood of the pattern for this week.
@@ -123,19 +123,19 @@ var PATTERNSGAME = [4]PricePattern{FLUCTUATING, BIGSPIKE, DECREASING, SMALLSPIKE
 // Returns a pattern from a string: The following values are valid. The four names are:
 //
 //		1. Fluctuating
-//  	2. Big HasSpikeAny
+//  	2. Big Spike
 //  	3. Decreasing
-//  	4. Small HasSpikeAny
+//  	4. Small Spike
 //  	5. Unknown
 //
-// Incoming values are upper-cased, and spaces are removed before evaluating, so for
-// big hasSpikeAny, all of the following would be handled without error for Big HasSpikeAny:
+// Incoming values are upper-cased, and spaces are removed before evaluating; all of the
+// following would be handled without error for Big Spike:
 //
 //		- BIGSPIKE
 //		- bigspike
 //		- BIG SPIKE
-//		- Big HasSpikeAny
-//		- big hasSpikeAny
+//		- Big Spike
+//		- big spike
 //		- etc.
 func PatternFromString(value string) (PricePattern, error) {
 	value = strings.ToUpper(value)

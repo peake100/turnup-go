@@ -173,15 +173,15 @@ type phaseCompoundingPrice interface {
 
 // A phase may implement this interface if a final adjustment to the buying price
 // should be made after applying BasePriceMultiplier() and SubPeriodPriceMultiplier().
-// In practice only the increasing phase of the Small HasSpikeAny pattern will need to
+// In practice only the increasing phase of the Small Spike pattern will need to
 // implement this interface.
 type phaseMakesFinalAdjustment interface {
 	FinalPriceAdjustment(subPeriod int) int
 }
 
-// A phase can implement this method if it has a price hasSpikeAny in it's bounds. Returns
-// whether a given sub period is a spiked price, and whether it's a large hasSpikeAny or small
-// hasSpikeAny. NOTE: Small spikes are defined as the peak price day for the small hasSpikeAny
+// A phase can implement this method if it has a price spike in it's bounds. Returns
+// whether a given sub period is a spiked price, and whether it's a large spike or small
+// spike. NOTE: Small spikes are defined as the peak price day for the small spike
 // pattern, along with the day to either side, as the potential prices for that day are
 // just one bell less than the peak price itself.
 type phaseHasSpike interface {

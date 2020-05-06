@@ -86,63 +86,90 @@ func (spike *SpikeRange) SpikeSmallEnd() PricePeriod {
 	return spike.spikeSmallEnd
 }
 
-// UpdateSpikeFromPeriod
-func (spike *SpikeRange) UpdateSpikeFromPeriod(period PricePeriod, info HasSpike) {
-	if info.HasSpikeAny() {
-		if !spike.hasSpikeAny || period < spike.spikeAnyStart {
-			spike.spikeAnyStart = period
-		}
-		if period > spike.spikeAnyEnd {
-			spike.spikeAnyEnd = period
-		}
-		spike.hasSpikeAny = true
+func (spike *SpikeRange) updateSpikeFromPeriodAny(period PricePeriod, info HasSpike) {
+	if !info.HasSpikeAny() {
+		return
 	}
 
-	if info.HasSpikeBig() {
-		if !spike.hasSpikeBig || period < spike.spikeBigStart {
-			spike.spikeBigStart = period
-		}
-
-		if period > spike.spikeBigEnd {
-			spike.spikeBigEnd = period
-		}
-		spike.hasSpikeBig = true
+	if !spike.hasSpikeAny || period < spike.spikeAnyStart {
+		spike.spikeAnyStart = period
 	}
-
-	if info.HasSpikeSmall() {
-		if !spike.hasSpikeSmall || period < spike.spikeSmallStart {
-			spike.spikeSmallStart = period
-		}
-
-		if period > spike.spikeSmallEnd {
-			spike.spikeSmallEnd = period
-		}
-		spike.hasSpikeSmall = true
+	if period > spike.spikeAnyEnd {
+		spike.spikeAnyEnd = period
 	}
+	spike.hasSpikeAny = true
 }
 
-// Update From Range
-func (spike *SpikeRange) UpdateSpikeFromRange(info HasSpikeRange) {
-	if info.HasSpikeSmall() {
-		if !spike.hasSpikeSmall || info.SpikeSmallStart() < spike.spikeSmallStart {
-			spike.spikeSmallStart = info.SpikeSmallStart()
-		}
-		if info.SpikeSmallEnd() > spike.spikeSmallEnd {
-			spike.spikeSmallEnd = info.SpikeSmallEnd()
-		}
-
-		spike.hasSpikeSmall = true
+func (spike *SpikeRange) updateSpikeFromPeriodSmall(period PricePeriod, info HasSpike) {
+	if !info.HasSpikeSmall() {
+		return
 	}
 
-	if info.HasSpikeBig() {
-		if !spike.hasSpikeBig || info.SpikeBigStart() < spike.spikeBigStart {
-			spike.spikeBigStart = info.SpikeBigStart()
-		}
-		if info.SpikeBigEnd() > spike.spikeBigEnd {
-			spike.spikeBigEnd = info.SpikeBigEnd()
-		}
+	if !spike.hasSpikeSmall || period < spike.spikeSmallStart {
+		spike.spikeSmallStart = period
+	}
 
-		spike.hasSpikeBig = true
+	if period > spike.spikeSmallEnd {
+		spike.spikeSmallEnd = period
+	}
+	spike.hasSpikeSmall = true
+}
+
+func (spike *SpikeRange) updateSpikeFromPeriodBig(period PricePeriod, info HasSpike) {
+	if !info.HasSpikeBig() {
+		return
+	}
+
+	if !spike.hasSpikeBig || period < spike.spikeBigStart {
+		spike.spikeBigStart = period
+	}
+
+	if period > spike.spikeBigEnd {
+		spike.spikeBigEnd = period
+	}
+	spike.hasSpikeBig = true
+}
+
+// UpdateSpikeFromPeriod
+func (spike *SpikeRange) UpdateSpikeFromPeriod(period PricePeriod, info HasSpike) {
+	spike.updateSpikeFromPeriodAny(period, info)
+	spike.updateSpikeFromPeriodSmall(period, info)
+	spike.updateSpikeFromPeriodBig(period, info)
+}
+
+func (spike *SpikeRange) updateSpikeFromRangeSmall(info HasSpikeRange) {
+	if !info.HasSpikeSmall() {
+		return
+	}
+
+	if !spike.hasSpikeSmall || info.SpikeSmallStart() < spike.spikeSmallStart {
+		spike.spikeSmallStart = info.SpikeSmallStart()
+	}
+	if info.SpikeSmallEnd() > spike.spikeSmallEnd {
+		spike.spikeSmallEnd = info.SpikeSmallEnd()
+	}
+
+	spike.hasSpikeSmall = true
+}
+
+func (spike *SpikeRange) updateSpikeFromRangeBig(info HasSpikeRange) {
+	if !info.HasSpikeBig() {
+		return
+	}
+
+	if !spike.hasSpikeBig || info.SpikeBigStart() < spike.spikeBigStart {
+		spike.spikeBigStart = info.SpikeBigStart()
+	}
+	if info.SpikeBigEnd() > spike.spikeBigEnd {
+		spike.spikeBigEnd = info.SpikeBigEnd()
+	}
+
+	spike.hasSpikeBig = true
+}
+
+func (spike *SpikeRange) updateSpikeFromRangeAny(info HasSpikeRange) {
+	if !info.HasSpikeAny() {
+		return
 	}
 
 	if info.HasSpikeAny() {
@@ -155,4 +182,11 @@ func (spike *SpikeRange) UpdateSpikeFromRange(info HasSpikeRange) {
 
 		spike.hasSpikeAny = true
 	}
+}
+
+// Update From Range
+func (spike *SpikeRange) UpdateSpikeFromRange(info HasSpikeRange) {
+	spike.updateSpikeFromRangeSmall(info)
+	spike.updateSpikeFromRangeBig(info)
+	spike.updateSpikeFromRangeAny(info)
 }

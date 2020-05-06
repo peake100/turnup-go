@@ -188,11 +188,11 @@ func (phase *increasing3) Duplicate() phaseImplement {
 // Generates a new set of fluctuating phases to branch possible weeks off of.
 func fluctuatingProgression(ticker *PriceTicker) []PatternPhase {
 	phases := []PatternPhase{
-		&patternPhaseAuto{new(increasing1)},
-		&patternPhaseAuto{new(decreasing1)},
-		&patternPhaseAuto{new(increasing2)},
-		&patternPhaseAuto{new(decreasing2)},
-		&patternPhaseAuto{new(increasing3)},
+		&patternPhaseAuto{phaseImplement: new(increasing1)},
+		&patternPhaseAuto{phaseImplement: new(decreasing1)},
+		&patternPhaseAuto{phaseImplement: new(increasing2)},
+		&patternPhaseAuto{phaseImplement: new(decreasing2)},
+		&patternPhaseAuto{phaseImplement: new(increasing3)},
 	}
 
 	for _, thisPhase := range phases {

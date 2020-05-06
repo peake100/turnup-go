@@ -40,7 +40,7 @@ func (phase *decreasingPattern) Duplicate() phaseImplement {
 // Generates a new set of decreasing phases to branch possible weeks off of.
 func decreasingProgression(ticker *PriceTicker) []PatternPhase {
 	phases := []PatternPhase{
-		&patternPhaseAuto{new(decreasingPattern)},
+		&patternPhaseAuto{phaseImplement: new(decreasingPattern)},
 	}
 
 	for _, thisPhase := range phases {

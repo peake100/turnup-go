@@ -8,7 +8,7 @@ type patternPhaseAuto struct {
 	phaseImplement
 	// We are going to cache potential price period info here so we only need to
 	// generate it once. It's a mapping of subperiod -> potential price period
-	potentialPeriods map[int]*PotentialPricePeriod
+	potentialSubPeriods map[int]*potentialPhaseSubPeriod
 }
 
 // Calculates the actual multiplier value if we know the price from the previous day.
@@ -231,7 +231,9 @@ func (phase *patternPhaseAuto) potentialPrice(
 	return result
 }
 
-func (phase *patternPhaseAuto) generateSubPeriods() {
+func (phase *patternPhaseAuto) generateSubPeriod(
+	period PricePeriod, subPeriod int,
+) *PotentialPricePeriod {
 	purchasePrice := phase.Ticker().PurchasePrice
 	if purchasePrice == 0 {
 		// If the purchase price is 0, then it is unknown. We need to compute the prices
@@ -259,33 +261,44 @@ func (phase *patternPhaseAuto) generateSubPeriods() {
 		isSmallSpike = isSpike && !isBigSpike
 	}
 
-	return &PotentialPricePeriod{
+	potentialSubPeriod := &potentialPhaseSubPeriod{
 		prices:       *prices,
-		PricePeriod:  period,
-		PatternPhase: phase,
-
 		Spike: Spike{
 			hasSpikeAny:   isSpike,
 			hasSpikeBig:   isBigSpike,
 			hasSpikeSmall: isSmallSpike,
 		},
+		PatternPhase: phase,
+	}
+
+	phase.potentialSubPeriods[subPeriod] = potentialSubPeriod
+
+	return &PotentialPricePeriod{
+		potentialPhaseSubPeriod: potentialSubPeriod,
+		PricePeriod:             period,
 	}
 }
 
 func (phase *patternPhaseAuto) PotentialPeriod(
 	period PricePeriod, subPeriod int,
 ) *PotentialPricePeriod {
-	if potentialPeriod, ok := phase.potentialPeriods[subPeriod] ; ok {
-		return potentialPeriod
+	if phase.potentialSubPeriods == nil {
+		phase.potentialSubPeriods = make(map[int]*potentialPhaseSubPeriod)
 	}
 
-	phase.generateSubPeriods()
-	return phase.potentialPeriods[subPeriod]
+	if potentialSubPeriod, ok := phase.potentialSubPeriods[subPeriod] ; ok {
+		return &PotentialPricePeriod{
+			potentialPhaseSubPeriod: potentialSubPeriod,
+			PricePeriod:             period,
+		}
+	}
+
+	return phase.generateSubPeriod(period, subPeriod)
 }
 
 func (phase *patternPhaseAuto) Duplicate() PatternPhase {
 	return &patternPhaseAuto{
-		phaseImplement: phase.phaseImplement.Duplicate(),
-		potentialPeriods: phase.potentialPeriods,
+		phaseImplement:      phase.phaseImplement.Duplicate(),
+		potentialSubPeriods: phase.potentialSubPeriods,
 	}
 }

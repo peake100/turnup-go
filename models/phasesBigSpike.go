@@ -130,10 +130,10 @@ func (phase *randomDecrease) Duplicate() phaseImplement {
 // Generates a new set of fluctuating phases to branch possible weeks off of.
 func bigSpikeProgression(ticker *PriceTicker) []PatternPhase {
 	phases := []PatternPhase{
-		&patternPhaseAuto{new(steadyDecrease)},
-		&patternPhaseAuto{new(sharpIncrease)},
-		&patternPhaseAuto{new(sharpDecrease)},
-		&patternPhaseAuto{new(randomDecrease)},
+		&patternPhaseAuto{phaseImplement: new(steadyDecrease)},
+		&patternPhaseAuto{phaseImplement: new(sharpIncrease)},
+		&patternPhaseAuto{phaseImplement: new(sharpDecrease)},
+		&patternPhaseAuto{phaseImplement: new(randomDecrease)},
 	}
 
 	for _, thisPhase := range phases {

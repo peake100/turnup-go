@@ -12,6 +12,13 @@ type Predictor struct {
 
 	// The prediction result
 	result *models.Prediction
+
+	// The total probability width
+	totalWidth float64
+}
+
+func (predictor *Predictor) increaseBinWidth(amount float64) {
+	predictor.totalWidth += amount
 }
 
 func (predictor *Predictor) Predict() (*models.Prediction, error) {
@@ -27,7 +34,7 @@ func (predictor *Predictor) Predict() (*models.Prediction, error) {
 			Pattern: pattern,
 		}
 
-		potentialPattern := patternPredictor.Predict()
+		potentialPattern, binWidth := patternPredictor.Predict()
 
 		if len(potentialPattern.PotentialWeeks) > 0 {
 			validPrices = true
@@ -36,6 +43,7 @@ func (predictor *Predictor) Predict() (*models.Prediction, error) {
 		result.Patterns = append(result.Patterns, potentialPattern)
 		result.Analysis().Update(potentialPattern.Analysis(), false)
 		result.UpdateSpikeFromRange(potentialPattern)
+		predictor.increaseBinWidth(binWidth)
 	}
 
 	// If there are no possible price patterns based on this ticker, return an error

@@ -9,7 +9,14 @@ type patternPredictor struct {
 	Ticker  *models.PriceTicker
 	Pattern models.PricePattern
 
+	// The total probability width of this pattern
+	binWidth float64
+
 	result *models.PotentialPattern
+}
+
+func (predictor *patternPredictor) increaseBinWidth(amount float64) {
+	predictor.binWidth += amount
 }
 
 // Makes a duplicate of the current phase pattern to be a new possibility
@@ -37,43 +44,27 @@ func (predictor *patternPredictor) duplicatePhasePattern(
 // Once a particular phase pattern is fully computed, this function build the potential
 // prices for each price period. Returns nil if this pattern is impossible given the
 // ticker's real-world values
-func (predictor *patternPredictor) potentialWeekFromPhasePattern(
+func (predictor *patternPredictor) addWeekFromFinalizedPhases(
 	patternPhases []models.PatternPhase,
-) *models.PotentialWeek {
-	result := new(models.PotentialWeek)
-	ticker := predictor.Ticker
-
-	// The current week's price period
-	var pricePeriod models.PricePeriod
-	// The current sub period of the phase
-	var phasePeriod int
-
-	// Loop through each phase of the pattern
-	for _, thisPhase := range patternPhases {
-
-		// Loop through the number of periods in this phase's length.
-		for phasePeriod = 0; phasePeriod < thisPhase.Length(); phasePeriod++ {
-			// Get the projected price for this price period, according to the phase.
-			potentialPeriod := thisPhase.PotentialPeriod(pricePeriod, phasePeriod)
-
-			if !potentialPeriod.IsValidPrice(ticker.Prices[pricePeriod]) {
-				return nil
-			}
-
-			result.PricePeriods = append(result.PricePeriods, potentialPeriod)
-
-			// We want to find the highest minimum for this potential week and use that
-			// as the week's guaranteed minimum
-			result.Analysis().Update(potentialPeriod, true)
-			result.UpdateSpikeFromPeriod(potentialPeriod.PricePeriod, potentialPeriod)
-
-			// Increment the overall price period
-			pricePeriod++
-		}
-
+) {
+	thisWeekPredictor := &weekPredictor{
+		Ticker:        predictor.Ticker,
+		Pattern:       predictor.Pattern,
+		PatternPhases: patternPhases,
 	}
 
-	return result
+	potentialWeek, binWidth := thisWeekPredictor.Predict()
+	if potentialWeek == nil {
+		return
+	}
+
+	result := predictor.result
+
+	// Otherwise, add the result and update all of our pattern's stats
+	result.PotentialWeeks = append(result.PotentialWeeks, potentialWeek)
+	result.Analysis().Update(potentialWeek.Analysis(), false)
+	result.UpdateSpikeFromRange(potentialWeek)
+	predictor.increaseBinWidth(binWidth)
 }
 
 // Launches the goroutine for a new permutation of a price pattern.
@@ -150,31 +141,25 @@ func (predictor *patternPredictor) branchPhases(
 
 	// If we make it all the way through than we have hit a fully formed possible phase
 	// pattern! Now we can compute the possible prices and return them as the result
-	potentialWeek := predictor.potentialWeekFromPhasePattern(patternPhases)
-	// If we get nil back, then this week cannot be the result of this ticker
-	if potentialWeek == nil {
-		return
-	}
+	predictor.addWeekFromFinalizedPhases(patternPhases)
+}
 
-	result := predictor.result
-	// Otherwise, add the result
-	result.PotentialWeeks = append(result.PotentialWeeks, potentialWeek)
-	result.Analysis().Update(potentialWeek.Analysis(), false)
-	result.UpdateSpikeFromRange(potentialWeek)
+func (predictor *patternPredictor) setup() {
+	predictor.result = &models.PotentialPattern{
+		Pattern: predictor.Pattern,
+	}
 }
 
 // Calculate all the possible phase permutations for a given price pattern.
-func (predictor *patternPredictor) Predict() *models.PotentialPattern {
-	result := &models.PotentialPattern{
-		Pattern: predictor.Pattern,
-	}
-	predictor.result = result
-
-	ticker := predictor.Ticker
+func (predictor *patternPredictor) Predict(
+) (result *models.PotentialPattern, binWidth float64) {
+	predictor.setup()
 
 	// Get the base phase progression of this pattern
-	patternPhases := predictor.Pattern.PhaseProgression(ticker)
+	patternPhases := predictor.Pattern.PhaseProgression(predictor.Ticker)
 	predictor.branchPhases(patternPhases)
 
-	return result
+	// Store the total width in the analysis object for now
+	predictor.result.Analysis().Chance = predictor.binWidth
+	return predictor.result, predictor.binWidth
 }

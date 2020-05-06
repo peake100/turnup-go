@@ -39,9 +39,10 @@ func (predictor *patternPredictor) duplicatePhasePattern(
 // prices for each price period. Returns nil if this pattern is impossible given the
 // ticker's real-world values
 func (predictor *patternPredictor) potentialWeekFromPhasePattern(
-	patternPhases []models.PatternPhase, ticker *models.PriceTicker,
+	patternPhases []models.PatternPhase,
 ) *models.PotentialWeek {
 	result := new(models.PotentialWeek)
+	ticker := predictor.Ticker
 
 	// The current week's price period
 	var pricePeriod models.PricePeriod
@@ -108,8 +109,6 @@ func (predictor *patternPredictor) computeBranch(
 func (predictor *patternPredictor) branchPhases(
 	patternPhases []models.PatternPhase,
 ) {
-	ticker := predictor.Ticker
-
 	// To figure out the pattern for a week, we need to find all the possible lengths
 	// for each phase, then make a copy of the phase pattern with that possibility
 	// set to be re-iterated over in a new routine. We continue until all possibilities
@@ -144,11 +143,15 @@ func (predictor *patternPredictor) branchPhases(
 				patternPhases,
 			)
 		}
+
+		// We don't have a complete branch if we are permutating possibilities, so
+		// return
+		return
 	}
 
 	// If we make it all the way through than we have hit a fully formed possible phase
 	// pattern! Now we can compute the possible prices and return them as the result
-	potentialWeek := predictor.potentialWeekFromPhasePattern(patternPhases, ticker)
+	potentialWeek := predictor.potentialWeekFromPhasePattern(patternPhases)
 	// If we get nil back, then this week cannot be the result of this ticker
 	if potentialWeek == nil {
 		return

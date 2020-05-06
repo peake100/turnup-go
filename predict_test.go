@@ -321,6 +321,9 @@ func testPrediction(
 ) {
 	prediction, err := Predict(ticker)
 	assert.NoError(t, err, "prices are not possible")
+	if err != nil {
+		t.FailNow()
+	}
 
 	var thisExpected *expectedPattern
 	var thisPattern *models.PotentialPattern

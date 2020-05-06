@@ -7,52 +7,61 @@ type hasPrices interface {
 
 type prices struct {
 	// Price info
-	min int
-	max int
+	minPrice int
+	maxPrice int
 
-	// Chance info
+	// chance info
 	minChance float64
 	maxChance float64
 	midChance float64
 }
 
 func (prices *prices) MinPrice() int {
-	return prices.min
+	return prices.minPrice
 }
 
 func (prices *prices) MaxPrice() int {
-	return prices.max
+	return prices.maxPrice
 }
 
 // Returns the chance of this price range resulting in this price
 func (prices *prices) PriceChance(price int) float64 {
 	switch {
-	case price == prices.max:
+	case price == prices.maxPrice:
 		return prices.maxChance
-	case price == prices.min:
+	case price == prices.minPrice:
 		return prices.minChance
 	default:
 		return prices.midChance
 	}
 }
 
-func (prices *prices) UpdateMin(value int, useHigher bool) {
-	update := (useHigher && value > prices.min) ||
-		(!useHigher && value < prices.min) ||
-		prices.min == 0
+func (prices *prices) UpdateMin(value int, useHigher bool) (updated bool) {
+	updated = (useHigher && value > prices.minPrice) ||
+		(!useHigher && value < prices.minPrice) ||
+		prices.minPrice == 0
 
-	if update {
-		prices.min = value
+	if updated {
+		prices.minPrice = value
 	}
+
+	return updated
 }
 
-func (prices *prices) UpdateMax(value int) {
-	if value > prices.max {
-		prices.max = value
+func (prices *prices) UpdateMax(value int) (updated bool) {
+	updated = value > prices.maxPrice
+
+	if updated  {
+		prices.maxPrice = value
 	}
+
+	return updated
 }
 
-func (prices *prices) Update(otherPrices hasPrices, useHigherMin bool) {
-	prices.UpdateMin(otherPrices.MinPrice(), useHigherMin)
-	prices.UpdateMax(otherPrices.MaxPrice())
+func (prices *prices) updatePrices(
+	otherPrices hasPrices, useHigherMin bool,
+) (minUpdated bool, maxUpdated bool) {
+	minUpdated = prices.UpdateMin(otherPrices.MinPrice(), useHigherMin)
+	maxUpdated = prices.UpdateMax(otherPrices.MaxPrice())
+	return minUpdated, maxUpdated
 }

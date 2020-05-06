@@ -1,4 +1,4 @@
-package turnup
+package predict
 
 //revive:disable:import-shadowing reason: Disabled for assert := assert.New(), which is
 // the preferred method of using multiple asserts in a test.
@@ -9,6 +9,7 @@ import (
 	"github.com/peake100/turnup-go/errs"
 	"github.com/peake100/turnup-go/models"
 	"github.com/peake100/turnup-go/models/patterns"
+	"github.com/peake100/turnup-go/values"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"os"
@@ -36,7 +37,7 @@ type expectedWeek struct {
 	Pattern            models.PricePattern
 	GuaranteedMinPrice int
 	MaxPrice           int
-	Prices             [12]*priceBracket
+	Prices             [values.PricePeriodCount]*priceBracket
 }
 
 type expectedPattern struct {
@@ -124,7 +125,10 @@ func parsePriceRecord(
 // We're going to make a unique string for a weekly price pattern, which we can add to
 // a dict like a set.
 func makeWeekKey(
-	pattern models.PricePattern, prices [12]*priceBracket, min int, max int,
+	pattern models.PricePattern,
+	prices [values.PricePeriodCount]*priceBracket,
+	min int,
+	max int,
 ) string {
 	key := pattern.String()
 	for i, price := range prices {
@@ -170,7 +174,7 @@ func loadPriceData(t *testing.T, csvPath string) map[string]interface{} {
 }
 
 func potentialWeekKey(pattern models.PricePattern, week *models.PotentialWeek) string {
-	var priceBrackets [12]*priceBracket
+	var priceBrackets [values.PricePeriodCount]*priceBracket
 	for i, pricePeriod := range week.PricePeriods {
 		periodBracket := &priceBracket{
 			Min: pricePeriod.MinPrice(),
@@ -180,7 +184,7 @@ func potentialWeekKey(pattern models.PricePattern, week *models.PotentialWeek) s
 	}
 
 	return makeWeekKey(
-		pattern, priceBrackets, week.Analysis().MinPrice(), week.Analysis().MaxPrice(),
+		pattern, priceBrackets, week.MinPrice(), week.MaxPrice(),
 	)
 }
 
@@ -344,7 +348,7 @@ func testPrediction(
 	}
 
 	testSpike := func(t *testing.T) {
-		testExpectedSpike(t, &expected.Spike, prediction)
+		testExpectedSpike(t, &expected.Spike, &prediction.Spikes)
 	}
 	t.Run("spike_info", testSpike)
 
@@ -377,7 +381,7 @@ func testPattern(
 		assert := assert.New(t)
 
 		assert.Equal(
-			expected.Chance, pattern.Analysis().Chance,
+			expected.Chance, pattern.Chance(),
 			fmt.Sprintf("%v chance", pattern.Pattern),
 		)
 	}
@@ -390,7 +394,7 @@ func testPattern(
 		for _, week := range pattern.PotentialWeeks {
 			assert.Len(
 				week.PricePeriods,
-				12,
+				values.PricePeriodCount,
 				"price period count should be 12",
 			)
 		}
@@ -402,7 +406,7 @@ func testPattern(
 		assert := assert.New(t)
 
 		assert.Equal(
-			expected.MinGuaranteedPrice, pattern.Analysis().MinPrice(),
+			expected.MinGuaranteedPrice, pattern.MinPrice(),
 			"minimum guaranteed price",
 		)
 	}
@@ -414,7 +418,7 @@ func testPattern(
 
 		assert.Equal(
 			expected.MaxPotentialPrice,
-			pattern.Analysis().MaxPrice(),
+			pattern.MaxPrice(),
 			"max potential price",
 		)
 	}
@@ -422,7 +426,7 @@ func testPattern(
 	t.Run("max price", testPriceMax)
 
 	testSpikeInfo := func(t *testing.T) {
-		testExpectedSpike(t, &expected.Spike, pattern)
+		testExpectedSpike(t, &expected.Spike, pattern.Spikes)
 	}
 
 	t.Run("spike info", testSpikeInfo)
@@ -485,7 +489,7 @@ func Test100BellPurchase(t *testing.T) {
 			BigStart:   3,
 			BigEnd:     9,
 		},
-		PriceCSV: "./zdevelop/tests/100_bell_no_ticker.csv",
+		PriceCSV: "../zdevelop/tests/100_bell_no_ticker.csv",
 	}
 
 	testPrediction(t, expected, ticker)

@@ -1,14 +1,8 @@
 package models
 
-// Since many price periods share the same price bracket, we are going to re-use most
-// of the information for a potential period when it is identical to anther potential
-// period of a different week on the same pattern.
-type potentialPhaseSubPeriod struct {
-}
-
 type PotentialPricePeriod struct {
-	prices
-	Spike
+	*prices
+	Spikes *Spikes
 
 	// The price period
 	PricePeriod PricePeriod

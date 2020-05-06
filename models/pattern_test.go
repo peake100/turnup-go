@@ -42,7 +42,7 @@ func TestPatternFromString(t *testing.T) {
 	}
 
 	testCases := []*testCase{
-		// Big Spike
+		// Big Spikes
 		{
 			"BIGSPIKE",
 			BIGSPIKE,
@@ -60,7 +60,7 @@ func TestPatternFromString(t *testing.T) {
 			BIGSPIKE,
 		},
 
-		// Small Spike
+		// Small Spikes
 		{
 			"small spike",
 			SMALLSPIKE,

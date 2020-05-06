@@ -70,7 +70,7 @@ func (phase *patternPhaseAuto) PotentialPeriod(
 		// values.
 		if !phase.purchasePriceKnown {
 			potentialPeriodMax := phase.pricePeriodGenMax.Next()
-			potentialPeriod.max = potentialPeriodMax.max
+			potentialPeriod.maxPrice = potentialPeriodMax.maxPrice
 			potentialPeriod.maxChance = potentialPeriodMax.maxChance
 		}
 		phase.potentialPeriods[i] = potentialPeriod

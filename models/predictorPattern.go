@@ -1,18 +1,14 @@
-package predictor
-
-import (
-	"github.com/peake100/turnup-go/models"
-)
+package models
 
 type patternPredictor struct {
 	// Info
-	Ticker  *models.PriceTicker
-	Pattern models.PricePattern
+	Ticker  *PriceTicker
+	Pattern PricePattern
 
 	// The total probability width of this pattern
 	binWidth float64
 
-	result *models.PotentialPattern
+	result *PotentialPattern
 }
 
 func (predictor *patternPredictor) increaseBinWidth(amount float64) {
@@ -21,12 +17,12 @@ func (predictor *patternPredictor) increaseBinWidth(amount float64) {
 
 // Makes a duplicate of the current phase pattern to be a new possibility
 func (predictor *patternPredictor) duplicatePhasePattern(
-	patternPhases []models.PatternPhase,
-) []models.PatternPhase {
+	patternPhases []PatternPhase,
+) []PatternPhase {
 
-	dupedPhases := make([]models.PatternPhase, len(patternPhases))
+	dupedPhases := make([]PatternPhase, len(patternPhases))
 	for i, phase := range patternPhases {
-		var branchPhase models.PatternPhase
+		var branchPhase PatternPhase
 
 		// If the phase is finalized, we don't need to copy it. It's values will not
 		// be changing.
@@ -45,7 +41,7 @@ func (predictor *patternPredictor) duplicatePhasePattern(
 // prices for each price period. Returns nil if this pattern is impossible given the
 // ticker's real-world values
 func (predictor *patternPredictor) addWeekFromFinalizedPhases(
-	patternPhases []models.PatternPhase,
+	patternPhases []PatternPhase,
 ) {
 	thisWeekPredictor := &weekPredictor{
 		Ticker:        predictor.Ticker,
@@ -60,22 +56,22 @@ func (predictor *patternPredictor) addWeekFromFinalizedPhases(
 
 	result := predictor.result
 
-	// Otherwise, add the result and update all of our pattern's stats
+	// Otherwise, add the result and updatePrices all of our pattern's stats
 	result.PotentialWeeks = append(result.PotentialWeeks, potentialWeek)
-	result.Analysis().Update(potentialWeek.Analysis(), false)
-	result.UpdateSpikeFromRange(potentialWeek)
+	result.updatePriceRangeFromOther(potentialWeek)
+	result.Spikes.updateSpikeFromRange(potentialWeek.Spikes)
 	predictor.increaseBinWidth(binWidth)
 }
 
-// Launches the goroutine for a new permutation of a price pattern.
+// Creates a new branch and calculates it's possible permutations
 func (predictor *patternPredictor) computeBranch(
 	thisPossibleLength int,
 	possibilityIndex int,
 	phaseIndex int,
 	allPossibleLengths []int,
-	patternPhases []models.PatternPhase,
+	patternPhases []PatternPhase,
 ) {
-	var newBranch []models.PatternPhase
+	var newBranch []PatternPhase
 	if possibilityIndex < len(allPossibleLengths)-1 {
 		// duplicate our current pattern so we can set the possible length
 		// for this phase
@@ -97,7 +93,7 @@ func (predictor *patternPredictor) computeBranch(
 // Takes an array of pattern phases and recursively works through all un-computed
 // possible phase length patterns.
 func (predictor *patternPredictor) branchPhases(
-	patternPhases []models.PatternPhase,
+	patternPhases []PatternPhase,
 ) {
 	// To figure out the pattern for a week, we need to find all the possible lengths
 	// for each phase, then make a copy of the phase pattern with that possibility
@@ -145,14 +141,17 @@ func (predictor *patternPredictor) branchPhases(
 }
 
 func (predictor *patternPredictor) setup() {
-	predictor.result = &models.PotentialPattern{
+	predictor.result = &PotentialPattern{
+		Analysis: new(Analysis),
 		Pattern: predictor.Pattern,
+		Spikes: new(SpikeRange),
 	}
 }
 
 // Calculate all the possible phase permutations for a given price pattern.
-func (predictor *patternPredictor) Predict(
-) (result *models.PotentialPattern, binWidth float64) {
+func (predictor *patternPredictor) Predict() (
+	result *PotentialPattern, binWidth float64,
+) {
 	predictor.setup()
 
 	// Get the base phase progression of this pattern
@@ -160,6 +159,6 @@ func (predictor *patternPredictor) Predict(
 	predictor.branchPhases(patternPhases)
 
 	// Store the total width in the analysis object for now
-	predictor.result.Analysis().Chance = predictor.binWidth
+	predictor.result.chance = predictor.binWidth
 	return predictor.result, predictor.binWidth
 }

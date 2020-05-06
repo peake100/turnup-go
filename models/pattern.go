@@ -22,37 +22,37 @@ func (pattern PricePattern) String() string {
 // decision of how likely each pattern is if the previous chance is unknown, since
 // the overall aggregate of the likelihoods for a pattern are not uniform.
 //
-// Lets treat each percentage chance as a 'likelihood unit.' The Small Spike pattern
+// Lets treat each percentage chance as a 'likelihood unit.' The Small Spikes pattern
 // gets 35 units for being 35% likely after a Random pattern, 25 units for being 25%
-// likely after a Large Spike, etc.
+// likely after a Large Spikes, etc.
 //
 // We end up with the following scores:
 //
 //	  Random: 140
-//    Large Spike: 105
+//    Large Spikes: 105
 //    Decreasing: 55
-//    Small Spike: 100
+//    Small Spikes: 100
 //
 // Now we can divide each by 400 (the total units) to see how likely each pattern is
 // *on average*.
 //
 //	  Random: 35%
-//    Large Spike: 26.25%
+//    Large Spikes: 26.25%
 //    Decreasing: 13.75%
-//    Small Spike: 25%
+//    Small Spikes: 25%
 //
 // We end up with a probability matrix that looks like this, where the left column is
 // last week's pattern and the top row is the likelihood of the pattern for this week.
 // ==================================================================
-//             | Fluctuating |   Big Spike | Decreasing | Small Spike
+//             | Fluctuating |   Big Spikes | Decreasing | Small Spikes
 // ------------------------------------------------------------------
 // Fluctuating | 20.00%      |      30.00% |     15.00% |      35.00%
 // ------------------------------------------------------------------
-// Big Spike   | 50.00%      |      05.00% |     20.00% |      25.00%
+// Big Spikes   | 50.00%      |      05.00% |     20.00% |      25.00%
 // ------------------------------------------------------------------
 // Decreasing  | 25.00%      |      45.00% |     05.00% |      25.00%
 // ------------------------------------------------------------------
-// Small Spike | 45.00%      |      25.00% |     15.00% |      15.00%
+// Small Spikes | 45.00%      |      25.00% |     15.00% |      15.00%
 // ------------------------------------------------------------------
 // Unknown     | 35.00%      |      26.25% |     13.75% |      25.00%
 // ------------------------------------------------------------------
@@ -123,18 +123,18 @@ var PATTERNSGAME = [4]PricePattern{FLUCTUATING, BIGSPIKE, DECREASING, SMALLSPIKE
 // Returns a pattern from a string: The following values are valid. The four names are:
 //
 //		1. Fluctuating
-//  	2. Big Spike
+//  	2. Big Spikes
 //  	3. Decreasing
-//  	4. Small Spike
+//  	4. Small Spikes
 //  	5. Unknown
 //
 // Incoming values are upper-cased, and spaces are removed before evaluating; all of the
-// following would be handled without error for Big Spike:
+// following would be handled without error for Big Spikes:
 //
 //		- BIGSPIKE
 //		- bigspike
 //		- BIG SPIKE
-//		- Big Spike
+//		- Big Spikes
 //		- big spike
 //		- etc.
 func PatternFromString(value string) (PricePattern, error) {

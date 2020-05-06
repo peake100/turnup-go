@@ -28,7 +28,7 @@ type HasSpikeRange interface {
 }
 
 // Implementation of HasSpikeAny
-type Spike struct {
+type Spikes struct {
 	// Whether this is a big or small hasSpikeAny.
 	hasSpikeAny bool
 	// Whether this is a big hasSpikeAny. If small hasSpikeAny, is false.
@@ -37,29 +37,29 @@ type Spike struct {
 	hasSpikeSmall bool
 }
 
-func (spike *Spike) HasSpikeAny() bool {
+func (spike *Spikes) HasSpikeAny() bool {
 	return spike.hasSpikeAny
 }
 
-func (spike *Spike) HasSpikeBig() bool {
+func (spike *Spikes) HasSpikeBig() bool {
 	return spike.hasSpikeBig
 }
 
-func (spike *Spike) HasSpikeSmall() bool {
+func (spike *Spikes) HasSpikeSmall() bool {
 	return spike.hasSpikeSmall
 }
 
 // Implementation of HasSpikeRange
 type SpikeRange struct {
-	Spike
-	spikeAnyStart PricePeriod
-	spikeAnyEnd   PricePeriod
+	Spikes
+	spikeAnyStart         PricePeriod
+	spikeAnyEnd           PricePeriod
 
-	spikeBigStart PricePeriod
-	spikeBigEnd   PricePeriod
+	spikeBigStart         PricePeriod
+	spikeBigEnd           PricePeriod
 
-	spikeSmallStart PricePeriod
-	spikeSmallEnd   PricePeriod
+	spikeSmallStart         PricePeriod
+	spikeSmallEnd           PricePeriod
 }
 
 func (spike *SpikeRange) SpikeAnyStart() PricePeriod {
@@ -185,7 +185,7 @@ func (spike *SpikeRange) updateSpikeFromRangeAny(info HasSpikeRange) {
 }
 
 // Update From Range
-func (spike *SpikeRange) UpdateSpikeFromRange(info HasSpikeRange) {
+func (spike *SpikeRange) updateSpikeFromRange(info HasSpikeRange) {
 	spike.updateSpikeFromRangeSmall(info)
 	spike.updateSpikeFromRangeBig(info)
 	spike.updateSpikeFromRangeAny(info)

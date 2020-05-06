@@ -5,16 +5,9 @@ import (
 )
 
 type Prediction struct {
-	SpikeRange
-	analysis *Analysis
+	PriceRange
+	Spikes SpikePeriodDensity
 	Patterns []*PotentialPattern
-}
-
-func (prediction *Prediction) Analysis() *Analysis {
-	if prediction.analysis == nil {
-		prediction.analysis = new(Analysis)
-	}
-	return prediction.analysis
 }
 
 // Returns the potential pattern predictions for a given pattern. Returns nil if

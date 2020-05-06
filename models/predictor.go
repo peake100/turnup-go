@@ -1,17 +1,15 @@
-package predictor
+package models
 
 import (
 	"github.com/peake100/turnup-go/errs"
-	"github.com/peake100/turnup-go/models"
-	"github.com/peake100/turnup-go/models/patterns"
 )
 
 type Predictor struct {
 	// The price ticker to use for this prediction
-	Ticker *models.PriceTicker
+	Ticker *PriceTicker
 
 	// The prediction result
-	result *models.Prediction
+	result *Prediction
 
 	// The total probability width
 	totalWidth float64
@@ -21,14 +19,14 @@ func (predictor *Predictor) increaseBinWidth(amount float64) {
 	predictor.totalWidth += amount
 }
 
-func (predictor *Predictor) Predict() (*models.Prediction, error) {
-	result := new(models.Prediction)
+func (predictor *Predictor) Predict() (*Prediction, error) {
+	result := new(Prediction)
 	predictor.result = result
 
 	currentWeek := predictor.Ticker
 
 	validPrices := false
-	for _, pattern := range patterns.PATTERNSGAME {
+	for _, pattern := range PATTERNSGAME {
 		patternPredictor := &patternPredictor{
 			Ticker:  predictor.Ticker,
 			Pattern: pattern,
@@ -40,9 +38,10 @@ func (predictor *Predictor) Predict() (*models.Prediction, error) {
 			validPrices = true
 		}
 
+		// Integrate this data with our top-level summary
 		result.Patterns = append(result.Patterns, potentialPattern)
-		result.Analysis().Update(potentialPattern.Analysis(), false)
-		result.UpdateSpikeFromRange(potentialPattern)
+		result.updatePriceRangeFromOther(potentialPattern)
+		result.Spikes.updateSpikeFromRange(potentialPattern.Spikes)
 		predictor.increaseBinWidth(binWidth)
 	}
 

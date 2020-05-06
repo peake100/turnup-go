@@ -1,15 +1,11 @@
-package predictor
-
-import (
-	"github.com/peake100/turnup-go/models"
-)
+package models
 
 // Handles doing predictions for a potential phase permutation of a week once the phase
 // pattern is finalized
 type weekPredictor struct {
-	Ticker        *models.PriceTicker
-	Pattern       models.PricePattern
-	PatternPhases []models.PatternPhase
+	Ticker        *PriceTicker
+	Pattern       PricePattern
+	PatternPhases []PatternPhase
 
 	// Value cache
 	// The probability weight of the price pattern given last week's pattern
@@ -22,7 +18,7 @@ type weekPredictor struct {
 	// Set to true if there are any known prices in the ticker
 	pricesKnown bool
 
-	result *models.PotentialWeek
+	result *PotentialWeek
 }
 
 func (predictor *weekPredictor) increaseBinWidth(amount float64) {
@@ -32,7 +28,7 @@ func (predictor *weekPredictor) increaseBinWidth(amount float64) {
 // Come up with a score for how likely this period is to match the ticker. We call this
 // score the bin "width"
 func (predictor *weekPredictor) addPeriodBinWidth(
-	pricePeriod models.PricePeriod,
+	pricePeriod PricePeriod,
 	knownPrice int,
 ) {
 	// If this price is unknown (0) then we can't make probability estimates with it.
@@ -75,7 +71,7 @@ func (predictor *weekPredictor) buildWeek() {
 	result := predictor.result
 
 	// The current week's price period
-	var pricePeriod models.PricePeriod
+	var pricePeriod PricePeriod
 	// The current sub period of the phase
 	var phasePeriod int
 
@@ -99,8 +95,10 @@ func (predictor *weekPredictor) buildWeek() {
 
 			// We want to find the highest minimum for this potential week and use that
 			// as the week's guaranteed minimum
-			result.Analysis().Update(potentialPeriod, true)
-			result.UpdateSpikeFromPeriod(potentialPeriod.PricePeriod, potentialPeriod)
+			result.updatePriceRangeFromPrices(potentialPeriod, pricePeriod)
+			result.Spikes.UpdateSpikeFromPeriod(
+				potentialPeriod.PricePeriod, potentialPeriod.Spikes,
+			)
 
 			// Now get the probability width that this week will happen
 			predictor.addPeriodBinWidth(pricePeriod, knownPrice)
@@ -125,11 +123,14 @@ func (predictor *weekPredictor) finalizeWidth() {
 	predictor.binWidth /= float64(predictor.patternPermutationCount)
 
 	// Use this bin width as our chance for now.
-	predictor.result.Analysis().Chance = predictor.binWidth
+	predictor.result.chance = predictor.binWidth
 }
 
 func (predictor *weekPredictor) setup() {
-	predictor.result = new(models.PotentialWeek)
+	predictor.result = &PotentialWeek{
+		Analysis:     new(Analysis),
+		Spikes:       new(SpikeRange),
+	}
 	predictor.patternWeight = predictor.Pattern.BaseChance(
 		predictor.Ticker.PreviousPattern,
 	)
@@ -137,7 +138,7 @@ func (predictor *weekPredictor) setup() {
 }
 
 func (predictor *weekPredictor) Predict() (
-	potentialWeek *models.PotentialWeek, binWidth float64,
+	potentialWeek *PotentialWeek, binWidth float64,
 ) {
 	predictor.setup()
 	predictor.buildWeek()

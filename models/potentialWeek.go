@@ -1,14 +1,8 @@
 package models
 
 type PotentialWeek struct {
-	SpikeRange
-	analysis     *Analysis
+	*Analysis
+	Spikes 		 *SpikeRange
 	PricePeriods []*PotentialPricePeriod
 }
 
-func (potential *PotentialWeek) Analysis() *Analysis {
-	if potential.analysis == nil {
-		potential.analysis = new(Analysis)
-	}
-	return potential.analysis
-}

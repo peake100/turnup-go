@@ -107,7 +107,7 @@ type phaseCompoundingPrice interface {
 
 // A phase may implement this interface if a final adjustment to the buying price
 // should be made after applying BasePriceMultiplier() and SubPeriodPriceMultiplier().
-// In practice only the increasing phase of the Small Spike pattern will need to
+// In practice only the increasing phase of the Small Spikes pattern will need to
 // implement this interface.
 type phaseMakesFinalAdjustment interface {
 	FinalPriceAdjustment(subPeriod int) int

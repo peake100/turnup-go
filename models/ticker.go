@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/peake100/turnup-go/models/timeofday"
+	"github.com/peake100/turnup-go/values"
 	"time"
 )
 
@@ -17,7 +18,7 @@ type PriceTicker struct {
 	//
 	// Because PricePeriod is an extension of int, we can access the array with
 	// PricePeriod objects.
-	Prices [12]int
+	Prices [values.PricePeriodCount]int
 }
 
 // Return the price for a given Weekday + time of day
@@ -73,6 +74,6 @@ func NewTicker(purchasePrice int, previousPattern PricePattern) *PriceTicker {
 	return &PriceTicker{
 		PreviousPattern: previousPattern,
 		PurchasePrice:   purchasePrice,
-		Prices:          [12]int{},
+		Prices:          [values.PricePeriodCount]int{},
 	}
 }

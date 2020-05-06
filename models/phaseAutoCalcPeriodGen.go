@@ -4,7 +4,7 @@ import "math"
 
 // In order to get the sub period price values for a given phase, we have to know
 // information from all the previous phases to take in historical data and properly
-// update compounded price multipliers.
+// updatePrices compounded price multipliers.
 //
 // If we were to make these calculations on demand, we would end up with an algorithm
 // whose execution scaled exponentially as the sub price period increased, as each
@@ -117,7 +117,7 @@ func (gen *phasePeriodGenerator) calcPhasePeriodHistoricalMultiplier(
 	// Un-adjust this price if it has an adjustment (price adjustments
 	// never happen in the actual game during compounding phases, but we'll
 	// put it here for max compatibility in case that ever changes with an
-	// update, it should always be 0 when this code block is executed).
+	// updatePrices, it should always be 0 when this code block is executed).
 	previousPrice -= gen.finalAdjustment
 
 	// We need to get the most extreme pre-rounded price that could have
@@ -211,7 +211,7 @@ func (gen *phasePeriodGenerator) adjustCompounding() {
 		gen.historicalMultiplierMax, false,
 	)
 
-	// We need to update the bin width here, as the likelihood of repeated
+	// We need to updatePrices the bin width here, as the likelihood of repeated
 	// lower bounds is compounding. To do that we need to know the price for
 	// this period.
 	var subBinWidthMin float64
@@ -251,15 +251,15 @@ func (gen *phasePeriodGenerator) buildCurrentPeriod() *PotentialPricePeriod {
 	}
 
 	return &PotentialPricePeriod{
-		prices: prices{
-			min: gen.priceMin,
-			max: gen.priceMax,
+		prices: &prices{
+			minPrice: gen.priceMin,
+			maxPrice: gen.priceMax,
 
 			minChance: minChance,
 			midChance: midChance,
 			maxChance: maxChance,
 		},
-		Spike: Spike{
+		Spikes: &Spikes{
 			hasSpikeAny:   isSpike,
 			hasSpikeBig:   isBigSpike,
 			hasSpikeSmall: isSmallSpike,

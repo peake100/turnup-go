@@ -1,28 +1,23 @@
-package predictor
+package models
 
 import (
-	"github.com/peake100/turnup-go/models"
 	"math"
 )
 
-type hasAnalysis interface {
-	Analysis() *models.Analysis
-}
-
 // Converts the chance on an Analysis() method from chance width to absolute chance
 // with a precision of 4 digits (XX.XX%).
-func (predictor *Predictor) setChanceFromWidth(item hasAnalysis, totalWidth float64) {
-	chance := item.Analysis().Chance / totalWidth
+func (predictor *Predictor) setChanceFromWidth(item hasFullAnalysis, totalWidth float64) {
+	chance := item.Chance() / totalWidth
 	// round to 4 digits (xx.xx%)
 	chance = math.Round(chance*10000) / 10000
-	item.Analysis().Chance = chance
+	item.setChance(chance)
 }
 
 // If we are in a price pattern which is VANISHINGLY unlikely, to the point that the
 // effective chance is 0, we are going to base the likelihood of each pattern off it's
 // base chance and the number of permutations we can eliminate.
 func (predictor *Predictor) fallBackToPatternCount(
-	prediction *models.Prediction, ticker *models.PriceTicker,
+	prediction *Prediction, ticker *PriceTicker,
 ) (totalWidth float64) {
 	for _, potentialPattern := range prediction.Patterns {
 		potentialMatches := len(potentialPattern.PotentialWeeks)
@@ -36,7 +31,7 @@ func (predictor *Predictor) fallBackToPatternCount(
 				potentialPattern.Pattern.BaseChance(ticker.PreviousPattern)
 
 		totalWidth += patternChance
-		potentialPattern.Analysis().Chance = patternChance
+		potentialPattern.setChance(patternChance)
 	}
 
 	return totalWidth
@@ -45,7 +40,7 @@ func (predictor *Predictor) fallBackToPatternCount(
 // Calculate the chances of each price pattern permutation once they have been
 // calculated.
 func (predictor *Predictor) calculateChances(
-	ticker *models.PriceTicker, prediction *models.Prediction,
+	ticker *PriceTicker, prediction *Prediction,
 ) {
 	// We are going to calculate the likelihood that a bell price in the ticker came
 	// from a given range by looping through the price periods we have data for and
@@ -88,14 +83,30 @@ func (predictor *Predictor) calculateChances(
 
 	// Now we can go through and figure out the final chance for each entry using our
 	// total chance units
+	spikeInfo := &prediction.Spikes
 	for _, potentialPattern := range prediction.Patterns {
 		// Otherwise refactor the individual chances by dividing their width by the
 		// total width.
 		predictor.setChanceFromWidth(potentialPattern, totalWidth)
 		for _, week := range potentialPattern.PotentialWeeks {
+			// Set the chance for this week
 			predictor.setChanceFromWidth(week, totalWidth)
+			// Update the spike chance heatmap with the normalized week
+			predictor.result.Spikes.UpdateSpikeDensity(week)
+		}
+
+		// We want to use the big and small pattern chance as the spike chance so
+		// that they match. If we compute separately, then floating point errors cause
+		// the spike chances to mismatch the pattern chance, which is nonsensical.
+		if potentialPattern.Pattern == BIGSPIKE {
+			spikeInfo.BigChance = potentialPattern.Chance()
+		} else if potentialPattern.Pattern == SMALLSPIKE {
+			spikeInfo.SmallChance = potentialPattern.Chance()
 		}
 	}
+
+	// Lastly, get the total spike chance
+	spikeInfo.AnyChance = spikeInfo.BigChance + spikeInfo.SmallChance
 
 	// And we're done! Phew!
 }

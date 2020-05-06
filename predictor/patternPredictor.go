@@ -6,12 +6,11 @@ import (
 
 type patternPredictor struct {
 	// Info
-	Ticker *models.PriceTicker
+	Ticker  *models.PriceTicker
 	Pattern models.PricePattern
 
 	result *models.PotentialPattern
 }
-
 
 // Makes a duplicate of the current phase pattern to be a new possibility
 func (predictor *patternPredictor) duplicatePhasePattern(
@@ -167,7 +166,7 @@ func (predictor *patternPredictor) branchPhases(
 // Calculate all the possible phase permutations for a given price pattern.
 func (predictor *patternPredictor) Predict() *models.PotentialPattern {
 	result := &models.PotentialPattern{
-		Pattern:        predictor.Pattern,
+		Pattern: predictor.Pattern,
 	}
 	predictor.result = result
 

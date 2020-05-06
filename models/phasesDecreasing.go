@@ -17,6 +17,10 @@ func (phase *decreasingPattern) PossibleLengths([]PatternPhase) (possibilities [
 	return []int{12}
 }
 
+func (phase *decreasingPattern) MaxLength() int {
+	return 12
+}
+
 func (phase *decreasingPattern) BasePriceMultiplier(int) (min float32, max float32) {
 	return 0.85, 0.90
 }

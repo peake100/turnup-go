@@ -14,6 +14,10 @@ func (phase *steadyDecrease) PossibleLengths([]PatternPhase) (possibilities []in
 	return []int{1, 2, 3, 4, 5, 6, 7}
 }
 
+func (phase *steadyDecrease) MaxLength() int {
+	return 7
+}
+
 func (phase *steadyDecrease) BasePriceMultiplier(int) (min float32, max float32) {
 	return 0.85, 0.9
 }
@@ -52,6 +56,10 @@ func (phase *sharpIncrease) PossibleLengths([]PatternPhase) (possibilities []int
 	return []int{3}
 }
 
+func (phase *sharpIncrease) MaxLength() int {
+	return 3
+}
+
 func (phase *sharpIncrease) BasePriceMultiplier(
 	subPeriod int,
 ) (min float32, max float32) {
@@ -85,6 +93,10 @@ func (phase *sharpDecrease) PossibleLengths([]PatternPhase) (possibilities []int
 	return []int{2}
 }
 
+func (phase *sharpDecrease) MaxLength() int {
+	return 2
+}
+
 func (phase *sharpDecrease) BasePriceMultiplier(
 	subPeriod int,
 ) (min float32, max float32) {
@@ -115,6 +127,10 @@ func (phase *randomDecrease) PossibleLengths(
 ) (possibilities []int) {
 	phase.PossibilitiesComplete()
 	return []int{12 - phases[0].Length() - 5}
+}
+
+func (phase *randomDecrease) MaxLength() int {
+	return 6
 }
 
 func (phase *randomDecrease) BasePriceMultiplier(int) (min float32, max float32) {

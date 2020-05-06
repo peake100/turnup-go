@@ -58,6 +58,10 @@ func (phase *increasing1) PossibleLengths([]PatternPhase) (possibilities []int) 
 	return []int{0, 1, 2, 3, 4, 5, 6}
 }
 
+func (phase *increasing1) MaxLength() int {
+	return 6
+}
+
 func (phase *increasing1) Duplicate() phaseImplement {
 	return &increasing1{
 		phase.DuplicateBase(),
@@ -77,6 +81,10 @@ func (phase *decreasing1) PossibleLengths([]PatternPhase) (possibilities []int) 
 	// We only are going to call this possibility once, so we can finalize it
 	phase.PossibilitiesComplete()
 	return []int{2, 3}
+}
+
+func (phase *decreasing1) MaxLength() int {
+	return 3
 }
 
 func (phase *decreasing1) Duplicate() phaseImplement {
@@ -126,6 +134,10 @@ func (phase *increasing2) PossibleLengths(
 
 }
 
+func (phase *increasing2) MaxLength() int {
+	return 7
+}
+
 func (phase *increasing2) Duplicate() phaseImplement {
 	return &increasing2{
 		phase.DuplicateBase(),
@@ -148,6 +160,10 @@ func (phase *decreasing2) PossibleLengths(
 	return []int{5 - phases[1].Length()}
 }
 
+func (phase *decreasing2) MaxLength() int {
+	return 3
+}
+
 func (phase *decreasing2) Duplicate() phaseImplement {
 	return &decreasing2{
 		phase.DuplicateBase(),
@@ -167,7 +183,7 @@ func (phase *increasing3) PossibleLengths(
 	phases []PatternPhase,
 ) (possibilities []int) {
 	// This phase is a random length between 0 and the temp length of Increasing
-	// Phase 2 - 1
+	// phase 2 - 1
 	minDays := 0
 	maxDays := phases[2].Length() - 1
 
@@ -177,6 +193,10 @@ func (phase *increasing3) PossibleLengths(
 
 	phase.PossibilitiesComplete()
 	return possibilities
+}
+
+func (phase *increasing3) MaxLength() int {
+	return 6
 }
 
 func (phase *increasing3) Duplicate() phaseImplement {

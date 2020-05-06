@@ -41,6 +41,10 @@ func (phase *smallSpikeDecreasing1) PossibleLengths(
 	return []int{0, 1, 2, 3, 4, 5, 6, 7}
 }
 
+func (phase *smallSpikeDecreasing1) MaxLength() int {
+	return 7
+}
+
 func (phase *smallSpikeDecreasing1) Duplicate() phaseImplement {
 	return &smallSpikeDecreasing1{
 		smallSpikeDecreasingBase{
@@ -89,6 +93,10 @@ func (phase *smallSpikeIncreasing) PossibleLengths(
 	return []int{5}
 }
 
+func (phase *smallSpikeIncreasing) MaxLength() int {
+	return 5
+}
+
 func (phase *smallSpikeIncreasing) Duplicate() phaseImplement {
 	return &smallSpikeIncreasing{
 		phase.phaseCoreAuto,
@@ -109,6 +117,10 @@ func (phase *smallSpikeDecreasing2) PossibleLengths(
 ) (possibilities []int) {
 	phase.PossibilitiesComplete()
 	return []int{7 - phases[0].Length()}
+}
+
+func (phase *smallSpikeDecreasing2) MaxLength() int {
+	return 7
 }
 
 func (phase *smallSpikeDecreasing2) Duplicate() phaseImplement {

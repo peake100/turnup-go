@@ -4,16 +4,18 @@ package models
 // of the information for a potential period when it is identical to anther potential
 // period of a different week on the same pattern.
 type potentialPhaseSubPeriod struct {
-	prices
-	Spike
-	// The pattern phase used to generate this period.
-	PatternPhase PatternPhase
+
 }
 
 type PotentialPricePeriod struct {
-	*potentialPhaseSubPeriod
+	prices
+	Spike
+
 	// The price period
 	PricePeriod PricePeriod
+
+	// The pattern phase used to generate this period.
+	PatternPhase PatternPhase
 }
 
 // Returns ``true`` if ``price`` falls within the price range of this potential period.

@@ -44,7 +44,7 @@ type PatternPhase interface {
 	// Whether the value returned by .Length() is the final length.
 	IsFinal() bool
 
-	// Returns a potential price bracket for a given day of this Phase. ``period`` is
+	// Returns a potential price bracket for a given day of this phase. ``period`` is
 	// the absolute period for the week, while ``subPeriod`` is the price period
 	// relative to the start of this phase, beginning at 0.
 	PotentialPeriod(
@@ -80,6 +80,9 @@ type phaseImplement interface {
 	// function, patternPhaseAuto can do most of the math for us to calculate the price
 	// range.
 	BasePriceMultiplier(subPeriod int) (min float32, max float32)
+
+	// The max length this phase can be, used to pre-cache price period values.
+	MaxLength() int
 
 	// Create a copy of this object
 	Duplicate() phaseImplement

@@ -1,4 +1,4 @@
-package predict
+package turnup
 
 import (
 	"github.com/peake100/turnup-go/models"

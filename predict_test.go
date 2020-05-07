@@ -1,4 +1,4 @@
-package predict
+package turnup
 
 //revive:disable:import-shadowing reason: Disabled for assert := assert.New(), which is
 // the preferred method of using multiple asserts in a test.
@@ -84,7 +84,7 @@ func Test100BellPurchase(t *testing.T) {
 		},
 		MinPricePeriods: []models.PricePeriod{0},
 		MaxPricePeriods: []models.PricePeriod{3, 4, 5, 6, 7, 8, 9},
-		PriceCSV:        "../zdevelop/tests/100_bell_no_ticker.csv",
+		PriceCSV:        "./zdevelop/tests/100_bell_no_ticker.csv",
 	}
 
 	testPrediction(t, expected, ticker)

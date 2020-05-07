@@ -1,9 +1,11 @@
 package models
 
+import "sort"
+
 type hasPriceRange interface {
 	hasPrices
-	MinPeriod() PricePeriod
-	MaxPeriod() PricePeriod
+	MinPeriods() []PricePeriod
+	MaxPeriods() []PricePeriod
 }
 
 type hasProbability interface {
@@ -19,48 +21,109 @@ type hasFullAnalysis interface {
 type PriceRange struct {
 	prices
 
-	minPeriod PricePeriod
-	maxPeriod PricePeriod
+	// We want to implement this as a map so we don't double-add price periods.
+	// We're going to use it as a set
+	minPeriodsSet map[PricePeriod]interface{}
+	maxPeriodsSet map[PricePeriod]interface{}
+
+	minPeriodsCached[]PricePeriod
+	maxPeriodsCached[]PricePeriod
+}
+
+func (prices *PriceRange) createPeriodCache(
+	periodSet map[PricePeriod]interface{},
+) []PricePeriod {
+	newCache := make([]PricePeriod, len(periodSet))
+	i := 0
+	for key, _ := range periodSet {
+		newCache[i] = key
+		i++
+	}
+
+	// Sort the slice. Maps are not sorted so we have to sort them here.
+	sort.SliceStable(
+		newCache,
+		func(i, j int) bool {
+			return newCache[i] < newCache[j]
+		},
+	)
+
+	return newCache
+}
+
+func (prices *PriceRange) MinPeriods() []PricePeriod {
+	if prices.minPeriodsCached == nil {
+		prices.minPeriodsCached = prices.createPeriodCache(prices.minPeriodsSet)
+	}
+	return prices.minPeriodsCached
+}
+
+func (prices *PriceRange) MaxPeriods() []PricePeriod {
+	if prices.maxPeriodsCached == nil {
+		prices.maxPeriodsCached = prices.createPeriodCache(prices.maxPeriodsSet)
+	}
+	return prices.maxPeriodsCached
+}
+
+func (prices *PriceRange) clearPeriods(minUpdated bool, maxUpdated bool) {
+	// If the value was updated, we have a new min/max, so we need to clear the
+	// map
+	if minUpdated {
+		prices.minPeriodsSet = make(map[PricePeriod]interface{})
+		prices.minPeriodsCached = nil
+	}
+	if maxUpdated {
+		prices.maxPeriodsSet = make(map[PricePeriod]interface{})
+		prices.maxPeriodsCached = nil
+	}
 }
 
 // Update from another analysis object
 func (prices *PriceRange) updatePriceRangeFromPrices(
 	other hasPrices, period PricePeriod,
 ) {
-	minUpdated := prices.UpdateMin(other.MinPrice(), true)
-	maxUpdated := prices.UpdateMax(other.MaxPrice())
-	if minUpdated {
-		prices.minPeriod = period
+	minUpdated := prices.updateMin(other.MinPrice(), true)
+	maxUpdated := prices.updateMax(other.MaxPrice())
+	prices.clearPeriods(minUpdated, maxUpdated)
+
+	// Now add the price period to the set if it was updated OR if it's equal to our
+	// current value, as that means it's another high or low point
+	if minUpdated || other.MinPrice() == prices.minPrice {
+		prices.minPeriodsSet[period] = nil
 	}
 
-	if maxUpdated {
-		prices.maxPeriod = period
+	if maxUpdated || other.MaxPrice() == prices.maxPrice {
+		prices.maxPeriodsSet[period] = nil
+	}
+}
+
+func (prices *PriceRange) addPeriodsToSet(
+	periods []PricePeriod, set map[PricePeriod]interface{},
+) {
+	for _, pricePeriod := range periods {
+		set[pricePeriod] = nil
 	}
 }
 
 // Update from another analysis object
 func (prices *PriceRange) updatePriceRangeFromOther(other hasPriceRange) {
 	minUpdated, maxUpdated := prices.updatePrices(other, false)
-	if minUpdated {
-		prices.minPeriod = other.MinPeriod()
+	prices.clearPeriods(minUpdated, maxUpdated)
+
+	// Now add the price period to the set if it was updated OR if it's equal to our
+	// current value, as that means it's another high or low point
+	if minUpdated || other.MinPrice() == prices.minPrice {
+		prices.addPeriodsToSet(other.MinPeriods(), prices.minPeriodsSet)
 	}
 
-	if maxUpdated {
-		prices.maxPeriod = other.MaxPeriod()
+	if maxUpdated || other.MaxPrice() == prices.maxPrice {
+		prices.addPeriodsToSet(other.MaxPeriods(), prices.maxPeriodsSet)
 	}
 }
 
 type Analysis struct {
 	PriceRange
 	chance float64
-}
-
-func (analysis *Analysis) MinPeriod() PricePeriod {
-	return analysis.minPeriod
-}
-
-func (analysis *Analysis) MaxPeriod() PricePeriod {
-	return analysis.maxPeriod
 }
 
 func (analysis *Analysis) Chance() float64 {

@@ -36,7 +36,7 @@ func (prices *prices) PriceChance(price int) float64 {
 	}
 }
 
-func (prices *prices) UpdateMin(value int, useHigher bool) (updated bool) {
+func (prices *prices) updateMin(value int, useHigher bool) (updated bool) {
 	updated = (useHigher && value > prices.minPrice) ||
 		(!useHigher && value < prices.minPrice) ||
 		prices.minPrice == 0
@@ -48,7 +48,7 @@ func (prices *prices) UpdateMin(value int, useHigher bool) (updated bool) {
 	return updated
 }
 
-func (prices *prices) UpdateMax(value int) (updated bool) {
+func (prices *prices) updateMax(value int) (updated bool) {
 	updated = value > prices.maxPrice
 
 	if updated  {
@@ -61,7 +61,7 @@ func (prices *prices) UpdateMax(value int) (updated bool) {
 func (prices *prices) updatePrices(
 	otherPrices hasPrices, useHigherMin bool,
 ) (minUpdated bool, maxUpdated bool) {
-	minUpdated = prices.UpdateMin(otherPrices.MinPrice(), useHigherMin)
-	maxUpdated = prices.UpdateMax(otherPrices.MaxPrice())
+	minUpdated = prices.updateMin(otherPrices.MinPrice(), useHigherMin)
+	maxUpdated = prices.updateMax(otherPrices.MaxPrice())
 	return minUpdated, maxUpdated
 }

@@ -154,9 +154,8 @@ func (gen *phasePeriodGenerator) calcPhasePeriodHistoricalMultiplier(
 		baseMultiplier = gen.baseMultiplierMax
 	}
 
-	// if it is lower than the isMin multiplier or higher than the
-	// max multiplier, we need to bring it in line with the
-	// possible range
+	// if it is lower than the min multiplier or higher than the max multiplier, we need
+	// to bring it in line with the possible range
 	if (isMin && historicMultiplier < baseMultiplier) ||
 		(!isMin && historicMultiplier > baseMultiplier) {
 		historicMultiplier = baseMultiplier

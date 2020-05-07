@@ -6,7 +6,9 @@ import (
 
 // Converts the chance on an Analysis() method from chance width to absolute chance
 // with a precision of 4 digits (XX.XX%).
-func (predictor *Predictor) setChanceFromWidth(item hasFullAnalysis, totalWidth float64) {
+func (predictor *Predictor) setChanceFromWidth(
+	item hasFullAnalysis, totalWidth float64,
+) {
 	chance := item.Chance() / totalWidth
 	// round to 4 digits (xx.xx%)
 	chance = math.Round(chance*10000) / 10000
@@ -35,6 +37,29 @@ func (predictor *Predictor) fallBackToPatternCount(
 	}
 
 	return totalWidth
+}
+
+func (predictor *Predictor) updateSummariesWithPattern(
+	potentialPattern *PotentialPattern,
+) {
+	// Refactor the individual chances by dividing their width by the
+	// total width.
+	predictor.setChanceFromWidth(potentialPattern, predictor.totalWidth)
+	for _, week := range potentialPattern.PotentialWeeks {
+		// Set the chance for this week
+		predictor.setChanceFromWidth(week, predictor.totalWidth)
+		// Update the spike chance heatmap with the normalized week
+		predictor.result.Spikes.UpdateSpikeDensity(week)
+	}
+
+	// We want to use the big and small pattern chance as the spike chance so
+	// that they match. If we compute separately, then floating point errors cause
+	// the spike chances to mismatch the pattern chance, which is nonsensical.
+	if potentialPattern.Pattern == BIGSPIKE {
+		predictor.result.Spikes.BigChance = potentialPattern.Chance()
+	} else if potentialPattern.Pattern == SMALLSPIKE {
+		predictor.result.Spikes.SmallChance = potentialPattern.Chance()
+	}
 }
 
 // Calculate the chances of each price pattern permutation once they have been
@@ -85,24 +110,7 @@ func (predictor *Predictor) calculateChances(
 	// total chance units
 	spikeInfo := &prediction.Spikes
 	for _, potentialPattern := range prediction.Patterns {
-		// Otherwise refactor the individual chances by dividing their width by the
-		// total width.
-		predictor.setChanceFromWidth(potentialPattern, totalWidth)
-		for _, week := range potentialPattern.PotentialWeeks {
-			// Set the chance for this week
-			predictor.setChanceFromWidth(week, totalWidth)
-			// Update the spike chance heatmap with the normalized week
-			predictor.result.Spikes.UpdateSpikeDensity(week)
-		}
-
-		// We want to use the big and small pattern chance as the spike chance so
-		// that they match. If we compute separately, then floating point errors cause
-		// the spike chances to mismatch the pattern chance, which is nonsensical.
-		if potentialPattern.Pattern == BIGSPIKE {
-			spikeInfo.BigChance = potentialPattern.Chance()
-		} else if potentialPattern.Pattern == SMALLSPIKE {
-			spikeInfo.SmallChance = potentialPattern.Chance()
-		}
+		predictor.updateSummariesWithPattern(potentialPattern)
 	}
 
 	// Lastly, get the total spike chance

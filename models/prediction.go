@@ -6,7 +6,7 @@ import (
 
 type Prediction struct {
 	PriceRange
-	Spikes SpikePeriodDensity
+	Spikes   SpikePeriodDensity
 	Patterns []*PotentialPattern
 }
 

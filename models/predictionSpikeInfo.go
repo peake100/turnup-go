@@ -16,6 +16,39 @@ type SpikePeriodDensity struct {
 	AnyChance  float64
 }
 
+func (density *SpikePeriodDensity) updateSpikePeriod(
+	update HasSpikeRange,
+	period PricePeriod,
+	weekChance float64,
+) {
+
+	hasSmall := update.HasSpikeSmall()
+	smallStart := update.SpikeSmallStart()
+	smallEnd := update.SpikeSmallStart()
+
+	hasBig := update.HasSpikeBig()
+	bigStart := update.SpikeBigStart()
+	bigEnd := update.SpikeBigEnd()
+
+	// Add chance to small density if this is a small spike.
+	containsSpike := false
+	if hasSmall && period >= smallStart && period <= smallEnd {
+		density.SmallDensity[period] += weekChance
+		containsSpike = true
+	}
+
+	// Add chance to big density if this is a big spike.
+	if hasBig && period >= bigStart && period <= bigEnd {
+		density.BigDensity[period] += weekChance
+		containsSpike = true
+	}
+
+	if containsSpike {
+		// Add to total density for both
+		density.AnyDensity[period] += weekChance
+	}
+}
+
 // We will updatePrices the density from the potential weeks.
 func (density *SpikePeriodDensity) UpdateSpikeDensity(
 	updateWeek *PotentialWeek,
@@ -27,41 +60,16 @@ func (density *SpikePeriodDensity) UpdateSpikeDensity(
 
 	// If there is no spike, abort.
 	update := updateWeek.Spikes
+	weekChance := updateWeek.Chance()
 
 	if !update.HasSpikeAny() {
 		return
 	}
 
-	chance := updateWeek.Chance()
-
 	start := update.SpikeAnyStart()
 	end := update.SpikeAnyEnd()
 
-	hasSmall := update.HasSpikeSmall()
-	smallStart := update.SpikeSmallStart()
-	smallEnd := update.SpikeSmallStart()
-
-	hasBig := update.HasSpikeBig()
-	bigStart := update.SpikeBigStart()
-	bigEnd := update.SpikeBigEnd()
-
-	for period := start ; period <= end ; period++ {
-		// Add chance to small density if this is a small spike.
-		containsSpike := false
-		if hasSmall && period >= smallStart && period <= smallEnd {
-			density.SmallDensity[period] += chance
-			containsSpike = true
-		}
-
-		// Add chance to big density if this is a big spike.
-		if hasBig && period >= bigStart && period <= bigEnd {
-			density.BigDensity[period] += chance
-			containsSpike = true
-		}
-
-		if containsSpike {
-			// Add to total density for both
-			density.AnyDensity[period] += chance
-		}
+	for period := start; period <= end; period++ {
+		density.updateSpikePeriod(update, period, weekChance)
 	}
 }

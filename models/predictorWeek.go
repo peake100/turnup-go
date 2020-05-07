@@ -128,8 +128,8 @@ func (predictor *weekPredictor) finalizeWidth() {
 
 func (predictor *weekPredictor) setup() {
 	predictor.result = &PotentialWeek{
-		Analysis:     new(Analysis),
-		Spikes:       new(SpikeRange),
+		Analysis: new(Analysis),
+		Spikes:   new(SpikeRange),
 	}
 	predictor.patternWeight = predictor.Pattern.BaseChance(
 		predictor.Ticker.PreviousPattern,

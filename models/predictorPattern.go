@@ -143,8 +143,8 @@ func (predictor *patternPredictor) branchPhases(
 func (predictor *patternPredictor) setup() {
 	predictor.result = &PotentialPattern{
 		Analysis: new(Analysis),
-		Pattern: predictor.Pattern,
-		Spikes: new(SpikeRange),
+		Pattern:  predictor.Pattern,
+		Spikes:   new(SpikeRange),
 	}
 }
 

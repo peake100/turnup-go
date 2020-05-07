@@ -52,14 +52,14 @@ func (spike *Spikes) HasSpikeSmall() bool {
 // Implementation of HasSpikeRange
 type SpikeRange struct {
 	Spikes
-	spikeAnyStart         PricePeriod
-	spikeAnyEnd           PricePeriod
+	spikeAnyStart PricePeriod
+	spikeAnyEnd   PricePeriod
 
-	spikeBigStart         PricePeriod
-	spikeBigEnd           PricePeriod
+	spikeBigStart PricePeriod
+	spikeBigEnd   PricePeriod
 
-	spikeSmallStart         PricePeriod
-	spikeSmallEnd           PricePeriod
+	spikeSmallStart PricePeriod
+	spikeSmallEnd   PricePeriod
 }
 
 func (spike *SpikeRange) SpikeAnyStart() PricePeriod {

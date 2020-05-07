@@ -51,7 +51,7 @@ func (prices *prices) updateMin(value int, useHigher bool) (updated bool) {
 func (prices *prices) updateMax(value int) (updated bool) {
 	updated = value > prices.maxPrice
 
-	if updated  {
+	if updated {
 		prices.maxPrice = value
 	}
 

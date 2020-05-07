@@ -26,8 +26,8 @@ type PriceRange struct {
 	minPeriodsSet map[PricePeriod]interface{}
 	maxPeriodsSet map[PricePeriod]interface{}
 
-	minPeriodsCached[]PricePeriod
-	maxPeriodsCached[]PricePeriod
+	minPeriodsCached []PricePeriod
+	maxPeriodsCached []PricePeriod
 }
 
 func (prices *PriceRange) createPeriodCache(
@@ -35,7 +35,7 @@ func (prices *PriceRange) createPeriodCache(
 ) []PricePeriod {
 	newCache := make([]PricePeriod, len(periodSet))
 	i := 0
-	for key, _ := range periodSet {
+	for key := range periodSet {
 		newCache[i] = key
 		i++
 	}

@@ -12,6 +12,7 @@ import (
 	"github.com/peake100/turnup-go/values"
 	"github.com/stretchr/testify/assert"
 	"io"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -46,6 +47,8 @@ type expectedPattern struct {
 	MaxPotentialPrice  int
 	PossibleWeeks      int
 	Spike              expectedSpike
+	MinPricePeriods    []models.PricePeriod
+	MaxPricePeriods    []models.PricePeriod
 }
 
 type expectedPrediction struct {
@@ -56,6 +59,10 @@ type expectedPrediction struct {
 	PriceCSV           string
 	Spike              expectedSpike
 	expectedWeekHashes map[string]interface{}
+	MinGuaranteedPrice int
+	MaxPotentialPrice  int
+	MinPricePeriods    []models.PricePeriod
+	MaxPricePeriods    []models.PricePeriod
 }
 
 func (expected *expectedPrediction) Patterns() []*expectedPattern {
@@ -318,6 +325,63 @@ func testExpectedSpike(
 	testExpectedSpikeAny(t, expected, predicted)
 }
 
+func testSpikesDensity(
+	t *testing.T, prediction *models.Prediction,
+) {
+	assert := assert.New(t)
+
+	bigSpike, _ := prediction.Pattern(models.BIGSPIKE)
+	smallSpike, _ := prediction.Pattern(models.SMALLSPIKE)
+
+	assert.Equal(
+		bigSpike.Chance(),
+		prediction.Spikes.BigChance,
+		"big spike chance equals pattern",
+	)
+
+	assert.Equal(
+		smallSpike.Chance(),
+		prediction.Spikes.SmallChance,
+		"small spike chance equals pattern",
+	)
+
+	assert.Equal(
+		bigSpike.Chance()+smallSpike.Chance(),
+		prediction.Spikes.AnyChance,
+		"total spike chance equals big + small",
+	)
+
+	var bigSpikeTotal, smallSpikeTotal, anySpikeTotal float64
+
+	for i := 0; i < values.PricePeriodCount; i++ {
+		smallChancePeriod := prediction.Spikes.SmallDensity[i]
+		bigChancePeriod := prediction.Spikes.BigDensity[i]
+		anyChancePeriod := prediction.Spikes.AnyDensity[i]
+
+		bigSpikeTotal += bigChancePeriod
+		smallSpikeTotal += smallChancePeriod
+		anySpikeTotal += anyChancePeriod
+
+		assert.Equal(
+			smallChancePeriod+bigChancePeriod,
+			anyChancePeriod,
+			fmt.Sprintf("any chance for period %v equals small + big", i),
+		)
+	}
+
+	// There are going to be some floating point errors when we add up all the floats
+	// for the density map, check that we are within an acceptable bound (less than)
+	// 0.05%
+	bigVariance := math.Abs(bigSpikeTotal - bigSpike.Chance())
+	assert.Less(bigVariance, 0.0005, "big spike density total")
+
+	smallVariance := math.Abs(smallSpikeTotal - smallSpike.Chance())
+	assert.Less(smallVariance, 0.0005, "small spike density total")
+
+	anyVariance := math.Abs(anySpikeTotal - (smallSpike.Chance() + bigSpike.Chance()))
+	assert.Less(anyVariance, 0.0005, "any spike density total")
+}
+
 // We can use this function to test a prediction for a given ticker against our expected
 // results
 func testPrediction(
@@ -351,6 +415,31 @@ func testPrediction(
 		testExpectedSpike(t, &expected.Spike, &prediction.Spikes)
 	}
 	t.Run("spike_info", testSpike)
+
+	testMinPrice := func(t *testing.T) {
+		assert.Equal(t, expected.MinGuaranteedPrice, prediction.MinPrice())
+	}
+	t.Run("min guaranteed price", testMinPrice)
+
+	testMaxPrice := func(t *testing.T) {
+		assert.Equal(t, expected.MaxPotentialPrice, prediction.MaxPrice())
+	}
+	t.Run("max potential price", testMaxPrice)
+
+	testMinPeriods := func(t *testing.T) {
+		assert.Equal(t, expected.MinPricePeriods, prediction.MinPeriods())
+	}
+	t.Run("min price periods", testMinPeriods)
+
+	testMaxPeriods := func(t *testing.T) {
+		assert.Equal(t, expected.MaxPricePeriods, prediction.MaxPeriods())
+	}
+	t.Run("max price periods", testMaxPeriods)
+
+	testSpikeDensity := func(t *testing.T) {
+		testSpikesDensity(t, prediction)
+	}
+	t.Run("spikes density", testSpikeDensity)
 
 	if expected.PriceCSV != "" {
 		expected.expectedWeekHashes = loadPriceData(t, expected.PriceCSV)
@@ -430,6 +519,20 @@ func testPattern(
 	}
 
 	t.Run("spike info", testSpikeInfo)
+
+	testMinPricePeriods := func(t *testing.T) {
+		assert := assert.New(t)
+		assert.Equal(expected.MinPricePeriods, pattern.MinPeriods())
+	}
+
+	t.Run("min price periods", testMinPricePeriods)
+
+	testMaxPricePeriods := func(t *testing.T) {
+		assert := assert.New(t)
+		assert.Equal(expected.MaxPricePeriods, pattern.MaxPeriods())
+	}
+
+	t.Run("max price periods", testMaxPricePeriods)
 }
 
 // Tests that we get ALL the correct possibilities with a purchase price of 100 bells
@@ -441,11 +544,19 @@ func Test100BellPurchase(t *testing.T) {
 	ticker := NewPriceTicker(100, patterns.UNKNOWN)
 
 	expected := &expectedPrediction{
+		MinGuaranteedPrice: 85,
+		MaxPotentialPrice:  600,
 		Fluctuating: &expectedPattern{
 			Chance:             0.35,
 			MinGuaranteedPrice: 90,
 			MaxPotentialPrice:  140,
 			PossibleWeeks:      56,
+			MinPricePeriods: []models.PricePeriod{
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+			},
+			MaxPricePeriods: []models.PricePeriod{
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+			},
 		},
 		BigSpike: &expectedPattern{
 			Chance:             0.2625,
@@ -460,12 +571,16 @@ func Test100BellPurchase(t *testing.T) {
 				BigStart:   3,
 				BigEnd:     9,
 			},
+			MinPricePeriods: []models.PricePeriod{3, 4, 5, 6, 7, 8, 9},
+			MaxPricePeriods: []models.PricePeriod{3, 4, 5, 6, 7, 8, 9},
 		},
 		Decreasing: &expectedPattern{
 			Chance:             0.1375,
 			MinGuaranteedPrice: 85,
 			MaxPotentialPrice:  90,
 			PossibleWeeks:      1,
+			MinPricePeriods:    []models.PricePeriod{0},
+			MaxPricePeriods:    []models.PricePeriod{0},
 		},
 		SmallSpike: &expectedPattern{
 			Chance:             0.25,
@@ -480,6 +595,8 @@ func Test100BellPurchase(t *testing.T) {
 				BigStart:   0,
 				BigEnd:     0,
 			},
+			MinPricePeriods: []models.PricePeriod{3, 4, 5, 6, 7, 8, 9, 10},
+			MaxPricePeriods: []models.PricePeriod{3, 4, 5, 6, 7, 8, 9, 10},
 		},
 		Spike: expectedSpike{
 			Small:      true,
@@ -489,7 +606,9 @@ func Test100BellPurchase(t *testing.T) {
 			BigStart:   3,
 			BigEnd:     9,
 		},
-		PriceCSV: "../zdevelop/tests/100_bell_no_ticker.csv",
+		MinPricePeriods: []models.PricePeriod{0},
+		MaxPricePeriods: []models.PricePeriod{3, 4, 5, 6, 7, 8, 9},
+		PriceCSV:        "../zdevelop/tests/100_bell_no_ticker.csv",
 	}
 
 	testPrediction(t, expected, ticker)
@@ -505,11 +624,15 @@ func Test100BellPurchaseLargeSpike(t *testing.T) {
 	ticker.Prices[2] = 160
 
 	expected := &expectedPrediction{
+		MinGuaranteedPrice: 200,
+		MaxPotentialPrice:  600,
 		Fluctuating: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		BigSpike: &expectedPattern{
 			Chance:             1.0,
@@ -524,18 +647,24 @@ func Test100BellPurchaseLargeSpike(t *testing.T) {
 				BigStart:   3,
 				BigEnd:     3,
 			},
+			MinPricePeriods: []models.PricePeriod{3},
+			MaxPricePeriods: []models.PricePeriod{3},
 		},
 		Decreasing: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		SmallSpike: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		Spike: expectedSpike{
 			Small:      false,
@@ -545,6 +674,8 @@ func Test100BellPurchaseLargeSpike(t *testing.T) {
 			BigStart:   3,
 			BigEnd:     3,
 		},
+		MinPricePeriods: []models.PricePeriod{3},
+		MaxPricePeriods: []models.PricePeriod{3},
 	}
 
 	testPrediction(t, expected, ticker)
@@ -562,30 +693,42 @@ func Test100BellPurchaseFluctuating(t *testing.T) {
 	ticker.Prices[5] = 140
 
 	expected := &expectedPrediction{
+		MinGuaranteedPrice: 90,
+		MaxPotentialPrice:  140,
 		Fluctuating: &expectedPattern{
 			Chance:             1,
 			MinGuaranteedPrice: 90,
 			MaxPotentialPrice:  140,
 			PossibleWeeks:      2,
+			MinPricePeriods:    []models.PricePeriod{0, 1, 2, 3, 4, 5, 8, 9},
+			MaxPricePeriods:    []models.PricePeriod{0, 1, 2, 3, 4, 5, 8, 9},
 		},
 		BigSpike: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		Decreasing: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		SmallSpike: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
+		MinPricePeriods: []models.PricePeriod{0, 1, 2, 3, 4, 5, 8, 9},
+		MaxPricePeriods: []models.PricePeriod{0, 1, 2, 3, 4, 5, 8, 9},
 	}
 
 	testPrediction(t, expected, ticker)
@@ -605,30 +748,42 @@ func Test100BellPurchaseDecreasing(t *testing.T) {
 	ticker.Prices[7] = 58
 
 	expected := &expectedPrediction{
+		MinGuaranteedPrice: 85,
+		MaxPotentialPrice:  90,
 		Fluctuating: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		BigSpike: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		Decreasing: &expectedPattern{
 			Chance:             1,
 			MinGuaranteedPrice: 85,
 			MaxPotentialPrice:  90,
 			PossibleWeeks:      1,
+			MinPricePeriods:    []models.PricePeriod{0},
+			MaxPricePeriods:    []models.PricePeriod{0},
 		},
 		SmallSpike: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
+		MinPricePeriods: []models.PricePeriod{0},
+		MaxPricePeriods: []models.PricePeriod{0},
 	}
 
 	testPrediction(t, expected, ticker)
@@ -643,23 +798,31 @@ func Test100BellPurchaseSmallSpike(t *testing.T) {
 	ticker.Prices[2] = 199
 
 	expected := &expectedPrediction{
+		MinGuaranteedPrice: 140,
+		MaxPotentialPrice:  200,
 		Fluctuating: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		BigSpike: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		Decreasing: &expectedPattern{
 			Chance:             0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		SmallSpike: &expectedPattern{
 			Chance:             1,
@@ -674,6 +837,8 @@ func Test100BellPurchaseSmallSpike(t *testing.T) {
 				BigStart:   0,
 				BigEnd:     0,
 			},
+			MinPricePeriods: []models.PricePeriod{3},
+			MaxPricePeriods: []models.PricePeriod{3},
 		},
 		Spike: expectedSpike{
 			Small:      true,
@@ -683,6 +848,8 @@ func Test100BellPurchaseSmallSpike(t *testing.T) {
 			BigStart:   0,
 			BigEnd:     0,
 		},
+		MinPricePeriods: []models.PricePeriod{3},
+		MaxPricePeriods: []models.PricePeriod{3},
 	}
 
 	testPrediction(t, expected, ticker)
@@ -694,11 +861,19 @@ func TestUnknownBellPurchase(t *testing.T) {
 	ticker := NewPriceTicker(0, patterns.UNKNOWN)
 
 	expected := &expectedPrediction{
+		MinGuaranteedPrice: 77,
+		MaxPotentialPrice:  660,
 		Fluctuating: &expectedPattern{
 			Chance:             0.35,
 			MinGuaranteedPrice: 81,
 			MaxPotentialPrice:  154,
 			PossibleWeeks:      56,
+			MinPricePeriods: []models.PricePeriod{
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+			},
+			MaxPricePeriods: []models.PricePeriod{
+				0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
+			},
 		},
 		BigSpike: &expectedPattern{
 			Chance:             0.2625,
@@ -713,12 +888,16 @@ func TestUnknownBellPurchase(t *testing.T) {
 				BigStart:   3,
 				BigEnd:     9,
 			},
+			MinPricePeriods: []models.PricePeriod{3, 4, 5, 6, 7, 8, 9},
+			MaxPricePeriods: []models.PricePeriod{3, 4, 5, 6, 7, 8, 9},
 		},
 		Decreasing: &expectedPattern{
 			Chance:             0.1375,
 			MinGuaranteedPrice: 77,
 			MaxPotentialPrice:  99,
 			PossibleWeeks:      1,
+			MinPricePeriods:    []models.PricePeriod{0},
+			MaxPricePeriods:    []models.PricePeriod{0},
 		},
 		SmallSpike: &expectedPattern{
 			Chance:             0.25,
@@ -733,6 +912,8 @@ func TestUnknownBellPurchase(t *testing.T) {
 				BigStart:   0,
 				BigEnd:     0,
 			},
+			MinPricePeriods: []models.PricePeriod{3, 4, 5, 6, 7, 8, 9, 10},
+			MaxPricePeriods: []models.PricePeriod{3, 4, 5, 6, 7, 8, 9, 10},
 		},
 		Spike: expectedSpike{
 			Small:      true,
@@ -742,6 +923,8 @@ func TestUnknownBellPurchase(t *testing.T) {
 			BigStart:   3,
 			BigEnd:     9,
 		},
+		MinPricePeriods: []models.PricePeriod{0},
+		MaxPricePeriods: []models.PricePeriod{3, 4, 5, 6, 7, 8, 9},
 	}
 
 	testPrediction(t, expected, ticker)
@@ -769,11 +952,15 @@ func TestMultiplePossibleMatches(t *testing.T) {
 	ticker.Prices[1] = 82
 
 	expected := &expectedPrediction{
+		MinGuaranteedPrice: 85,
+		MaxPotentialPrice:  600,
 		Fluctuating: &expectedPattern{
 			Chance:             0.0,
 			MinGuaranteedPrice: 0,
 			MaxPotentialPrice:  0,
 			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		BigSpike: &expectedPattern{
 			Chance:             0.679,
@@ -788,12 +975,16 @@ func TestMultiplePossibleMatches(t *testing.T) {
 				BigStart:   4,
 				BigEnd:     9,
 			},
+			MinPricePeriods: []models.PricePeriod{4, 5, 6, 7, 8, 9},
+			MaxPricePeriods: []models.PricePeriod{4, 5, 6, 7, 8, 9},
 		},
 		Decreasing: &expectedPattern{
 			Chance:             0.088,
 			MinGuaranteedPrice: 85,
 			MaxPotentialPrice:  90,
 			PossibleWeeks:      1,
+			MinPricePeriods:    []models.PricePeriod{0},
+			MaxPricePeriods:    []models.PricePeriod{0},
 		},
 		SmallSpike: &expectedPattern{
 			Chance:             0.233,
@@ -808,6 +999,8 @@ func TestMultiplePossibleMatches(t *testing.T) {
 				BigStart:   0,
 				BigEnd:     0,
 			},
+			MinPricePeriods: []models.PricePeriod{5, 6, 7, 8, 9, 10},
+			MaxPricePeriods: []models.PricePeriod{5, 6, 7, 8, 9, 10},
 		},
 		Spike: expectedSpike{
 			Small:      true,
@@ -817,6 +1010,8 @@ func TestMultiplePossibleMatches(t *testing.T) {
 			BigStart:   4,
 			BigEnd:     9,
 		},
+		MinPricePeriods: []models.PricePeriod{0},
+		MaxPricePeriods: []models.PricePeriod{4, 5, 6, 7, 8, 9},
 	}
 
 	testPrediction(t, expected, ticker)

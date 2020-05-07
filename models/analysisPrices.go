@@ -37,9 +37,10 @@ func (prices *prices) PriceChance(price int) float64 {
 }
 
 func (prices *prices) updateMin(value int, useHigher bool) (updated bool) {
-	updated = (useHigher && value > prices.minPrice) ||
+	updated = ((useHigher && value > prices.minPrice) ||
 		(!useHigher && value < prices.minPrice) ||
-		prices.minPrice == 0
+		prices.minPrice == 0) &&
+		value != 0
 
 	if updated {
 		prices.minPrice = value

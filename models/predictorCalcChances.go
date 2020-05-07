@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -101,7 +102,8 @@ func (predictor *Predictor) calculateChances(
 	// If that's the case we want to use the number of existing weeks for a pattern
 	// divided by the number of possible weeks.
 	totalWidth := predictor.totalWidth
-	if totalWidth == 0 {
+	fmt.Println("TOTAL WIDTH:", predictor.totalWidth)
+	if totalWidth <= 0 {
 		totalWidth = predictor.fallBackToPatternCount(prediction, ticker)
 		predictor.totalWidth = totalWidth
 	}

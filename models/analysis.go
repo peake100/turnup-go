@@ -1,6 +1,8 @@
 package models
 
-import "sort"
+import (
+	"sort"
+)
 
 type hasPriceRange interface {
 	hasPrices
@@ -131,5 +133,10 @@ func (analysis *Analysis) Chance() float64 {
 }
 
 func (analysis *Analysis) setChance(value float64) {
+	// In some instances weird float rounding errors result in a -0 value. We're going
+	// to flip the signs on this.
+	if value == -0 {
+		value = 0
+	}
 	analysis.chance = value
 }

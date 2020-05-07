@@ -1,6 +1,8 @@
 package models
 
-import "math"
+import (
+	"math"
+)
 
 // In order to get the sub period price values for a given phase, we have to know
 // information from all the previous phases to take in historical data and properly
@@ -124,19 +126,31 @@ func (gen *phasePeriodGenerator) calcPhasePeriodHistoricalMultiplier(
 	// resulted in the known price. For the max price, this is the price
 	// itself. For isMin, this is the number - 1 + the smallest possible
 	// float value.
+
 	previousPriceFloat := float32(previousPrice)
-	previousPriceFloor := previousPriceFloat - 1
-	previousPriceFloat = math.Nextafter32(
-		previousPriceFloor, previousPriceFloat,
-	)
+	if isMin {
+		previousPriceFloor := previousPriceFloat - 1
+		previousPriceFloat = math.Nextafter32(
+			previousPriceFloor, previousPriceFloat,
+		)
+	}
 
 	// now work out the extreme end of the previous multiplier
 	historicMultiplier = previousPriceFloat / float32(gen.PurchasePrice)
 
 	var baseMultiplier float32
 	if isMin {
+		// Because of annoying floating point errors here, we're going to add or
+		// subtract a very small bit to the higher or lower bound to give us a little
+		// leeway, just a single floating point step is enough
+		historicMultiplier = math.Nextafter32(
+			historicMultiplier, historicMultiplier - 0.001,
+		)
 		baseMultiplier = gen.baseMultiplierMin
 	} else {
+		historicMultiplier = math.Nextafter32(
+			historicMultiplier, historicMultiplier + 0.001,
+		)
 		baseMultiplier = gen.baseMultiplierMax
 	}
 

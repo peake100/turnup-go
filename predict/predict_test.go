@@ -963,7 +963,7 @@ func TestMultiplePossibleMatches(t *testing.T) {
 			MaxPricePeriods:    []models.PricePeriod{},
 		},
 		BigSpike: &expectedPattern{
-			Chance:             0.679,
+			Chance:             0.6725,
 			MinGuaranteedPrice: 200,
 			MaxPotentialPrice:  600,
 			PossibleWeeks:      6,
@@ -979,7 +979,7 @@ func TestMultiplePossibleMatches(t *testing.T) {
 			MaxPricePeriods: []models.PricePeriod{4, 5, 6, 7, 8, 9},
 		},
 		Decreasing: &expectedPattern{
-			Chance:             0.088,
+			Chance:             0.0872,
 			MinGuaranteedPrice: 85,
 			MaxPotentialPrice:  90,
 			PossibleWeeks:      1,
@@ -987,7 +987,7 @@ func TestMultiplePossibleMatches(t *testing.T) {
 			MaxPricePeriods:    []models.PricePeriod{0},
 		},
 		SmallSpike: &expectedPattern{
-			Chance:             0.233,
+			Chance:             0.2404,
 			MinGuaranteedPrice: 140,
 			MaxPotentialPrice:  200,
 			PossibleWeeks:      6,
@@ -1012,6 +1012,127 @@ func TestMultiplePossibleMatches(t *testing.T) {
 		},
 		MinPricePeriods: []models.PricePeriod{0},
 		MaxPricePeriods: []models.PricePeriod{4, 5, 6, 7, 8, 9},
+	}
+
+	testPrediction(t, expected, ticker)
+}
+
+// We have special logic for when there is an INCREDIBLY unlikely price patterns. This
+// test will trigger it because the actual chances of this pattern occurring are 1 in
+// several billion (the bin width comes out to 0)
+func Test100BellPurchaseUnlikelyLowerBoundPattern(t *testing.T) {
+
+	ticker := NewPriceTicker(100, patterns.SMALLSPIKE)
+	ticker.Prices[0] = 85
+	ticker.Prices[1] = 80
+	ticker.Prices[2] = 75
+	ticker.Prices[3] = 70
+	ticker.Prices[4] = 65
+	ticker.Prices[5] = 60
+	ticker.Prices[6] = 55
+	ticker.Prices[7] = 50
+	ticker.Prices[8] = 45
+	ticker.Prices[9] = 40
+	ticker.Prices[10] = 35
+	ticker.Prices[11] = 30
+
+	expected := &expectedPrediction{
+		MinGuaranteedPrice: 85,
+		MaxPotentialPrice:  90,
+		Fluctuating: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
+		},
+		BigSpike: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
+		},
+		Decreasing: &expectedPattern{
+			Chance:             1,
+			MinGuaranteedPrice: 85,
+			MaxPotentialPrice:  90,
+			PossibleWeeks:      1,
+			MinPricePeriods:    []models.PricePeriod{0},
+			MaxPricePeriods:    []models.PricePeriod{0},
+		},
+		SmallSpike: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
+		},
+		MinPricePeriods: []models.PricePeriod{0},
+		MaxPricePeriods: []models.PricePeriod{0},
+	}
+
+	testPrediction(t, expected, ticker)
+}
+
+// We tested the lower bound of a compounding pattern last test, lets try the upper
+// bound this time
+func Test100BellPurchaseUnlikelyUpperBoundPattern(t *testing.T) {
+
+	ticker := NewPriceTicker(100, patterns.SMALLSPIKE)
+	ticker.Prices[0] = 90
+	ticker.Prices[1] = 87
+	ticker.Prices[2] = 84
+	ticker.Prices[3] = 82
+	ticker.Prices[4] = 79
+	ticker.Prices[5] = 76
+	ticker.Prices[6] = 73
+	ticker.Prices[7] = 70
+	ticker.Prices[8] = 67
+	ticker.Prices[9] = 64
+	ticker.Prices[10] = 61
+	ticker.Prices[11] = 58
+
+	expected := &expectedPrediction{
+		MinGuaranteedPrice: 85,
+		MaxPotentialPrice:  90,
+		Fluctuating: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
+		},
+		BigSpike: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
+		},
+		Decreasing: &expectedPattern{
+			Chance:             1,
+			MinGuaranteedPrice: 85,
+			MaxPotentialPrice:  90,
+			PossibleWeeks:      1,
+			MinPricePeriods:    []models.PricePeriod{0},
+			MaxPricePeriods:    []models.PricePeriod{0},
+		},
+		SmallSpike: &expectedPattern{
+			Chance:             0,
+			MinGuaranteedPrice: 0,
+			MaxPotentialPrice:  0,
+			PossibleWeeks:      0,
+			MinPricePeriods:    []models.PricePeriod{},
+			MaxPricePeriods:    []models.PricePeriod{},
+		},
+		MinPricePeriods: []models.PricePeriod{0},
+		MaxPricePeriods: []models.PricePeriod{0},
 	}
 
 	testPrediction(t, expected, ticker)

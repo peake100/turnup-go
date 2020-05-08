@@ -49,16 +49,16 @@ func (predictor *Predictor) updateSummariesWithPattern(
 		// Set the chance for this week
 		predictor.setChanceFromWidth(week, predictor.totalWidth)
 		// Update the spike chance heatmap with the normalized week
-		predictor.result.Spikes.UpdateSpikeDensity(week)
+		predictor.result.Spikes.updateDensities(week)
 	}
 
 	// We want to use the big and small pattern chance as the spike chance so
 	// that they match. If we compute separately, then floating point errors cause
 	// the spike chances to mismatch the pattern chance, which is nonsensical.
 	if potentialPattern.Pattern == BIGSPIKE {
-		predictor.result.Spikes.BigChance = potentialPattern.Chance()
+		predictor.result.Spikes.big.chance = potentialPattern.Chance()
 	} else if potentialPattern.Pattern == SMALLSPIKE {
-		predictor.result.Spikes.SmallChance = potentialPattern.Chance()
+		predictor.result.Spikes.small.chance = potentialPattern.Chance()
 	}
 }
 
@@ -108,13 +108,13 @@ func (predictor *Predictor) calculateChances(
 
 	// Now we can go through and figure out the final chance for each entry using our
 	// total chance units
-	spikeInfo := &prediction.Spikes
+	spikeInfo := prediction.Spikes
 	for _, potentialPattern := range prediction.Patterns {
 		predictor.updateSummariesWithPattern(potentialPattern)
 	}
 
 	// Lastly, get the total spike chance
-	spikeInfo.AnyChance = spikeInfo.BigChance + spikeInfo.SmallChance
+	spikeInfo.any.chance = spikeInfo.big.chance + spikeInfo.small.chance
 
 	// And we're done! Phew!
 }

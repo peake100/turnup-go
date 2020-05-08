@@ -4,7 +4,7 @@ package models
 type PotentialPattern struct {
 	// The chance, min price and max price
 	*Analysis
-	Spikes *SpikeRange
+	Spikes *SpikeRangeAll
 	// The pattern
 	Pattern PricePattern
 	// The potential week's price patterns

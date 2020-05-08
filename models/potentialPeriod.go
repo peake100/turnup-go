@@ -2,7 +2,7 @@ package models
 
 type PotentialPricePeriod struct {
 	*prices
-	Spikes *Spikes
+	Spikes *SpikeHasAll
 
 	// The price period
 	PricePeriod PricePeriod

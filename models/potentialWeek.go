@@ -39,7 +39,7 @@ type PotentialWeek struct {
 	*Analysis
 
 	// Details about if and when a price spike could occur for this week.
-	Spikes *SpikeRange
+	Spikes *SpikeRangeAll
 
 	// Holds the details of the potential price periods.
 	Prices PotentialPricePeriods

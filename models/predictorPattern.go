@@ -144,7 +144,11 @@ func (predictor *patternPredictor) setup() {
 	predictor.result = &PotentialPattern{
 		Analysis: new(Analysis),
 		Pattern:  predictor.Pattern,
-		Spikes:   new(SpikeRange),
+		Spikes:   &SpikeRangeAll{
+			big:   new(SpikeRange),
+			small: new(SpikeRange),
+			any:   new(SpikeRange),
+		},
 	}
 }
 

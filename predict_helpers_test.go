@@ -226,10 +226,10 @@ func testPriceData(
 func testExpectedSpikeAnyHasSpike(
 	t *testing.T,
 	expected *expectedSpike,
-	predicted models.HasSpikeRange,
+	predicted models.HasSpikeRangeAll,
 ) {
 	assert := assert.New(t)
-	assert.True(predicted.HasSpikeAny(), "has any spike")
+	assert.True(predicted.Any().Has(), "has any spike")
 
 	var expectedStart models.PricePeriod
 	var expectedEnd models.PricePeriod
@@ -250,32 +250,32 @@ func testExpectedSpikeAnyHasSpike(
 
 	assert.Equal(
 		expectedStart,
-		predicted.SpikeAnyStart(),
+		predicted.Any().Start(),
 		"start for any spike",
 	)
 
 	assert.Equal(
 		expectedEnd,
-		predicted.SpikeAnyEnd(),
+		predicted.Any().End(),
 		"end for any spike",
 	)
 }
 
 func testExpectedSpikeAnyNoSpike(
 	t *testing.T,
-	predicted models.HasSpikeRange,
+	predicted models.HasSpikeRangeAll,
 ) {
 	assert := assert.New(t)
 
-	assert.False(predicted.HasSpikeAny(), "does not have any spike")
+	assert.False(predicted.Any().Has(), "does not have any spike")
 	assert.Equal(
 		models.PricePeriod(0),
-		predicted.SpikeAnyStart(),
+		predicted.Any().Start(),
 		"no spike start",
 	)
 	assert.Equal(
 		models.PricePeriod(0),
-		predicted.SpikeAnyEnd(),
+		predicted.Any().End(),
 		"no spike end",
 	)
 }
@@ -283,7 +283,7 @@ func testExpectedSpikeAnyNoSpike(
 func testExpectedSpikeAny(
 	t *testing.T,
 	expected *expectedSpike,
-	predicted models.HasSpikeRange,
+	predicted models.HasSpikeRangeAll,
 ) {
 
 	if expected.Big || expected.Small {
@@ -296,29 +296,29 @@ func testExpectedSpikeAny(
 func testExpectedSpike(
 	t *testing.T,
 	expected *expectedSpike,
-	predicted models.HasSpikeRange,
+	predicted models.HasSpikeRangeAll,
 ) {
 	assert := assert.New(t)
 
-	assert.Equal(expected.Big, predicted.HasSpikeBig(), "has big spike")
+	assert.Equal(expected.Big, predicted.Big().Has(), "has big spike")
 	assert.Equal(
-		expected.Small, predicted.HasSpikeSmall(), "has small spike",
+		expected.Small, predicted.Small().Has(), "has small spike",
 	)
 
 	assert.Equal(
-		expected.BigStart, predicted.SpikeBigStart(), "big spike start",
+		expected.BigStart, predicted.Big().Start(), "big spike start",
 	)
 	assert.Equal(
-		expected.BigEnd, predicted.SpikeBigEnd(), "big spike end",
+		expected.BigEnd, predicted.Big().End(), "big spike end",
 	)
 
 	assert.Equal(
 		expected.SmallStart,
-		predicted.SpikeSmallStart(),
+		predicted.Small().Start(),
 		"small spike start",
 	)
 	assert.Equal(
-		expected.SmallEnd, predicted.SpikeSmallEnd(), "big spike end",
+		expected.SmallEnd, predicted.Small().End(), "big spike end",
 	)
 
 	testExpectedSpikeAny(t, expected, predicted)
@@ -334,28 +334,28 @@ func testSpikesDensity(
 
 	assert.Equal(
 		bigSpike.Chance(),
-		prediction.Spikes.BigChance,
+		prediction.Spikes.Big().Chance(),
 		"big spike chance equals pattern",
 	)
 
 	assert.Equal(
 		smallSpike.Chance(),
-		prediction.Spikes.SmallChance,
+		prediction.Spikes.Small().Chance(),
 		"small spike chance equals pattern",
 	)
 
 	assert.Equal(
 		bigSpike.Chance()+smallSpike.Chance(),
-		prediction.Spikes.AnyChance,
+		prediction.Spikes.Any().Chance(),
 		"total spike chance equals big + small",
 	)
 
 	var bigSpikeTotal, smallSpikeTotal, anySpikeTotal float64
 
 	for i := 0; i < values.PricePeriodCount; i++ {
-		smallChancePeriod := prediction.Spikes.SmallBreakdown[i]
-		bigChancePeriod := prediction.Spikes.BigBreakdown[i]
-		anyChancePeriod := prediction.Spikes.AnyBreakdown[i]
+		smallChancePeriod := prediction.Spikes.Small().Breakdown()[i]
+		bigChancePeriod := prediction.Spikes.Big().Breakdown()[i]
+		anyChancePeriod := prediction.Spikes.Any().Breakdown()[i]
 
 		bigSpikeTotal += bigChancePeriod
 		smallSpikeTotal += smallChancePeriod
@@ -411,7 +411,7 @@ func testPrediction(
 	}
 
 	testSpike := func(t *testing.T) {
-		testExpectedSpike(t, &expected.Spike, &prediction.Spikes)
+		testExpectedSpike(t, &expected.Spike, prediction.Spikes.SpikeRangeAll())
 	}
 	t.Run("spike_info", testSpike)
 

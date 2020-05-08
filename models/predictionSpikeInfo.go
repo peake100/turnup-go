@@ -34,60 +34,80 @@ func (spikes *SpikeChanceBreakdown) ForTime(
 	return spikes[pricePeriod], nil
 }
 
-// A probability heat-map of when a price spike might occur.
-type SpikeChances struct {
-	SpikeRange
-	// The probability distribution of a small spike by day.
-	SmallBreakdown SpikeChanceBreakdown
-	// The overall chance of a small spike.
-	SmallChance float64
-
-	// The probability distribution of a big spike by day
-	BigBreakdown SpikeChanceBreakdown
-	// The overall chance of a big spike.
-	BigChance float64
-
-	// The probability distribution of any spike by day
-	AnyBreakdown SpikeChanceBreakdown
-	// The overall chance of any spike.
-	AnyChance float64
+type HasSpikeChance interface {
+	HasSpikeRange
+	Chance() float64
+	Breakdown() SpikeChanceBreakdown
 }
 
-func (density *SpikeChances) updateSpikePeriod(
+type SpikeChance struct {
+	SpikeRange
+	chance    float64
+	breakdown SpikeChanceBreakdown
+}
+
+func (spike *SpikeChance) Chance() float64 {
+	return spike.chance
+}
+
+func (spike *SpikeChance) Breakdown() SpikeChanceBreakdown {
+	return spike.breakdown
+}
+
+func (spike *SpikeChance) updatePeriodDensity(
 	update HasSpikeRange,
 	period PricePeriod,
 	weekChance float64,
 ) {
 
-	hasSmall := update.HasSpikeSmall()
-	smallStart := update.SpikeSmallStart()
-	smallEnd := update.SpikeSmallStart()
-
-	hasBig := update.HasSpikeBig()
-	bigStart := update.SpikeBigStart()
-	bigEnd := update.SpikeBigEnd()
-
-	// Add chance to small density if this is a small spike.
-	containsSpike := false
-	if hasSmall && period >= smallStart && period <= smallEnd {
-		density.SmallBreakdown[period] += weekChance
-		containsSpike = true
-	}
-
-	// Add chance to big density if this is a big spike.
-	if hasBig && period >= bigStart && period <= bigEnd {
-		density.BigBreakdown[period] += weekChance
-		containsSpike = true
-	}
-
-	if containsSpike {
-		// Add to total density for both
-		density.AnyBreakdown[period] += weekChance
+	if update.Has() && period >= update.Start() && period <= update.End() {
+		spike.breakdown[period] += weekChance
 	}
 }
 
+type HasSpikeChancesAll interface {
+	Big() HasSpikeChance
+	Small() HasSpikeChance
+	Any() HasSpikeChance
+}
+
+// A probability heat-map of when a price spike might occur.
+type SpikeChancesAll struct {
+	small *SpikeChance
+	big   *SpikeChance
+	any   *SpikeChance
+}
+
+func (spikes *SpikeChancesAll) Big() HasSpikeChance {
+	return spikes.big
+}
+
+func (spikes *SpikeChancesAll) Small() HasSpikeChance {
+	return spikes.small
+}
+
+func (spikes *SpikeChancesAll) Any() HasSpikeChance {
+	return spikes.any
+}
+
+// Converts from HasSpikeChancesAll to HasSpikeRangesAll
+func (spikes *SpikeChancesAll) SpikeRangeAll() HasSpikeRangeAll {
+	// Extract the embedded types and rewrap them
+	return &SpikeRangeAll{
+		big:   &spikes.big.SpikeRange,
+		small: &spikes.small.SpikeRange,
+		any:   &spikes.any.SpikeRange,
+	}
+}
+
+func (spikes *SpikeChancesAll) updateRanges(info *SpikeRangeAll) {
+	spikes.any.updateFromRange(info.any)
+	spikes.big.updateFromRange(info.big)
+	spikes.small.updateFromRange(info.small)
+}
+
 // We will updatePrices the density from the potential weeks.
-func (density *SpikeChances) UpdateSpikeDensity(
+func (spikes *SpikeChancesAll) updateDensities(
 	updateWeek *PotentialWeek,
 ) {
 	// The idea behind this heatmap is simple: take the bin width of a given potential
@@ -99,14 +119,16 @@ func (density *SpikeChances) UpdateSpikeDensity(
 	update := updateWeek.Spikes
 	weekChance := updateWeek.Chance()
 
-	if !update.HasSpikeAny() {
+	if !update.any.Has() {
 		return
 	}
 
-	start := update.SpikeAnyStart()
-	end := update.SpikeAnyEnd()
+	start := update.any.Start()
+	end := update.any.End()
 
 	for period := start; period <= end; period++ {
-		density.updateSpikePeriod(update, period, weekChance)
+		spikes.any.updatePeriodDensity(update.any, period, weekChance)
+		spikes.big.updatePeriodDensity(update.big, period, weekChance)
+		spikes.small.updatePeriodDensity(update.small, period, weekChance)
 	}
 }

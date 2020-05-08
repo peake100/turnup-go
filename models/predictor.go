@@ -20,7 +20,14 @@ func (predictor *Predictor) increaseBinWidth(amount float64) {
 }
 
 func (predictor *Predictor) Predict() (*Prediction, error) {
-	result := new(Prediction)
+	result := &Prediction{
+		Spikes:      &SpikeChancesAll{
+			small: new(SpikeChance),
+			big:   new(SpikeChance),
+			any:   new(SpikeChance),
+		},
+		Patterns:    nil,
+	}
 	predictor.result = result
 
 	currentWeek := predictor.Ticker
@@ -41,7 +48,7 @@ func (predictor *Predictor) Predict() (*Prediction, error) {
 		// Integrate this data with our top-level summary
 		result.Patterns = append(result.Patterns, potentialPattern)
 		result.updatePriceRangeFromOther(potentialPattern)
-		result.Spikes.updateSpikeFromRange(potentialPattern.Spikes)
+		result.Spikes.updateRanges(potentialPattern.Spikes)
 		predictor.increaseBinWidth(binWidth)
 	}
 

@@ -167,7 +167,7 @@ func (gen *phasePeriodGenerator) calcPhasePeriodHistoricalMultiplier(
 func (gen *phasePeriodGenerator) calcNookPriceAndWidth(
 	priceMultiplier float32,
 ) (price int, binWidth float64) {
-	price = RoundBells(float32(gen.PurchasePrice) * priceMultiplier)
+	price = roundBells(float32(gen.PurchasePrice) * priceMultiplier)
 
 	// Convert everything to float64 so our prediction math is more precise.
 	binWidth = float64(price) -

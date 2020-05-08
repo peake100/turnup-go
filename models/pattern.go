@@ -5,6 +5,13 @@ import (
 	"strings"
 )
 
+// Price Pattern Enum value
+//
+// 	0 = "FLUCTUATING"
+// 	1 = "BIG SPIKE"
+// 	2 = "DECREASING"
+// 	3 = "SMALL SPIKE"
+// 	4 = "UNKNOWN"
 type PricePattern int
 
 func (pattern PricePattern) String() string {
@@ -113,16 +120,17 @@ const (
 	UNKNOWN     PricePattern = 4
 )
 
-// An array of the possible patterns in index order
+// PATTERNS is an array of the possible patterns this library might be passed in index
+// order
 var PATTERNS = [5]PricePattern{FLUCTUATING, BIGSPIKE, DECREASING, SMALLSPIKE, UNKNOWN}
 
-// All the valid patterns in the game. Unknown is not a valid pattern, and only
-// one we need include because of incomplete game information
+// PATTERNSGAME is the valid patterns in the game. Unknown is not a valid pattern, and
+// only one we need include for practical use because of incomplete user information.
 var PATTERNSGAME = [4]PricePattern{FLUCTUATING, BIGSPIKE, DECREASING, SMALLSPIKE}
 
 // Returns a pattern from a string: The following values are valid. The four names are:
 //
-//		1. Fluctuating
+//  	1. Fluctuating
 //  	2. Big Spikes
 //  	3. Decreasing
 //  	4. Small Spikes

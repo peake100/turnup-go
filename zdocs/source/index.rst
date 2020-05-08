@@ -162,10 +162,12 @@ Now get predicting!
 Background Reading
 ==================
 
-This library would not be possible without the `amazing work <>`_ done by Ninji and
-the `in-depth breakdown <>`_ of it by . Both were intrumental in putting together this
-library and 's breakdown is particular is recommended reading for any developers
-who want to work on turnip price software.
+This library would not be possible without the `amazing work <https://gist.github.com/Treeki/85be14d297c80c8b3c0a76375743325b>`_
+done by `Ninji <https://twitter.com/_Ninji>`_ and the
+`in-depth breakdown <https://docs.google.com/document/d/1bSVNpOnH_dKxkAGr718-iqh8s8Z0qQ54L-0mD-lbrXo/edit>`_
+of it by /u/Edricus. Both were intrumental in putting together this library and
+/u/Edricus's breakdown is particular is recommended reading for any developers who want
+to work on turnip price software.
 
 .. _api documentation:
 

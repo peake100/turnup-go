@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#375EAB">
 
-  <title>timeofday - Go Documentation Server</title>
+  <title>patterns - Go Documentation Server</title>
 
 <link type="text/css" rel="stylesheet" href="style.css">
 
@@ -43,7 +43,7 @@
 
 
   <h1>
-    Package timeofday
+    Package patterns
     <span class="text-muted"></span>
   </h1>
 
@@ -77,7 +77,7 @@
 		
 		<div id="short-nav">
 			<dl>
-			<dd><code>import "github.com/peake100/turnup-go/models/timeofday"</code></dd>
+			<dd><code>import "github.com/peake100/turnup-go/models/patterns"</code></dd>
 			</dl>
 			<dl>
 			<dd><a href="godoc.4.html#pkg-overview" class="overviewLink">Overview</a></dd>
@@ -109,16 +109,12 @@
 			<div id="manual-nav">
 			<dl>
 			
+				<dd><a href="godoc.4.html#pkg-constants">Constants</a></dd>
 			
 			
+				<dd><a href="godoc.4.html#pkg-variables">Variables</a></dd>
 			
-				
-				<dd><a href="godoc.4.html#ToD">type ToD</a></dd>
-				
-				
-					
-					<dd>&nbsp; &nbsp; <a href="godoc.4.html#ToD.PhaseOffset">func (tod ToD) PhaseOffset() int</a></dd>
-				
+			
 			
 			
 			</dl>
@@ -131,7 +127,7 @@
 			<p>
 			<span style="font-size:90%">
 			
-				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/timeofday/timeOfDay.go">timeOfDay.go</a>
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/patterns/patterns.go">patterns.go</a>
 			
 			</span>
 			</p>
@@ -142,51 +138,29 @@
 		
 
 		
-		
-		
-		
-			
-			
-			<h2 id="ToD">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/timeofday/timeOfDay.go?s=218:233#L1">ToD</a>
-				<a class="permalink" href="godoc.4.html#ToD">&#xb6;</a>
-				
-				
-			</h2>
-			
-			<pre>type ToD <a href="http://localhost:6161/pkg/builtin/#string">string</a></pre>
-
+			<h2 id="pkg-constants">Constants</h2>
 			
 				
 				<pre>const (
-    <span id="AM">AM</span> <a href="godoc.4.html#ToD">ToD</a> = &#34;AM&#34;
-    <span id="PM">PM</span> <a href="godoc.4.html#ToD">ToD</a> = &#34;PM&#34;
+    <span id="FLUCTUATING">FLUCTUATING</span> = <a href="godoc.9.html">models</a>.<a href="godoc.9.html#FLUCTUATING">FLUCTUATING</a>
+    <span id="BIGSPIKE">BIGSPIKE</span>    = <a href="godoc.9.html">models</a>.<a href="godoc.9.html#BIGSPIKE">BIGSPIKE</a>
+    <span id="DECREASING">DECREASING</span>  = <a href="godoc.9.html">models</a>.<a href="godoc.9.html#DECREASING">DECREASING</a>
+    <span id="SMALLSPIKE">SMALLSPIKE</span>  = <a href="godoc.9.html">models</a>.<a href="godoc.9.html#SMALLSPIKE">SMALLSPIKE</a>
+    <span id="UNKNOWN">UNKNOWN</span>     = <a href="godoc.9.html">models</a>.<a href="godoc.9.html#UNKNOWN">UNKNOWN</a>
 )</pre>
 			
-
-			
-
-			
-			
-			
-
-			
-
+		
+		
+			<h2 id="pkg-variables">Variables</h2>
 			
 				
-				<h3 id="ToD.PhaseOffset">func (ToD) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/timeofday/timeOfDay.go?s=305:337#L1">PhaseOffset</a>
-					<a class="permalink" href="godoc.4.html#ToD.PhaseOffset">&#xb6;</a>
-					
-					
-				</h3>
-				<pre>func (tod <a href="godoc.4.html#ToD">ToD</a>) PhaseOffset() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
-				<p>
-Returns the phase offset value for the time of day. AM = 0, PM = 1
-</p>
-
-				
-				
-				
+				<pre>var <span id="PATTERNS">PATTERNS</span> = <a href="godoc.9.html">models</a>.<a href="godoc.9.html#PATTERNS">PATTERNS</a></pre>
 			
+				
+				<pre>var <span id="PATTERNSGAME">PATTERNSGAME</span> = <a href="godoc.9.html">models</a>.<a href="godoc.9.html#PATTERNSGAME">PATTERNSGAME</a></pre>
+			
+		
+		
 		
 	
 

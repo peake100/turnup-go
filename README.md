@@ -5,7 +5,7 @@ golang!
 
 ## Getting Started
 For full documentation:
-[read the docs](https://illuscio-dev.github.io/islelib-go/).
+[read the docs](https://peake100.github.io/turnup-go/).
 
 For library development guide, 
 [read the docs](https://illuscio-dev.github.io/islelib-go/).
@@ -13,7 +13,7 @@ For library development guide,
 
 ### Prerequisites
 
-Golang 1.3+, Python 3.6+
+Golang 1.3+
 
 ## Authors
 

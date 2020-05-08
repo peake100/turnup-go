@@ -2,19 +2,17 @@ package models
 
 // Interface defining a potential object that has a hasSpikeAny
 type HasSpike interface {
-	HasSpikeAny() bool
+	// Whether the object has the potential for a Big Spike pattern
 	HasSpikeBig() bool
+	// Whether the object has the potential for a Small Spike pattern
 	HasSpikeSmall() bool
+	// Whether the object has the potential for a any spike pattern
+	HasSpikeAny() bool
 }
 
 // Interface defining a potential object that has a hasSpikeAny range
 type HasSpikeRange interface {
 	HasSpike
-
-	// The first price period any hasSpikeAny could occur.
-	SpikeAnyStart() PricePeriod
-	// The last price period any hasSpikeAny could occur (inclusive).
-	SpikeAnyEnd() PricePeriod
 
 	// The first price period a big hasSpikeAny could occur.
 	SpikeBigStart() PricePeriod
@@ -25,6 +23,11 @@ type HasSpikeRange interface {
 	SpikeSmallStart() PricePeriod
 	// The last price period a small hasSpikeAny could occur (inclusive).
 	SpikeSmallEnd() PricePeriod
+
+	// The first price period any hasSpikeAny could occur.
+	SpikeAnyStart() PricePeriod
+	// The last price period any hasSpikeAny could occur (inclusive).
+	SpikeAnyEnd() PricePeriod
 }
 
 // Implementation of HasSpikeAny
@@ -37,14 +40,17 @@ type Spikes struct {
 	hasSpikeSmall bool
 }
 
+// Whether the object has the potential for a Big Spike pattern
 func (spike *Spikes) HasSpikeAny() bool {
 	return spike.hasSpikeAny
 }
 
+// Whether the object has the potential for a Big Spike pattern
 func (spike *Spikes) HasSpikeBig() bool {
 	return spike.hasSpikeBig
 }
 
+// Whether the object has the potential for a Small Spike pattern
 func (spike *Spikes) HasSpikeSmall() bool {
 	return spike.hasSpikeSmall
 }
@@ -62,26 +68,32 @@ type SpikeRange struct {
 	spikeSmallEnd   PricePeriod
 }
 
+// The first price period any spike pattern could occur.
 func (spike *SpikeRange) SpikeAnyStart() PricePeriod {
 	return spike.spikeAnyStart
 }
 
+// The last price period any spike pattern could occur.
 func (spike *SpikeRange) SpikeAnyEnd() PricePeriod {
 	return spike.spikeAnyEnd
 }
 
+// The first price period a big spike could occur.
 func (spike *SpikeRange) SpikeBigStart() PricePeriod {
 	return spike.spikeBigStart
 }
 
+// The last price period a big spike could occur.
 func (spike *SpikeRange) SpikeBigEnd() PricePeriod {
 	return spike.spikeBigEnd
 }
 
+// The first price period a small spike could occur.
 func (spike *SpikeRange) SpikeSmallStart() PricePeriod {
 	return spike.spikeSmallStart
 }
 
+// The last price period a small spike could occur.
 func (spike *SpikeRange) SpikeSmallEnd() PricePeriod {
 	return spike.spikeSmallEnd
 }
@@ -130,8 +142,7 @@ func (spike *SpikeRange) updateSpikeFromPeriodBig(period PricePeriod, info HasSp
 	spike.hasSpikeBig = true
 }
 
-// UpdateSpikeFromPeriod
-func (spike *SpikeRange) UpdateSpikeFromPeriod(period PricePeriod, info HasSpike) {
+func (spike *SpikeRange) updateSpikeFromPeriod(period PricePeriod, info HasSpike) {
 	spike.updateSpikeFromPeriodAny(period, info)
 	spike.updateSpikeFromPeriodSmall(period, info)
 	spike.updateSpikeFromPeriodBig(period, info)

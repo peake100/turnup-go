@@ -16,15 +16,20 @@ type prices struct {
 	midChance float64
 }
 
+// The minimum price that can occur. On PotentialPricePeriod objects, this is the
+// *lowest possible price* for the given period, but on Week, Pattern, and Prediction
+// object this is the minimum guaranteed price, or the highest price we can guarantee
+// will occur this week.
 func (prices *prices) MinPrice() int {
 	return prices.minPrice
 }
 
+// The potential maximum price for this period / week / pattern / prediction.
 func (prices *prices) MaxPrice() int {
 	return prices.maxPrice
 }
 
-// Returns the chance of this price range resulting in this price
+// Returns the chance of this price range resulting in this price.
 func (prices *prices) PriceChance(price int) float64 {
 	switch {
 	case price == prices.maxPrice:

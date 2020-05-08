@@ -96,7 +96,7 @@ func (predictor *weekPredictor) buildWeek() {
 			// We want to find the highest minimum for this potential week and use that
 			// as the week's guaranteed minimum
 			result.updatePriceRangeFromPrices(potentialPeriod, pricePeriod)
-			result.Spikes.UpdateSpikeFromPeriod(
+			result.Spikes.updateSpikeFromPeriod(
 				potentialPeriod.PricePeriod, potentialPeriod.Spikes,
 			)
 

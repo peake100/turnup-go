@@ -20,7 +20,8 @@ type hasFullAnalysis interface {
 	hasProbability
 }
 
-type PriceRange struct {
+// Information about the min and max prices over the 12 price periods of the week.
+type PriceSeries struct {
 	prices
 
 	// We want to implement this as a map so we don't double-add price periods.
@@ -32,7 +33,7 @@ type PriceRange struct {
 	maxPeriodsCached []PricePeriod
 }
 
-func (prices *PriceRange) createPeriodCache(
+func (prices *PriceSeries) createPeriodCache(
 	periodSet map[PricePeriod]interface{},
 ) []PricePeriod {
 	newCache := make([]PricePeriod, len(periodSet))
@@ -53,21 +54,27 @@ func (prices *PriceRange) createPeriodCache(
 	return newCache
 }
 
-func (prices *PriceRange) MinPeriods() []PricePeriod {
+// The PricePeriods that this minimum guaranteed price might occur. On PotentialWeeks,
+// this will always be a single value, but on PotentialPatterns and Predictions, every
+// possible day the minimum guaranteed price *might* occur is used.
+func (prices *PriceSeries) MinPeriods() []PricePeriod {
 	if prices.minPeriodsCached == nil {
 		prices.minPeriodsCached = prices.createPeriodCache(prices.minPeriodsSet)
 	}
 	return prices.minPeriodsCached
 }
 
-func (prices *PriceRange) MaxPeriods() []PricePeriod {
+// The PricePeriods that this maximum potential price might occur. On PotentialWeeks,
+// this will always be a single value, but on PotentialPatterns and Predictions, every
+// possible day the maximum potential price *might* occur is used.
+func (prices *PriceSeries) MaxPeriods() []PricePeriod {
 	if prices.maxPeriodsCached == nil {
 		prices.maxPeriodsCached = prices.createPeriodCache(prices.maxPeriodsSet)
 	}
 	return prices.maxPeriodsCached
 }
 
-func (prices *PriceRange) clearPeriods(minUpdated bool, maxUpdated bool) {
+func (prices *PriceSeries) clearPeriods(minUpdated bool, maxUpdated bool) {
 	// If the value was updated, we have a new min/max, so we need to clear the
 	// map
 	if minUpdated {
@@ -81,7 +88,7 @@ func (prices *PriceRange) clearPeriods(minUpdated bool, maxUpdated bool) {
 }
 
 // Update from another analysis object
-func (prices *PriceRange) updatePriceRangeFromPrices(
+func (prices *PriceSeries) updatePriceRangeFromPrices(
 	other hasPrices, period PricePeriod,
 ) {
 	minUpdated := prices.updateMin(other.MinPrice(), true)
@@ -99,7 +106,7 @@ func (prices *PriceRange) updatePriceRangeFromPrices(
 	}
 }
 
-func (prices *PriceRange) addPeriodsToSet(
+func (prices *PriceSeries) addPeriodsToSet(
 	periods []PricePeriod, set map[PricePeriod]interface{},
 ) {
 	for _, pricePeriod := range periods {
@@ -108,7 +115,7 @@ func (prices *PriceRange) addPeriodsToSet(
 }
 
 // Update from another analysis object
-func (prices *PriceRange) updatePriceRangeFromOther(other hasPriceRange) {
+func (prices *PriceSeries) updatePriceRangeFromOther(other hasPriceRange) {
 	minUpdated, maxUpdated := prices.updatePrices(other, false)
 	prices.clearPeriods(minUpdated, maxUpdated)
 
@@ -123,11 +130,15 @@ func (prices *PriceRange) updatePriceRangeFromOther(other hasPriceRange) {
 	}
 }
 
+// Price range and the chance of the range occurring. This type is designed to be
+// embedded into prediction, pattern, and week objects to give them a common interface
+// for fetching price and probability information.
 type Analysis struct {
-	PriceRange
+	PriceSeries
 	chance float64
 }
 
+// The chance from 0.0-1.0 that this week / pattern / price will occur.
 func (analysis *Analysis) Chance() float64 {
 	return analysis.chance
 }

@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#375EAB">
+
+  <title>models - Go Documentation Server</title>
+
+<link type="text/css" rel="stylesheet" href="style.css">
+
+<script>window.initFuncs = [];</script>
+<script src="jquery.js" defer></script>
+
+
+
+<script>var goVersion = "go1.13.5";</script>
+<script src="godocs.js" defer></script>
+</head>
+<body>
+
+<div id='lowframe' style="position: fixed; bottom: 0; left: 0; height: 0; width: 100%; border-top: thin solid grey; background-color: white; overflow: auto;">
+...
+</div><!-- #lowframe -->
+
+<div id="topbar" class="wide"><div class="container">
+<div class="top-heading" id="heading-wide"><a href="http://localhost:6161/pkg/">Go Documentation Server</a></div>
+<div class="top-heading" id="heading-narrow"><a href="http://localhost:6161/pkg/">GoDoc</a></div>
+<a href="godoc.9.html#" id="menu-button"><span id="menu-button-arrow">&#9661;</span></a>
+<form method="GET" action="http://localhost:6161/search">
+<div id="menu">
+
+<span class="search-box"><input type="search" id="search" name="q" placeholder="Search" aria-label="Search" required><button type="submit"><span><!-- magnifying glass: --><svg width="24" height="24" viewBox="0 0 24 24"><title>submit search</title><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/><path d="M0 0h24v24H0z" fill="none"/></svg></span></button></span>
+</div>
+</form>
+
+</div></div>
+
+
+
+<div id="page" class="wide">
+<div class="container">
+
+
+  <h1>
+    Package models
+    <span class="text-muted"></span>
+  </h1>
+
+
+
+
+
+
+
+<div id="nav"></div>
+
+
+<!--
+	Copyright 2009 The Go Authors. All rights reserved.
+	Use of this source code is governed by a BSD-style
+	license that can be found in the LICENSE file.
+-->
+<!--
+	Note: Static (i.e., not template-generated) href and id
+	attributes start with "pkg-" to make it impossible for
+	them to conflict with generated attributes (some of which
+	correspond to Go identifiers).
+-->
+
+	<script>
+	document.ANALYSIS_DATA = null;
+	document.CALLGRAPH = null;
+	</script>
+
+	
+		
+		<div id="short-nav">
+			<dl>
+			<dd><code>import "github.com/peake100/turnup-go/models"</code></dd>
+			</dl>
+			<dl>
+			<dd><a href="godoc.9.html#pkg-overview" class="overviewLink">Overview</a></dd>
+			<dd><a href="godoc.9.html#pkg-index" class="indexLink">Index</a></dd>
+			
+			
+				<dd><a href="godoc.9.html#pkg-subdirectories">Subdirectories</a></dd>
+			
+			</dl>
+		</div>
+		<!-- The package's Name is printed as title by the top-level template -->
+		<div id="pkg-overview" class="toggleVisible">
+			<div class="collapsed">
+				<h2 class="toggleButton" title="Click to show Overview section">Overview ▹</h2>
+			</div>
+			<div class="expanded">
+				<h2 class="toggleButton" title="Click to hide Overview section">Overview ▾</h2>
+				
+				
+			</div>
+		</div>
+
+		<div id="pkg-index" class="toggleVisible">
+		<div class="collapsed">
+			<h2 class="toggleButton" title="Click to show Index section">Index ▹</h2>
+		</div>
+		<div class="expanded">
+			<h2 class="toggleButton" title="Click to hide Index section">Index ▾</h2>
+
+		<!-- Table of contents for API; must be named manual-nav to turn off auto nav. -->
+			<div id="manual-nav">
+			<dl>
+			
+			
+				<dd><a href="godoc.9.html#pkg-variables">Variables</a></dd>
+			
+			
+			
+				
+				<dd><a href="godoc.9.html#Analysis">type Analysis</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Analysis.Chance">func (analysis *Analysis) Chance() float64</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Analysis.MaxPrice">func (prices *Analysis) MaxPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Analysis.MinPrice">func (prices *Analysis) MinPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Analysis.PriceChance">func (prices *Analysis) PriceChance(price int) float64</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#HasSpike">type HasSpike</a></dd>
+				
+				
+			
+				
+				<dd><a href="godoc.9.html#HasSpikeRange">type HasSpikeRange</a></dd>
+				
+				
+			
+				
+				<dd><a href="godoc.9.html#NookPriceArray">type NookPriceArray</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#NookPriceArray.ForDay">func (prices *NookPriceArray) ForDay(weekday time.Weekday, tod timeofday.ToD) (price int, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#NookPriceArray.ForTime">func (prices *NookPriceArray) ForTime(priceTime time.Time) (price int, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#NookPriceArray.SetForDay">func (prices *NookPriceArray) SetForDay(weekday time.Weekday, tod timeofday.ToD, price int) error</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#NookPriceArray.SetForTime">func (prices *NookPriceArray) SetForTime(priceTime time.Time, price int) error</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#PatternPhase">type PatternPhase</a></dd>
+				
+				
+			
+				
+				<dd><a href="godoc.9.html#Patterns">type Patterns</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Patterns.Get">func (patterns Patterns) Get(pattern PricePattern) (*PotentialPattern, error)</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#PotentialPattern">type PotentialPattern</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialPattern.MaxPrice">func (prices PotentialPattern) MaxPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialPattern.MinPrice">func (prices PotentialPattern) MinPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialPattern.PriceChance">func (prices PotentialPattern) PriceChance(price int) float64</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#PotentialPricePeriod">type PotentialPricePeriod</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialPricePeriod.IsValidPrice">func (potential *PotentialPricePeriod) IsValidPrice(price int) bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialPricePeriod.MaxPrice">func (prices PotentialPricePeriod) MaxPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialPricePeriod.MinPrice">func (prices PotentialPricePeriod) MinPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialPricePeriod.PriceChance">func (prices PotentialPricePeriod) PriceChance(price int) float64</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#PotentialPricePeriods">type PotentialPricePeriods</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialPricePeriods.ForDay">func (prices PotentialPricePeriods) ForDay(weekday time.Weekday, tod timeofday.ToD) (period *PotentialPricePeriod, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialPricePeriods.ForTime">func (prices PotentialPricePeriods) ForTime(priceTime time.Time) (period *PotentialPricePeriod, err error)</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#PotentialWeek">type PotentialWeek</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialWeek.MaxPrice">func (prices PotentialWeek) MaxPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialWeek.MinPrice">func (prices PotentialWeek) MinPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PotentialWeek.PriceChance">func (prices PotentialWeek) PriceChance(price int) float64</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#Prediction">type Prediction</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Prediction.MaxPrice">func (prices *Prediction) MaxPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Prediction.MinPrice">func (prices *Prediction) MinPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Prediction.PriceChance">func (prices *Prediction) PriceChance(price int) float64</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#Predictor">type Predictor</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Predictor.Predict">func (predictor *Predictor) Predict() (*Prediction, error)</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#PricePattern">type PricePattern</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PatternFromString">func PatternFromString(value string) (PricePattern, error)</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PricePattern.BaseChance">func (pattern PricePattern) BaseChance(previous PricePattern) float64</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PricePattern.PermutationCount">func (pattern PricePattern) PermutationCount() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PricePattern.PhaseProgression">func (pattern PricePattern) PhaseProgression(ticker *PriceTicker) []PatternPhase</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PricePattern.String">func (pattern PricePattern) String() string</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#PricePeriod">type PricePeriod</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PricePeriodFromDay">func PricePeriodFromDay(weekday time.Weekday, tod timeofday.ToD) (PricePeriod, error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PricePeriodFromTime">func PricePeriodFromTime(priceTime time.Time) (PricePeriod, error)</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PricePeriod.ToD">func (period PricePeriod) ToD() timeofday.ToD</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PricePeriod.Weekday">func (period PricePeriod) Weekday() time.Weekday</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#PriceSeries">type PriceSeries</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PriceSeries.MaxPeriods">func (prices *PriceSeries) MaxPeriods() []PricePeriod</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PriceSeries.MaxPrice">func (prices *PriceSeries) MaxPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PriceSeries.MinPeriods">func (prices *PriceSeries) MinPeriods() []PricePeriod</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PriceSeries.MinPrice">func (prices *PriceSeries) MinPrice() int</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#PriceSeries.PriceChance">func (prices *PriceSeries) PriceChance(price int) float64</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#PriceTicker">type PriceTicker</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#NewTicker">func NewTicker(purchasePrice int, previousPattern PricePattern) *PriceTicker</a></dd>
+				
+				
+			
+				
+				<dd><a href="godoc.9.html#SpikeChanceBreakdown">type SpikeChanceBreakdown</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#SpikeChanceBreakdown.ForDay">func (spikes *SpikeChanceBreakdown) ForDay(weekday time.Weekday, tod timeofday.ToD) (chance float64, err error)</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#SpikeChanceBreakdown.ForTime">func (spikes *SpikeChanceBreakdown) ForTime(spikeTime time.Time) (chance float64, err error)</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#SpikeChances">type SpikeChances</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#SpikeChances.UpdateSpikeDensity">func (density *SpikeChances) UpdateSpikeDensity(updateWeek *PotentialWeek)</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#SpikeRange">type SpikeRange</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#SpikeRange.SpikeAnyEnd">func (spike *SpikeRange) SpikeAnyEnd() PricePeriod</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#SpikeRange.SpikeAnyStart">func (spike *SpikeRange) SpikeAnyStart() PricePeriod</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#SpikeRange.SpikeBigEnd">func (spike *SpikeRange) SpikeBigEnd() PricePeriod</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#SpikeRange.SpikeBigStart">func (spike *SpikeRange) SpikeBigStart() PricePeriod</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#SpikeRange.SpikeSmallEnd">func (spike *SpikeRange) SpikeSmallEnd() PricePeriod</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#SpikeRange.SpikeSmallStart">func (spike *SpikeRange) SpikeSmallStart() PricePeriod</a></dd>
+				
+			
+				
+				<dd><a href="godoc.9.html#Spikes">type Spikes</a></dd>
+				
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Spikes.HasSpikeAny">func (spike *Spikes) HasSpikeAny() bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Spikes.HasSpikeBig">func (spike *Spikes) HasSpikeBig() bool</a></dd>
+				
+					
+					<dd>&nbsp; &nbsp; <a href="godoc.9.html#Spikes.HasSpikeSmall">func (spike *Spikes) HasSpikeSmall() bool</a></dd>
+				
+			
+			
+			</dl>
+			</div><!-- #manual-nav -->
+
+		
+
+		
+			<h3>Package files</h3>
+			<p>
+			<span style="font-size:90%">
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysis.go">analysis.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go">analysisPrices.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/pattern.go">pattern.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/period.go">period.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/phase.go">phase.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/phaseAutoCalc.go">phaseAutoCalc.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/phaseAutoCalcPeriodGen.go">phaseAutoCalcPeriodGen.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/phaseAutoCore.go">phaseAutoCore.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/phasesBigSpike.go">phasesBigSpike.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/phasesDecreasing.go">phasesDecreasing.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/phasesFluctuating.go">phasesFluctuating.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/phasesSmallSpike.go">phasesSmallSpike.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/potentialPattern.go">potentialPattern.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/potentialPeriod.go">potentialPeriod.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/potentialWeek.go">potentialWeek.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/prediction.go">prediction.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictionSpikeInfo.go">predictionSpikeInfo.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictor.go">predictor.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictorCalcChances.go">predictorCalcChances.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictorPattern.go">predictorPattern.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictorWeek.go">predictorWeek.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go">spikeInfo.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/ticker.go">ticker.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/tickerPrices.go">tickerPrices.go</a>
+			
+				<a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/utils.go">utils.go</a>
+			
+			</span>
+			</p>
+		
+		</div><!-- .expanded -->
+		</div><!-- #pkg-index -->
+
+		
+
+		
+		
+			<h2 id="pkg-variables">Variables</h2>
+			
+				<p>
+An array of the possible patterns in index order
+</p>
+
+				<pre>var <span id="PATTERNS">PATTERNS</span> = [5]<a href="godoc.9.html#PricePattern">PricePattern</a>{<a href="godoc.9.html#FLUCTUATING">FLUCTUATING</a>, <a href="godoc.9.html#BIGSPIKE">BIGSPIKE</a>, <a href="godoc.9.html#DECREASING">DECREASING</a>, <a href="godoc.9.html#SMALLSPIKE">SMALLSPIKE</a>, <a href="godoc.9.html#UNKNOWN">UNKNOWN</a>}</pre>
+			
+				<p>
+All the valid patterns in the game. Unknown is not a valid pattern, and only
+one we need include because of incomplete game information
+</p>
+
+				<pre>var <span id="PATTERNSGAME">PATTERNSGAME</span> = [4]<a href="godoc.9.html#PricePattern">PricePattern</a>{<a href="godoc.9.html#FLUCTUATING">FLUCTUATING</a>, <a href="godoc.9.html#BIGSPIKE">BIGSPIKE</a>, <a href="godoc.9.html#DECREASING">DECREASING</a>, <a href="godoc.9.html#SMALLSPIKE">SMALLSPIKE</a>}</pre>
+			
+		
+		
+		
+			
+			
+			<h2 id="Analysis">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysis.go?s=4007:4060#L126">Analysis</a>
+				<a class="permalink" href="godoc.9.html#Analysis">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+Price range and the chance of the range occurring. This type is designed to be
+embedded into prediction, pattern, and week objects to give them a common interface
+for fetching price and probability information.
+</p>
+
+			<pre>type Analysis struct {
+    <a href="godoc.9.html#PriceSeries">PriceSeries</a>
+    <span class="comment">// contains filtered or unexported fields</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="Analysis.Chance">func (*Analysis) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysis.go?s=4134:4176#L132">Chance</a>
+					<a class="permalink" href="godoc.9.html#Analysis.Chance">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (analysis *<a href="godoc.9.html#Analysis">Analysis</a>) Chance() <a href="http://localhost:6161/pkg/builtin/#float64">float64</a></pre>
+				<p>
+The chance from 0.0-1.0 that this week / pattern / price will occur.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="Analysis.MaxPrice">func (*Analysis) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=285:321#L13">MaxPrice</a>
+					<a class="permalink" href="godoc.9.html#Analysis.MaxPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#Analysis">Analysis</a>) MaxPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="Analysis.MinPrice">func (*Analysis) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=219:255#L9">MinPrice</a>
+					<a class="permalink" href="godoc.9.html#Analysis.MinPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#Analysis">Analysis</a>) MinPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="Analysis.PriceChance">func (*Analysis) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=417:469#L18">PriceChance</a>
+					<a class="permalink" href="godoc.9.html#Analysis.PriceChance">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#Analysis">Analysis</a>) PriceChance(price <a href="http://localhost:6161/pkg/builtin/#int">int</a>) <a href="http://localhost:6161/pkg/builtin/#float64">float64</a></pre>
+				<p>
+Returns the chance of this price range resulting in this price
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="HasSpike">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=80:366#L1">HasSpike</a>
+				<a class="permalink" href="godoc.9.html#HasSpike">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+Interface defining a potential object that has a hasSpikeAny
+</p>
+
+			<pre>type HasSpike interface {
+    <span class="comment">// Whether the object has the potential for a Big Spike pattern</span>
+    HasSpikeBig() <a href="http://localhost:6161/pkg/builtin/#bool">bool</a>
+    <span class="comment">// Whether the object has the potential for a Small Spike pattern</span>
+    HasSpikeSmall() <a href="http://localhost:6161/pkg/builtin/#bool">bool</a>
+    <span class="comment">// Whether the object has the potential for a any spike pattern</span>
+    HasSpikeAny() <a href="http://localhost:6161/pkg/builtin/#bool">bool</a>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="HasSpikeRange">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=438:1036#L4">HasSpikeRange</a>
+				<a class="permalink" href="godoc.9.html#HasSpikeRange">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+Interface defining a potential object that has a hasSpikeAny range
+</p>
+
+			<pre>type HasSpikeRange interface {
+    <a href="godoc.9.html#HasSpike">HasSpike</a>
+
+    <span class="comment">// The first price period a big hasSpikeAny could occur.</span>
+    SpikeBigStart() <a href="godoc.9.html#PricePeriod">PricePeriod</a>
+    <span class="comment">// The last price period a big hasSpikeAny could occur (inclusive).</span>
+    SpikeBigEnd() <a href="godoc.9.html#PricePeriod">PricePeriod</a>
+
+    <span class="comment">// The first price period a small hasSpikeAny could occur.</span>
+    SpikeSmallStart() <a href="godoc.9.html#PricePeriod">PricePeriod</a>
+    <span class="comment">// The last price period a small hasSpikeAny could occur (inclusive).</span>
+    SpikeSmallEnd() <a href="godoc.9.html#PricePeriod">PricePeriod</a>
+
+    <span class="comment">// The first price period any hasSpikeAny could occur.</span>
+    SpikeAnyStart() <a href="godoc.9.html#PricePeriod">PricePeriod</a>
+    <span class="comment">// The last price period any hasSpikeAny could occur (inclusive).</span>
+    SpikeAnyEnd() <a href="godoc.9.html#PricePeriod">PricePeriod</a>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="NookPriceArray">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/tickerPrices.go?s=267:315#L1">NookPriceArray</a>
+				<a class="permalink" href="godoc.9.html#NookPriceArray">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+Holds the Nook turnip purchase prices for a week in price-period order. Adds methods
+for setting and fetching via time package values.
+</p>
+
+			<pre>type NookPriceArray [<a href="godoc.6.html">values</a>.<a href="godoc.6.html#PricePeriodCount">PricePeriodCount</a>]<a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="NookPriceArray.ForDay">func (*NookPriceArray) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/tickerPrices.go?s=371:475#L4">ForDay</a>
+					<a class="permalink" href="godoc.9.html#NookPriceArray.ForDay">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#NookPriceArray">NookPriceArray</a>) ForDay(
+    weekday <a href="http://localhost:6161/pkg/time/">time</a>.<a href="http://localhost:6161/pkg/time/#Weekday">Weekday</a>, tod <a href="godoc.5.html">timeofday</a>.<a href="godoc.5.html#ToD">ToD</a>,
+) (price <a href="http://localhost:6161/pkg/builtin/#int">int</a>, err <a href="http://localhost:6161/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Return the price for a given Weekday + time of day
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="NookPriceArray.ForTime">func (*NookPriceArray) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/tickerPrices.go?s=802:883#L17">ForTime</a>
+					<a class="permalink" href="godoc.9.html#NookPriceArray.ForTime">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#NookPriceArray">NookPriceArray</a>) ForTime(priceTime <a href="http://localhost:6161/pkg/time/">time</a>.<a href="http://localhost:6161/pkg/time/#Time">Time</a>) (price <a href="http://localhost:6161/pkg/builtin/#int">int</a>, err <a href="http://localhost:6161/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Return the price for a given time. The ticker does not contain any information about
+dates, so it is assumed that the time passed in to priceTime is for the week that
+the ticker describes.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="NookPriceArray.SetForDay">func (*NookPriceArray) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/tickerPrices.go?s=1098:1199#L26">SetForDay</a>
+					<a class="permalink" href="godoc.9.html#NookPriceArray.SetForDay">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#NookPriceArray">NookPriceArray</a>) SetForDay(
+    weekday <a href="http://localhost:6161/pkg/time/">time</a>.<a href="http://localhost:6161/pkg/time/#Weekday">Weekday</a>, tod <a href="godoc.5.html">timeofday</a>.<a href="godoc.5.html#ToD">ToD</a>, price <a href="http://localhost:6161/pkg/builtin/#int">int</a>,
+) <a href="http://localhost:6161/pkg/builtin/#error">error</a></pre>
+				<p>
+Set the price with a Weekday / time of day for a little more ease in setting values.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="NookPriceArray.SetForTime">func (*NookPriceArray) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/tickerPrices.go?s=1437:1515#L39">SetForTime</a>
+					<a class="permalink" href="godoc.9.html#NookPriceArray.SetForTime">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#NookPriceArray">NookPriceArray</a>) SetForTime(priceTime <a href="http://localhost:6161/pkg/time/">time</a>.<a href="http://localhost:6161/pkg/time/#Time">Time</a>, price <a href="http://localhost:6161/pkg/builtin/#int">int</a>) <a href="http://localhost:6161/pkg/builtin/#error">error</a></pre>
+				<p>
+Set a price period for a specific time. Timezone is not taken into account during
+this operation.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="PatternPhase">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/phase.go?s=793:2542#L7">PatternPhase</a>
+				<a class="permalink" href="godoc.9.html#PatternPhase">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+A phase is a period of time within a price pattern that follows a single algorithm.
+When making predictions for a given pattern, we will iterate over a set of phases.
+</p>
+<p>
+A phase is responsible for:
+</p>
+<pre>		1. Communicating a set of possible lengths.
+		2. Reporting if it&#39;s length has been set in stone when the predictor is
+		   iterating over the phases to set all possible lengths.
+     3. Returning the price range for a given price period within itself.
+     4. Copying itself for spawning a new set of phase length possibilities.
+</pre>
+<p>
+This interface describes the methods necessary to accomplish these four goals,
+and is used by the predictor to map out all possible phase combinations, and get all
+possible price ranges for a given price period.
+</p>
+
+			<pre>type PatternPhase interface {
+    <span class="comment">// The name of the phase</span>
+    Name() <a href="http://localhost:6161/pkg/builtin/#string">string</a>
+
+    <span class="comment">// The predictor will set the ticker during setup to make it available for</span>
+    <span class="comment">// calculations. The phase, in turn promises NOT to mutate the ticker.</span>
+    SetTicker(ticker *<a href="godoc.9.html#PriceTicker">PriceTicker</a>)
+
+    <span class="comment">// Returns a list of possible lengths. Should return nil if it cannot yet be</span>
+    <span class="comment">// determined. &#39;lengthPass&#39; is a counter of how many times the list of phases has</span>
+    <span class="comment">// been passed over when computing the possible lengths. For each possible length</span>
+    <span class="comment">// returned, a new goroutine will be spawned to compute that possibility by making</span>
+    <span class="comment">// a copy of `phases` and calling &#39;set length&#39; on this pattern.</span>
+    <span class="comment">//</span>
+    <span class="comment">// Should return &#39;nil&#39; for ``possibilities`` if possibilities cannot be computed</span>
+    <span class="comment">// for this pass. Should panic if we are calling on a finalized phase.</span>
+    PossibleLengths(phases []<a href="godoc.9.html#PatternPhase">PatternPhase</a>) (possibilities []<a href="http://localhost:6161/pkg/builtin/#int">int</a>)
+
+    <span class="comment">// Sets the length we want to assume for this phase. This does not need be the</span>
+    <span class="comment">// final length, many phases go through a temp length. This method is called by</span>
+    <span class="comment">// the predictor when setting up a series of possible phase combinations.</span>
+    SetLength(length <a href="http://localhost:6161/pkg/builtin/#int">int</a>)
+
+    <span class="comment">// Returns the length set by ``.SetLength()`` for other phases to inspect when</span>
+    <span class="comment">// making calculations.</span>
+    Length() <a href="http://localhost:6161/pkg/builtin/#int">int</a>
+
+    <span class="comment">// Whether the value returned by .Length() is the final length.</span>
+    IsFinal() <a href="http://localhost:6161/pkg/builtin/#bool">bool</a>
+
+    <span class="comment">// Returns a potential price bracket for a given day of this phase. ``period`` is</span>
+    <span class="comment">// the absolute period for the week, while ``subPeriod`` is the price period</span>
+    <span class="comment">// relative to the start of this phase, beginning at 0.</span>
+    PotentialPeriod(
+        period <a href="godoc.9.html#PricePeriod">PricePeriod</a>, subPeriod <a href="http://localhost:6161/pkg/builtin/#int">int</a>,
+    ) *<a href="godoc.9.html#PotentialPricePeriod">PotentialPricePeriod</a>
+
+    <span class="comment">// Creates a duplicate of this phase in the current state. Used for making</span>
+    <span class="comment">// permutations.</span>
+    Duplicate() <a href="godoc.9.html#PatternPhase">PatternPhase</a>
+}</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+		
+			
+			
+			<h2 id="Patterns">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/prediction.go?s=122:155#L1">Patterns</a>
+				<a class="permalink" href="godoc.9.html#Patterns">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+Holds the potential pattern information for a prediction.
+</p>
+
+			<pre>type Patterns []*<a href="godoc.9.html#PotentialPattern">PotentialPattern</a></pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="Patterns.Get">func (Patterns) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/prediction.go?s=277:354#L1">Get</a>
+					<a class="permalink" href="godoc.9.html#Patterns.Get">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (patterns <a href="godoc.9.html#Patterns">Patterns</a>) Get(pattern <a href="godoc.9.html#PricePattern">PricePattern</a>) (*<a href="godoc.9.html#PotentialPattern">PotentialPattern</a>, <a href="http://localhost:6161/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Returns the potential pattern predictions for a given pattern. Returns nil if
+&ldquo;pattern&ldquo; is not a valid pattern.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="PotentialPattern">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/potentialPattern.go?s=87:301#L1">PotentialPattern</a>
+				<a class="permalink" href="godoc.9.html#PotentialPattern">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+Describes the potential prices and chance of a given price pattern.
+</p>
+
+			<pre>type PotentialPattern struct {
+    <span class="comment">// The chance, min price and max price</span>
+    *<a href="godoc.9.html#Analysis">Analysis</a>
+<span id="PotentialPattern.Spikes"></span>    Spikes *<a href="godoc.9.html#SpikeRange">SpikeRange</a>
+    <span class="comment">// The pattern</span>
+<span id="PotentialPattern.Pattern"></span>    Pattern <a href="godoc.9.html#PricePattern">PricePattern</a>
+    <span class="comment">// The potential week&#39;s price patterns</span>
+<span id="PotentialPattern.PotentialWeeks"></span>    PotentialWeeks []*<a href="godoc.9.html#PotentialWeek">PotentialWeek</a>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="PotentialPattern.MaxPrice">func (PotentialPattern) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=285:321#L13">MaxPrice</a>
+					<a class="permalink" href="godoc.9.html#PotentialPattern.MaxPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices <a href="godoc.9.html#PotentialPattern">PotentialPattern</a>) MaxPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="PotentialPattern.MinPrice">func (PotentialPattern) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=219:255#L9">MinPrice</a>
+					<a class="permalink" href="godoc.9.html#PotentialPattern.MinPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices <a href="godoc.9.html#PotentialPattern">PotentialPattern</a>) MinPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="PotentialPattern.PriceChance">func (PotentialPattern) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=417:469#L18">PriceChance</a>
+					<a class="permalink" href="godoc.9.html#PotentialPattern.PriceChance">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices <a href="godoc.9.html#PotentialPattern">PotentialPattern</a>) PriceChance(price <a href="http://localhost:6161/pkg/builtin/#int">int</a>) <a href="http://localhost:6161/pkg/builtin/#float64">float64</a></pre>
+				<p>
+Returns the chance of this price range resulting in this price
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="PotentialPricePeriod">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/potentialPeriod.go?s=16:204#L1">PotentialPricePeriod</a>
+				<a class="permalink" href="godoc.9.html#PotentialPricePeriod">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type PotentialPricePeriod struct {
+<span id="PotentialPricePeriod.Spikes"></span>    Spikes *<a href="godoc.9.html#Spikes">Spikes</a>
+
+    <span class="comment">// The price period</span>
+<span id="PotentialPricePeriod.PricePeriod"></span>    PricePeriod <a href="godoc.9.html#PricePeriod">PricePeriod</a>
+
+    <span class="comment">// The pattern phase used to generate this period.</span>
+<span id="PotentialPricePeriod.PatternPhase"></span>    PatternPhase <a href="godoc.9.html#PatternPhase">PatternPhase</a>
+    <span class="comment">// contains filtered or unexported fields</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="PotentialPricePeriod.IsValidPrice">func (*PotentialPricePeriod) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/potentialPeriod.go?s=405:472#L7">IsValidPrice</a>
+					<a class="permalink" href="godoc.9.html#PotentialPricePeriod.IsValidPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (potential *<a href="godoc.9.html#PotentialPricePeriod">PotentialPricePeriod</a>) IsValidPrice(price <a href="http://localhost:6161/pkg/builtin/#int">int</a>) <a href="http://localhost:6161/pkg/builtin/#bool">bool</a></pre>
+				<p>
+Returns &ldquo;true&ldquo; if &ldquo;price&ldquo; falls within the price range of this potential period.
+Used by the predictor to remove phase permutations that do not match the current
+price values of a user.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="PotentialPricePeriod.MaxPrice">func (PotentialPricePeriod) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=285:321#L13">MaxPrice</a>
+					<a class="permalink" href="godoc.9.html#PotentialPricePeriod.MaxPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices <a href="godoc.9.html#PotentialPricePeriod">PotentialPricePeriod</a>) MaxPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="PotentialPricePeriod.MinPrice">func (PotentialPricePeriod) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=219:255#L9">MinPrice</a>
+					<a class="permalink" href="godoc.9.html#PotentialPricePeriod.MinPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices <a href="godoc.9.html#PotentialPricePeriod">PotentialPricePeriod</a>) MinPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="PotentialPricePeriod.PriceChance">func (PotentialPricePeriod) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=417:469#L18">PriceChance</a>
+					<a class="permalink" href="godoc.9.html#PotentialPricePeriod.PriceChance">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices <a href="godoc.9.html#PotentialPricePeriod">PotentialPricePeriod</a>) PriceChance(price <a href="http://localhost:6161/pkg/builtin/#int">int</a>) <a href="http://localhost:6161/pkg/builtin/#float64">float64</a></pre>
+				<p>
+Returns the chance of this price range resulting in this price
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="PotentialPricePeriods">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/potentialWeek.go?s=234:284#L1">PotentialPricePeriods</a>
+				<a class="permalink" href="godoc.9.html#PotentialPricePeriods">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+This will be implemented as a slice as we will not always hit all 12 price periods
+when evaluating if a potential week needs to be thrown out
+</p>
+
+			<pre>type PotentialPricePeriods []*<a href="godoc.9.html#PotentialPricePeriod">PotentialPricePeriod</a></pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="PotentialPricePeriods.ForDay">func (PotentialPricePeriods) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/potentialWeek.go?s=357:486#L3">ForDay</a>
+					<a class="permalink" href="godoc.9.html#PotentialPricePeriods.ForDay">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices <a href="godoc.9.html#PotentialPricePeriods">PotentialPricePeriods</a>) ForDay(
+    weekday <a href="http://localhost:6161/pkg/time/">time</a>.<a href="http://localhost:6161/pkg/time/#Weekday">Weekday</a>, tod <a href="godoc.5.html">timeofday</a>.<a href="godoc.5.html#ToD">ToD</a>,
+) (period *<a href="godoc.9.html#PotentialPricePeriod">PotentialPricePeriod</a>, err <a href="http://localhost:6161/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Return the potential price period for a given Weekday + time of day
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="PotentialPricePeriods.ForTime">func (PotentialPricePeriods) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/potentialWeek.go?s=901:1011#L17">ForTime</a>
+					<a class="permalink" href="godoc.9.html#PotentialPricePeriods.ForTime">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices <a href="godoc.9.html#PotentialPricePeriods">PotentialPricePeriods</a>) ForTime(
+    priceTime <a href="http://localhost:6161/pkg/time/">time</a>.<a href="http://localhost:6161/pkg/time/#Time">Time</a>,
+) (period *<a href="godoc.9.html#PotentialPricePeriod">PotentialPricePeriod</a>, err <a href="http://localhost:6161/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Return the potential price period for a given time. The ticker does not contain any
+information about dates, so it is assumed that the time passed in to priceTime is for
+the week that the ticker describes.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="PotentialWeek">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/potentialWeek.go?s=1140:1396#L27">PotentialWeek</a>
+				<a class="permalink" href="godoc.9.html#PotentialWeek">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type PotentialWeek struct {
+    <span class="comment">// Holds chance and price information</span>
+    *<a href="godoc.9.html#Analysis">Analysis</a>
+
+    <span class="comment">// Details about if and when a price spike could occur for this week.</span>
+<span id="PotentialWeek.Spikes"></span>    Spikes *<a href="godoc.9.html#SpikeRange">SpikeRange</a>
+
+    <span class="comment">// Holds the details of the potential price periods.</span>
+<span id="PotentialWeek.Prices"></span>    Prices <a href="godoc.9.html#PotentialPricePeriods">PotentialPricePeriods</a>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="PotentialWeek.MaxPrice">func (PotentialWeek) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=285:321#L13">MaxPrice</a>
+					<a class="permalink" href="godoc.9.html#PotentialWeek.MaxPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices <a href="godoc.9.html#PotentialWeek">PotentialWeek</a>) MaxPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="PotentialWeek.MinPrice">func (PotentialWeek) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=219:255#L9">MinPrice</a>
+					<a class="permalink" href="godoc.9.html#PotentialWeek.MinPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices <a href="godoc.9.html#PotentialWeek">PotentialWeek</a>) MinPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="PotentialWeek.PriceChance">func (PotentialWeek) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=417:469#L18">PriceChance</a>
+					<a class="permalink" href="godoc.9.html#PotentialWeek.PriceChance">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices <a href="godoc.9.html#PotentialWeek">PotentialWeek</a>) PriceChance(price <a href="http://localhost:6161/pkg/builtin/#int">int</a>) <a href="http://localhost:6161/pkg/builtin/#float64">float64</a></pre>
+				<p>
+Returns the chance of this price range resulting in this price
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="Prediction">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/prediction.go?s=528:609#L10">Prediction</a>
+				<a class="permalink" href="godoc.9.html#Prediction">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type Prediction struct {
+    <a href="godoc.9.html#PriceSeries">PriceSeries</a>
+<span id="Prediction.Spikes"></span>    Spikes   <a href="godoc.9.html#SpikeChances">SpikeChances</a>
+<span id="Prediction.Patterns"></span>    Patterns <a href="godoc.9.html#Patterns">Patterns</a>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="Prediction.MaxPrice">func (*Prediction) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=285:321#L13">MaxPrice</a>
+					<a class="permalink" href="godoc.9.html#Prediction.MaxPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#Prediction">Prediction</a>) MaxPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="Prediction.MinPrice">func (*Prediction) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=219:255#L9">MinPrice</a>
+					<a class="permalink" href="godoc.9.html#Prediction.MinPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#Prediction">Prediction</a>) MinPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="Prediction.PriceChance">func (*Prediction) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=417:469#L18">PriceChance</a>
+					<a class="permalink" href="godoc.9.html#Prediction.PriceChance">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#Prediction">Prediction</a>) PriceChance(price <a href="http://localhost:6161/pkg/builtin/#int">int</a>) <a href="http://localhost:6161/pkg/builtin/#float64">float64</a></pre>
+				<p>
+Returns the chance of this price range resulting in this price
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="Predictor">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictor.go?s=66:260#L1">Predictor</a>
+				<a class="permalink" href="godoc.9.html#Predictor">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type Predictor struct {
+    <span class="comment">// The price ticker to use for this prediction</span>
+<span id="Predictor.Ticker"></span>    Ticker *<a href="godoc.9.html#PriceTicker">PriceTicker</a>
+    <span class="comment">// contains filtered or unexported fields</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="Predictor.Predict">func (*Predictor) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictor.go?s=360:418#L12">Predict</a>
+					<a class="permalink" href="godoc.9.html#Predictor.Predict">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (predictor *<a href="godoc.9.html#Predictor">Predictor</a>) Predict() (*<a href="godoc.9.html#Prediction">Prediction</a>, <a href="http://localhost:6161/pkg/builtin/#error">error</a>)</pre>
+				
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="PricePattern">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/pattern.go?s=77:98#L1">PricePattern</a>
+				<a class="permalink" href="godoc.9.html#PricePattern">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type PricePattern <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+
+			
+				
+				<pre>const (
+    <span id="FLUCTUATING">FLUCTUATING</span> <a href="godoc.9.html#PricePattern">PricePattern</a> = 0
+    <span id="BIGSPIKE">BIGSPIKE</span>    <a href="godoc.9.html#PricePattern">PricePattern</a> = 1
+    <span id="DECREASING">DECREASING</span>  <a href="godoc.9.html#PricePattern">PricePattern</a> = 2
+    <span id="SMALLSPIKE">SMALLSPIKE</span>  <a href="godoc.9.html#PricePattern">PricePattern</a> = 3
+    <span id="UNKNOWN">UNKNOWN</span>     <a href="godoc.9.html#PricePattern">PricePattern</a> = 4
+)</pre>
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="PatternFromString">func <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/pattern.go?s=4662:4720#L130">PatternFromString</a>
+					<a class="permalink" href="godoc.9.html#PatternFromString">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func PatternFromString(value <a href="http://localhost:6161/pkg/builtin/#string">string</a>) (<a href="godoc.9.html#PricePattern">PricePattern</a>, <a href="http://localhost:6161/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Returns a pattern from a string: The following values are valid. The four names are:
+</p>
+<pre>		1. Fluctuating
+ 	2. Big Spikes
+ 	3. Decreasing
+ 	4. Small Spikes
+ 	5. Unknown
+</pre>
+<p>
+Incoming values are upper-cased, and spaces are removed before evaluating; all of the
+following would be handled without error for Big Spikes:
+</p>
+<pre>- BIGSPIKE
+- bigspike
+- BIG SPIKE
+- Big Spikes
+- big spike
+- etc.
+</pre>
+
+				
+				
+			
+
+			
+				
+				<h3 id="PricePattern.BaseChance">func (PricePattern) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/pattern.go?s=2647:2716#L65">BaseChance</a>
+					<a class="permalink" href="godoc.9.html#PricePattern.BaseChance">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (pattern <a href="godoc.9.html#PricePattern">PricePattern</a>) BaseChance(previous <a href="godoc.9.html#PricePattern">PricePattern</a>) <a href="http://localhost:6161/pkg/builtin/#float64">float64</a></pre>
+				<p>
+Returns a the chance of this pattern occurring based on the pattern from last week
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="PricePattern.PermutationCount">func (PricePattern) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/pattern.go?s=3613:3663#L94">PermutationCount</a>
+					<a class="permalink" href="godoc.9.html#PricePattern.PermutationCount">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (pattern <a href="godoc.9.html#PricePattern">PricePattern</a>) PermutationCount() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				<p>
+The total possible phase combinations for this pattern. Can be used to determine
+actual chance of this pattern once possibilities have been removed by a ticker.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="PricePattern.PhaseProgression">func (PricePattern) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/pattern.go?s=2970:3050#L75">PhaseProgression</a>
+					<a class="permalink" href="godoc.9.html#PricePattern.PhaseProgression">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (pattern <a href="godoc.9.html#PricePattern">PricePattern</a>) PhaseProgression(ticker *<a href="godoc.9.html#PriceTicker">PriceTicker</a>) []<a href="godoc.9.html#PatternPhase">PatternPhase</a></pre>
+				<p>
+Returns a new set of phase definitions that can be used to calculate the possible
+price values for a week.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="PricePattern.String">func (PricePattern) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/pattern.go?s=100:143#L1">String</a>
+					<a class="permalink" href="godoc.9.html#PricePattern.String">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (pattern <a href="godoc.9.html#PricePattern">PricePattern</a>) String() <a href="http://localhost:6161/pkg/builtin/#string">string</a></pre>
+				
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="PricePeriod">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/period.go?s=124:144#L1">PricePeriod</a>
+				<a class="permalink" href="godoc.9.html#PricePeriod">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type PricePeriod <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="PricePeriodFromDay">func <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/period.go?s=448:533#L14">PricePeriodFromDay</a>
+					<a class="permalink" href="godoc.9.html#PricePeriodFromDay">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func PricePeriodFromDay(weekday <a href="http://localhost:6161/pkg/time/">time</a>.<a href="http://localhost:6161/pkg/time/#Weekday">Weekday</a>, tod <a href="godoc.5.html">timeofday</a>.<a href="godoc.5.html#ToD">ToD</a>) (<a href="godoc.9.html#PricePeriod">PricePeriod</a>, <a href="http://localhost:6161/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Converts price Weekday and time of day to price period. Returns error if sunday is
+passed
+</p>
+
+				
+				
+			
+				
+				<h3 id="PricePeriodFromTime">func <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/period.go?s=711:777#L22">PricePeriodFromTime</a>
+					<a class="permalink" href="godoc.9.html#PricePeriodFromTime">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func PricePeriodFromTime(priceTime <a href="http://localhost:6161/pkg/time/">time</a>.<a href="http://localhost:6161/pkg/time/#Time">Time</a>) (<a href="godoc.9.html#PricePeriod">PricePeriod</a>, <a href="http://localhost:6161/pkg/builtin/#error">error</a>)</pre>
+				
+				
+				
+			
+
+			
+				
+				<h3 id="PricePeriod.ToD">func (PricePeriod) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/period.go?s=235:280#L5">ToD</a>
+					<a class="permalink" href="godoc.9.html#PricePeriod.ToD">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (period <a href="godoc.9.html#PricePeriod">PricePeriod</a>) ToD() <a href="godoc.5.html">timeofday</a>.<a href="godoc.5.html#ToD">ToD</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="PricePeriod.Weekday">func (PricePeriod) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/period.go?s=146:194#L1">Weekday</a>
+					<a class="permalink" href="godoc.9.html#PricePeriod.Weekday">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (period <a href="godoc.9.html#PricePeriod">PricePeriod</a>) Weekday() <a href="http://localhost:6161/pkg/time/">time</a>.<a href="http://localhost:6161/pkg/time/#Weekday">Weekday</a></pre>
+				
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="PriceSeries">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysis.go?s=366:665#L14">PriceSeries</a>
+				<a class="permalink" href="godoc.9.html#PriceSeries">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+Information about the min and max prices over the 12 price periods of the week.
+</p>
+
+			<pre>type PriceSeries struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="PriceSeries.MaxPeriods">func (*PriceSeries) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysis.go?s=1766:1819#L60">MaxPeriods</a>
+					<a class="permalink" href="godoc.9.html#PriceSeries.MaxPeriods">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#PriceSeries">PriceSeries</a>) MaxPeriods() []<a href="godoc.9.html#PricePeriod">PricePeriod</a></pre>
+				<p>
+The PricePeriods that this maximum potential price might occur. On PotentialWeeks,
+this will always be a single value, but on PotentialPatterns and Predictions, every
+possible day the maximum potential price *might* occur is used.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="PriceSeries.MaxPrice">func (*PriceSeries) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=285:321#L13">MaxPrice</a>
+					<a class="permalink" href="godoc.9.html#PriceSeries.MaxPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#PriceSeries">PriceSeries</a>) MaxPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="PriceSeries.MinPeriods">func (*PriceSeries) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysis.go?s=1320:1373#L50">MinPeriods</a>
+					<a class="permalink" href="godoc.9.html#PriceSeries.MinPeriods">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#PriceSeries">PriceSeries</a>) MinPeriods() []<a href="godoc.9.html#PricePeriod">PricePeriod</a></pre>
+				<p>
+The PricePeriods that this minimum guaranteed price might occur. On PotentialWeeks,
+this will always be a single value, but on PotentialPatterns and Predictions, every
+possible day the minimum guaranteed price *might* occur is used.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="PriceSeries.MinPrice">func (*PriceSeries) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=219:255#L9">MinPrice</a>
+					<a class="permalink" href="godoc.9.html#PriceSeries.MinPrice">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#PriceSeries">PriceSeries</a>) MinPrice() <a href="http://localhost:6161/pkg/builtin/#int">int</a></pre>
+				
+				
+				
+				
+			
+				
+				<h3 id="PriceSeries.PriceChance">func (*PriceSeries) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/analysisPrices.go?s=417:469#L18">PriceChance</a>
+					<a class="permalink" href="godoc.9.html#PriceSeries.PriceChance">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (prices *<a href="godoc.9.html#PriceSeries">PriceSeries</a>) PriceChance(price <a href="http://localhost:6161/pkg/builtin/#int">int</a>) <a href="http://localhost:6161/pkg/builtin/#float64">float64</a></pre>
+				<p>
+Returns the chance of this price range resulting in this price
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="PriceTicker">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/ticker.go?s=68:518#L1">PriceTicker</a>
+				<a class="permalink" href="godoc.9.html#PriceTicker">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type PriceTicker struct {
+    <span class="comment">// The previous week&#39;s price pattern</span>
+<span id="PriceTicker.PreviousPattern"></span>    PreviousPattern <a href="godoc.9.html#PricePattern">PricePattern</a>
+
+    <span class="comment">// The purchase price on sunday for this week</span>
+<span id="PriceTicker.PurchasePrice"></span>    PurchasePrice <a href="http://localhost:6161/pkg/builtin/#int">int</a>
+
+    <span class="comment">// There are 12 buy-price periods in a week, we are going to store the 12 buy prices</span>
+    <span class="comment">// in a 12-int array. A price of &#39;zero&#39; will stand for &#39;not available&#39;</span>
+    <span class="comment">//</span>
+    <span class="comment">// Because PricePeriod is an extension of int, we can access the array with</span>
+    <span class="comment">// PricePeriod objects.</span>
+<span id="PriceTicker.Prices"></span>    Prices <a href="godoc.9.html#NookPriceArray">NookPriceArray</a>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+				
+				<h3 id="NewTicker">func <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/ticker.go?s=520:596#L12">NewTicker</a>
+					<a class="permalink" href="godoc.9.html#NewTicker">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func NewTicker(purchasePrice <a href="http://localhost:6161/pkg/builtin/#int">int</a>, previousPattern <a href="godoc.9.html#PricePattern">PricePattern</a>) *<a href="godoc.9.html#PriceTicker">PriceTicker</a></pre>
+				
+				
+				
+			
+
+			
+		
+			
+			
+			<h2 id="SpikeChanceBreakdown">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictionSpikeInfo.go?s=126:184#L1">SpikeChanceBreakdown</a>
+				<a class="permalink" href="godoc.9.html#SpikeChanceBreakdown">&#xb6;</a>
+				
+				
+			</h2>
+			
+			<pre>type SpikeChanceBreakdown [<a href="godoc.6.html">values</a>.<a href="godoc.6.html#PricePeriodCount">PricePeriodCount</a>]<a href="http://localhost:6161/pkg/builtin/#float64">float64</a></pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="SpikeChanceBreakdown.ForDay">func (*SpikeChanceBreakdown) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictionSpikeInfo.go?s=247:362#L2">ForDay</a>
+					<a class="permalink" href="godoc.9.html#SpikeChanceBreakdown.ForDay">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (spikes *<a href="godoc.9.html#SpikeChanceBreakdown">SpikeChanceBreakdown</a>) ForDay(
+    weekday <a href="http://localhost:6161/pkg/time/">time</a>.<a href="http://localhost:6161/pkg/time/#Weekday">Weekday</a>, tod <a href="godoc.5.html">timeofday</a>.<a href="godoc.5.html#ToD">ToD</a>,
+) (chance <a href="http://localhost:6161/pkg/builtin/#float64">float64</a>, err <a href="http://localhost:6161/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Return the spike chance for a given Weekday + time of day
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="SpikeChanceBreakdown.ForTime">func (*SpikeChanceBreakdown) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictionSpikeInfo.go?s=698:794#L16">ForTime</a>
+					<a class="permalink" href="godoc.9.html#SpikeChanceBreakdown.ForTime">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (spikes *<a href="godoc.9.html#SpikeChanceBreakdown">SpikeChanceBreakdown</a>) ForTime(
+    spikeTime <a href="http://localhost:6161/pkg/time/">time</a>.<a href="http://localhost:6161/pkg/time/#Time">Time</a>,
+) (chance <a href="http://localhost:6161/pkg/builtin/#float64">float64</a>, err <a href="http://localhost:6161/pkg/builtin/#error">error</a>)</pre>
+				<p>
+Return the spike chance for a given time. The ticker does not contain any information
+about dates, so it is assumed that the time passed in to spikeTime is for the week
+that the density describes.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="SpikeChances">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictionSpikeInfo.go?s=983:1474#L28">SpikeChances</a>
+				<a class="permalink" href="godoc.9.html#SpikeChances">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+A probability heat-map of when a price spike might occur.
+</p>
+
+			<pre>type SpikeChances struct {
+    <a href="godoc.9.html#SpikeRange">SpikeRange</a>
+    <span class="comment">// The probability distribution of a small spike by day.</span>
+<span id="SpikeChances.SmallBreakdown"></span>    SmallBreakdown <a href="godoc.9.html#SpikeChanceBreakdown">SpikeChanceBreakdown</a>
+    <span class="comment">// The overall chance of a small spike.</span>
+<span id="SpikeChances.SmallChance"></span>    SmallChance <a href="http://localhost:6161/pkg/builtin/#float64">float64</a>
+
+    <span class="comment">// The probability distribution of a big spike by day</span>
+<span id="SpikeChances.BigBreakdown"></span>    BigBreakdown <a href="godoc.9.html#SpikeChanceBreakdown">SpikeChanceBreakdown</a>
+    <span class="comment">// The overall chance of a big spike.</span>
+<span id="SpikeChances.BigChance"></span>    BigChance <a href="http://localhost:6161/pkg/builtin/#float64">float64</a>
+
+    <span class="comment">// The probability distribution of any spike by day</span>
+<span id="SpikeChances.AnyBreakdown"></span>    AnyBreakdown <a href="godoc.9.html#SpikeChanceBreakdown">SpikeChanceBreakdown</a>
+    <span class="comment">// The overall chance of any spike.</span>
+<span id="SpikeChances.AnyChance"></span>    AnyChance <a href="http://localhost:6161/pkg/builtin/#float64">float64</a>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="SpikeChances.UpdateSpikeDensity">func (*SpikeChances) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/predictionSpikeInfo.go?s=2376:2454#L80">UpdateSpikeDensity</a>
+					<a class="permalink" href="godoc.9.html#SpikeChances.UpdateSpikeDensity">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (density *<a href="godoc.9.html#SpikeChances">SpikeChances</a>) UpdateSpikeDensity(
+    updateWeek *<a href="godoc.9.html#PotentialWeek">PotentialWeek</a>,
+)</pre>
+				<p>
+We will updatePrices the density from the potential weeks.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="SpikeRange">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=1787:1989#L49">SpikeRange</a>
+				<a class="permalink" href="godoc.9.html#SpikeRange">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+Implementation of HasSpikeRange
+</p>
+
+			<pre>type SpikeRange struct {
+    <a href="godoc.9.html#Spikes">Spikes</a>
+    <span class="comment">// contains filtered or unexported fields</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="SpikeRange.SpikeAnyEnd">func (*SpikeRange) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=2190:2240#L67">SpikeAnyEnd</a>
+					<a class="permalink" href="godoc.9.html#SpikeRange.SpikeAnyEnd">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (spike *<a href="godoc.9.html#SpikeRange">SpikeRange</a>) SpikeAnyEnd() <a href="godoc.9.html#PricePeriod">PricePeriod</a></pre>
+				<p>
+The last price period any spike pattern could occur.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="SpikeRange.SpikeAnyStart">func (*SpikeRange) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=2048:2100#L62">SpikeAnyStart</a>
+					<a class="permalink" href="godoc.9.html#SpikeRange.SpikeAnyStart">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (spike *<a href="godoc.9.html#SpikeRange">SpikeRange</a>) SpikeAnyStart() <a href="godoc.9.html#PricePeriod">PricePeriod</a></pre>
+				<p>
+The first price period any spike pattern could occur.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="SpikeRange.SpikeBigEnd">func (*SpikeRange) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=2459:2509#L77">SpikeBigEnd</a>
+					<a class="permalink" href="godoc.9.html#SpikeRange.SpikeBigEnd">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (spike *<a href="godoc.9.html#SpikeRange">SpikeRange</a>) SpikeBigEnd() <a href="godoc.9.html#PricePeriod">PricePeriod</a></pre>
+				<p>
+The last price period a big spike could occur.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="SpikeRange.SpikeBigStart">func (*SpikeRange) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=2323:2375#L72">SpikeBigStart</a>
+					<a class="permalink" href="godoc.9.html#SpikeRange.SpikeBigStart">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (spike *<a href="godoc.9.html#SpikeRange">SpikeRange</a>) SpikeBigStart() <a href="godoc.9.html#PricePeriod">PricePeriod</a></pre>
+				<p>
+The first price period a big spike could occur.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="SpikeRange.SpikeSmallEnd">func (*SpikeRange) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=2736:2788#L87">SpikeSmallEnd</a>
+					<a class="permalink" href="godoc.9.html#SpikeRange.SpikeSmallEnd">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (spike *<a href="godoc.9.html#SpikeRange">SpikeRange</a>) SpikeSmallEnd() <a href="godoc.9.html#PricePeriod">PricePeriod</a></pre>
+				<p>
+The last price period a small spike could occur.
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="SpikeRange.SpikeSmallStart">func (*SpikeRange) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=2594:2648#L82">SpikeSmallStart</a>
+					<a class="permalink" href="godoc.9.html#SpikeRange.SpikeSmallStart">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (spike *<a href="godoc.9.html#SpikeRange">SpikeRange</a>) SpikeSmallStart() <a href="godoc.9.html#PricePeriod">PricePeriod</a></pre>
+				<p>
+The first price period a small spike could occur.
+</p>
+
+				
+				
+				
+			
+		
+			
+			
+			<h2 id="Spikes">type <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=1071:1339#L24">Spikes</a>
+				<a class="permalink" href="godoc.9.html#Spikes">&#xb6;</a>
+				
+				
+			</h2>
+			<p>
+Implementation of HasSpikeAny
+</p>
+
+			<pre>type Spikes struct {
+    <span class="comment">// contains filtered or unexported fields</span>
+}
+</pre>
+
+			
+
+			
+
+			
+			
+			
+
+			
+
+			
+				
+				<h3 id="Spikes.HasSpikeAny">func (*Spikes) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=1405:1444#L34">HasSpikeAny</a>
+					<a class="permalink" href="godoc.9.html#Spikes.HasSpikeAny">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (spike *<a href="godoc.9.html#Spikes">Spikes</a>) HasSpikeAny() <a href="http://localhost:6161/pkg/builtin/#bool">bool</a></pre>
+				<p>
+Whether the object has the potential for a Big Spike pattern
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="Spikes.HasSpikeBig">func (*Spikes) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=1540:1579#L39">HasSpikeBig</a>
+					<a class="permalink" href="godoc.9.html#Spikes.HasSpikeBig">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (spike *<a href="godoc.9.html#Spikes">Spikes</a>) HasSpikeBig() <a href="http://localhost:6161/pkg/builtin/#bool">bool</a></pre>
+				<p>
+Whether the object has the potential for a Big Spike pattern
+</p>
+
+				
+				
+				
+			
+				
+				<h3 id="Spikes.HasSpikeSmall">func (*Spikes) <a href="http://localhost:6161/src/github.com/peake100/turnup-go/models/spikeInfo.go?s=1677:1718#L44">HasSpikeSmall</a>
+					<a class="permalink" href="godoc.9.html#Spikes.HasSpikeSmall">&#xb6;</a>
+					
+					
+				</h3>
+				<pre>func (spike *<a href="godoc.9.html#Spikes">Spikes</a>) HasSpikeSmall() <a href="http://localhost:6161/pkg/builtin/#bool">bool</a></pre>
+				<p>
+Whether the object has the potential for a Small Spike pattern
+</p>
+
+				
+				
+				
+			
+		
+	
+
+	
+
+
+
+
+
+	
+	
+		<h2 id="pkg-subdirectories">Subdirectories</h2>
+	
+	<div class="pkg-dir">
+		<table>
+			<tr>
+				<th class="pkg-name">Name</th>
+				<th class="pkg-synopsis">Synopsis</th>
+			</tr>
+
+			
+			<tr>
+				<td colspan="2"><a href="turnup-go.html">..</a></td>
+			</tr>
+			
+
+			
+				<tr>
+				
+					<td class="pkg-name" style="padding-left: 0px;">
+						<a href="godoc.4.html">patterns</a>
+					</td>
+				
+					<td class="pkg-synopsis">
+						
+					</td>
+				</tr>
+			
+				<tr>
+				
+					<td class="pkg-name" style="padding-left: 0px;">
+						<a href="godoc.5.html">timeofday</a>
+					</td>
+				
+					<td class="pkg-synopsis">
+						
+					</td>
+				</tr>
+			
+		</table>
+	</div>
+
+
+
+<div id="footer">
+Build version go1.13.5.<br>
+Except as <a href="https://developers.google.com/site-policies#restrictions">noted</a>,
+the content of this page is licensed under the
+Creative Commons Attribution 3.0 License,
+and code is licensed under a <a href="http://localhost:6161/LICENSE">BSD license</a>.<br>
+<a href="http://localhost:6161/doc/tos.html">Terms of Service</a> |
+<a href="http://www.google.com/intl/en/policies/privacy/">Privacy Policy</a>
+</div>
+
+</div><!-- .container -->
+</div><!-- #page -->
+</body>
+</html>

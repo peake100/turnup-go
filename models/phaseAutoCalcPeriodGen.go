@@ -144,12 +144,12 @@ func (gen *phasePeriodGenerator) calcPhasePeriodHistoricalMultiplier(
 		// subtract a very small bit to the higher or lower bound to give us a little
 		// leeway, just a single floating point step is enough
 		historicMultiplier = math.Nextafter32(
-			historicMultiplier, historicMultiplier - 0.001,
+			historicMultiplier, historicMultiplier-0.001,
 		)
 		baseMultiplier = gen.baseMultiplierMin
 	} else {
 		historicMultiplier = math.Nextafter32(
-			historicMultiplier, historicMultiplier + 0.001,
+			historicMultiplier, historicMultiplier+0.001,
 		)
 		baseMultiplier = gen.baseMultiplierMax
 	}

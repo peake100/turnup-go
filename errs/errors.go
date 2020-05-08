@@ -1,6 +1,8 @@
 package errs
 
-import "errors"
+import (
+	"errors"
+)
 
 var ErrUnknownBaseChanceInvalid = errors.New(
 	"'UNKNOWN' is not an in-game pattern and does not have a base chance",

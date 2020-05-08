@@ -7,8 +7,10 @@ import (
 )
 
 func TestPredictionBadPatternErr(t *testing.T) {
-	prediction := new(Prediction)
+	prediction := &Prediction{
+		Patterns: make(Patterns, 0),
+	}
 
-	_, err := prediction.Pattern(5)
+	_, err := prediction.Patterns.Get(5)
 	assert.EqualError(t, err, errs.ErrPatternStringValue.Error())
 }

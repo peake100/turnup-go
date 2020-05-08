@@ -31,12 +31,11 @@ store our island's prices for the current week. We'll say we bought our turnips 
 
 .. code-block:: go
 
-	// Make new price ticker with a sunday purchase price of 100 bells and previous
-	// week's pattern of FLUCTUATING.
 	purchasePrice := 100
-	previousPattern := patterns.FLUCTUATING
+	previousPattern := patterns.DECREASING
 
 	ticker := turnup.NewPriceTicker(purchasePrice, previousPattern)
+	ticker.Prices[0] = 86
 
 Now we can add some price data. There are a few different ways we can set a price for a
 given price period. All of the following operations add a price for the Monday Morning
@@ -58,7 +57,7 @@ Price:
 	)
 	ticker.SetPriceForTime(priceDate, 87)
 
-Now we can make some predictions based on our prices:
+Now we can make some predictions based on our prices!
 
 .. code-block:: go
 
@@ -71,9 +70,9 @@ Now we can make some predictions based on our prices:
 
 		fmt.Println("Pattern:       ", potentialPattern.Pattern.String())
 		fmt.Println("Progressions:  ", len(potentialPattern.PotentialWeeks))
-		fmt.Printf("Chance:         %v%%\n", potentialPattern.Analysis().Chance * 100)
-		fmt.Println("Min Guaranteed:", potentialPattern.Analysis().MinPrice())
-		fmt.Println("Max Potential: ", potentialPattern.Analysis().MaxPrice())
+		fmt.Printf("Chance:         %v%%\n", potentialPattern.Chance() * 100)
+		fmt.Println("Min Guaranteed:", potentialPattern.MinPrice())
+		fmt.Println("Max Potential: ", potentialPattern.MaxPrice())
 		fmt.Println()
 
 	}
@@ -84,27 +83,22 @@ Output:
 
     Pattern:        BIG SPIKE
     Progressions:   7
-    Chance:         61.72%
+    Chance:         85.59%
     Min Guaranteed: 200
     Max Potential:  600
 
     Pattern:        DECREASING
     Progressions:   1
-    Chance:         30.86%
+    Chance:         9.51%
     Min Guaranteed: 85
     Max Potential:  90
 
     Pattern:        SMALL SPIKE
     Progressions:   7
-    Chance:         7.41%
+    Chance:         4.9%
     Min Guaranteed: 140
     Max Potential:  200
 
-    Pattern:        FLUCTUATING
-    Progressions:   0
-    Chance:         0%
-    Min Guaranteed: 0
-    Max Potential:  0
 
 .. note::
 
@@ -116,7 +110,6 @@ over-arching pattern:
 
 .. code-block:: go
 
-	// Returns err if pattern is invalid
 	bigSpike, err := prediction.Pattern(patterns.BIGSPIKE)
 	if err != nil {
 		panic(err)
@@ -124,13 +117,13 @@ over-arching pattern:
 
 	for _, potentialWeek := range bigSpike.PotentialWeeks {
 
-		fmt.Printf("Chance: %v%%\n", potentialWeek.Analysis().Chance * 100)
-		fmt.Println("Min Guaranteed:", potentialWeek.Analysis().MinPrice())
-		fmt.Println("Max Potential:", potentialWeek.Analysis().MaxPrice())
+		fmt.Printf("Chance: %v%%\n", potentialWeek.Chance() * 100)
+		fmt.Println("Min Guaranteed:", potentialWeek.MinPrice())
+		fmt.Println("Max Potential:", potentialWeek.MaxPrice())
 
 		for _, potentialPeriod := range potentialWeek.PricePeriods {
 
-            fmt.Printf(
+			fmt.Printf(
 				"%v %v: %v-%v (%v)\n",
 				potentialPeriod.PricePeriod.Weekday(),
 				potentialPeriod.PricePeriod.ToD(),
@@ -148,23 +141,31 @@ Each potential price pattern for the week will give an output block like so:
 
 .. code-block:: text
 
-    Chance: 8.82%
+    Chance: 12.23%
     Min Guaranteed: 200
     Max Potential: 600
     Monday AM: 85-90 (steady decrease)
-    Monday PM: 80-87 (steady decrease)
-    Tuesday AM: 75-84 (steady decrease)
-    Tuesday PM: 70-81 (steady decrease)
-    Wednesday AM: 65-78 (steady decrease)
-    Wednesday PM: 60-75 (steady decrease)
-    Thursday AM: 55-72 (steady decrease)
-    Thursday PM: 90-140 (sharp increase)
-    Friday AM: 140-200 (sharp increase)
-    Friday PM: 200-600 (sharp increase)
-    Saturday AM: 140-200 (sharp decrease)
-    Saturday PM: 90-140 (sharp decrease)
+    Monday PM: 90-140 (sharp increase)
+    Tuesday AM: 140-200 (sharp increase)
+    Tuesday PM: 200-600 (sharp increase)
+    Wednesday AM: 140-200 (sharp decrease)
+    Wednesday PM: 90-140 (sharp decrease)
+    Thursday AM: 40-90 (random low)
+    Thursday PM: 40-90 (random low)
+    Friday AM: 40-90 (random low)
+    Friday PM: 40-90 (random low)
+    Saturday AM: 40-90 (random low)
+    Saturday PM: 40-90 (random low)
 
 Now get predicting!
+
+Background Reading
+==================
+
+This library would not be possible without the `amazing work <>`_ done by Ninji and
+the `in-depth breakdown <>`_ of it by . Both were intrumental in putting together this
+library and 's breakdown is particular is recommended reading for any developers
+who want to work on turnip price software.
 
 .. _api documentation:
 

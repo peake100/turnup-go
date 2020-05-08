@@ -40,7 +40,7 @@ func (predictor *weekPredictor) addPeriodBinWidth(
 	predictor.pricesKnown = true
 
 	// Get the min and max prices for this period
-	prices := predictor.result.PricePeriods[pricePeriod]
+	prices := predictor.result.Prices[pricePeriod]
 
 	// Get the number of possible bell values (how many sides on this
 	// dice?). We need to add one since this is an inclusive range
@@ -91,7 +91,7 @@ func (predictor *weekPredictor) buildWeek() {
 				return
 			}
 
-			result.PricePeriods = append(result.PricePeriods, potentialPeriod)
+			result.Prices = append(result.Prices, potentialPeriod)
 
 			// We want to find the highest minimum for this potential week and use that
 			// as the week's guaranteed minimum

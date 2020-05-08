@@ -1,5 +1,8 @@
 package turnup
 
+//revive:disable:import-shadowing reason: Disabled for assert := assert.New(), which is
+// the preferred method of using multiple asserts in a test.
+
 import (
 	"encoding/csv"
 	"fmt"
@@ -178,7 +181,7 @@ func loadPriceData(t *testing.T, csvPath string) map[string]interface{} {
 
 func potentialWeekKey(pattern models.PricePattern, week *models.PotentialWeek) string {
 	var priceBrackets [values.PricePeriodCount]*priceBracket
-	for i, pricePeriod := range week.PricePeriods {
+	for i, pricePeriod := range week.Prices {
 		periodBracket := &priceBracket{
 			Min: pricePeriod.MinPrice(),
 			Max: pricePeriod.MaxPrice(),
@@ -326,8 +329,8 @@ func testSpikesDensity(
 ) {
 	assert := assert.New(t)
 
-	bigSpike, _ := prediction.Pattern(models.BIGSPIKE)
-	smallSpike, _ := prediction.Pattern(models.SMALLSPIKE)
+	bigSpike, _ := prediction.Patterns.Get(models.BIGSPIKE)
+	smallSpike, _ := prediction.Patterns.Get(models.SMALLSPIKE)
 
 	assert.Equal(
 		bigSpike.Chance(),
@@ -350,9 +353,9 @@ func testSpikesDensity(
 	var bigSpikeTotal, smallSpikeTotal, anySpikeTotal float64
 
 	for i := 0; i < values.PricePeriodCount; i++ {
-		smallChancePeriod := prediction.Spikes.SmallDensity[i]
-		bigChancePeriod := prediction.Spikes.BigDensity[i]
-		anyChancePeriod := prediction.Spikes.AnyDensity[i]
+		smallChancePeriod := prediction.Spikes.SmallBreakdown[i]
+		bigChancePeriod := prediction.Spikes.BigBreakdown[i]
+		anyChancePeriod := prediction.Spikes.AnyBreakdown[i]
 
 		bigSpikeTotal += bigChancePeriod
 		smallSpikeTotal += smallChancePeriod
@@ -401,7 +404,7 @@ func testPrediction(
 	for _, pattern := range patterns.PATTERNSGAME {
 
 		thisExpected = expectedPatterns[pattern]
-		thisPattern, err = prediction.Pattern(pattern)
+		thisPattern, err = prediction.Patterns.Get(pattern)
 
 		assert.NoError(t, err)
 		t.Run(pattern.String(), testPattern)
@@ -478,7 +481,7 @@ func testPattern(
 
 		for _, week := range pattern.PotentialWeeks {
 			assert.Len(
-				week.PricePeriods,
+				week.Prices,
 				values.PricePeriodCount,
 				"price period count should be 12",
 			)

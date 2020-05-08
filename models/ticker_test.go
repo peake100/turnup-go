@@ -5,104 +5,134 @@ package models
 
 import (
 	"fmt"
+	"github.com/peake100/turnup-go/errs"
 	"github.com/peake100/turnup-go/models/timeofday"
 	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
 )
 
+type pricePeriodTestCase struct {
+	Weekday        time.Weekday
+	ToD            timeofday.ToD
+	Time           time.Time
+	ExpectedPeriod PricePeriod
+}
+
+var mondayAM = time.Date(
+	2020, 4, 6, 10, 0, 0, 0, time.UTC,
+)
+
+var mondayPM = time.Date(
+	2020, 4, 6, 13, 0, 0, 0, time.UTC,
+)
+
+const oneDay = time.Hour * 24
+
+var sunday = mondayAM.Add(oneDay * -1)
+
+var pricePeriodTestCases = []*pricePeriodTestCase{
+	// MONDAY
+	{
+		time.Monday,
+		timeofday.AM,
+		mondayAM,
+		0,
+	},
+	{
+		time.Monday,
+		timeofday.PM,
+		mondayPM,
+		1,
+	},
+
+	// TUESDAY
+	{
+		time.Tuesday,
+		timeofday.AM,
+		mondayAM.Add(oneDay),
+		2,
+	},
+	{
+		time.Tuesday,
+		timeofday.PM,
+		mondayPM.Add(oneDay),
+		3,
+	},
+
+	// WEDNESDAY
+	{
+		time.Wednesday,
+		timeofday.AM,
+		mondayAM.Add(oneDay * 2),
+		4,
+	},
+	{
+		time.Wednesday,
+		timeofday.PM,
+		mondayPM.Add(oneDay * 2),
+		5,
+	},
+
+	// THURSDAY
+	{
+		time.Thursday,
+		timeofday.AM,
+		mondayAM.Add(oneDay * 3),
+		6,
+	},
+	{
+		time.Thursday,
+		timeofday.PM,
+		mondayPM.Add(oneDay * 3),
+		7,
+	},
+
+	// FRIDAY
+	{
+		time.Friday,
+		timeofday.AM,
+		mondayAM.Add(oneDay * 4),
+		8,
+	},
+	{
+		time.Friday,
+		timeofday.PM,
+		mondayPM.Add(oneDay * 4),
+		9,
+	},
+
+	// SATURDAY
+	{
+		time.Saturday,
+		timeofday.AM,
+		mondayAM.Add(oneDay * 5),
+		10,
+	},
+	{
+		time.Saturday,
+		timeofday.PM,
+		mondayPM.Add(oneDay * 5),
+		11,
+	},
+}
+
 func TestPriceTicker_PriceForDay(t *testing.T) {
 
-	type testCase struct {
-		Weekday        time.Weekday
-		ToD            timeofday.ToD
-		ExpectedPeriod PricePeriod
-	}
-
-	cases := []*testCase{
-		// MONDAY
-		{
-			time.Monday,
-			timeofday.AM,
-			0,
-		},
-		{
-			time.Monday,
-			timeofday.PM,
-			1,
-		},
-
-		// TUESDAY
-		{
-			time.Tuesday,
-			timeofday.AM,
-			2,
-		},
-		{
-			time.Tuesday,
-			timeofday.PM,
-			3,
-		},
-
-		// WEDNESDAY
-		{
-			time.Wednesday,
-			timeofday.AM,
-			4,
-		},
-		{
-			time.Wednesday,
-			timeofday.PM,
-			5,
-		},
-
-		// THURSDAY
-		{
-			time.Thursday,
-			timeofday.AM,
-			6,
-		},
-		{
-			time.Thursday,
-			timeofday.PM,
-			7,
-		},
-
-		// FRIDAY
-		{
-			time.Friday,
-			timeofday.AM,
-			8,
-		},
-		{
-			time.Friday,
-			timeofday.PM,
-			9,
-		},
-
-		// SATURDAY
-		{
-			time.Saturday,
-			timeofday.AM,
-			10,
-		},
-		{
-			time.Saturday,
-			timeofday.PM,
-			11,
-		},
-	}
-
-	var thisCase *testCase
+	var thisCase *pricePeriodTestCase
 
 	test := func(t *testing.T) {
 		assert := assert.New(t)
 		ticker := new(PriceTicker)
 
-		ticker.SetPriceForDay(thisCase.Weekday, thisCase.ToD, 100)
+		err := ticker.Prices.SetForDay(thisCase.Weekday, thisCase.ToD, 100)
+		assert.NoError(err)
+
+		price, err := ticker.Prices.ForDay(thisCase.Weekday, thisCase.ToD)
+		assert.NoError(err)
 
 		assert.Equal(
-			100, ticker.PriceForDay(thisCase.Weekday, thisCase.ToD),
+			100, price,
 			"method access",
 		)
 		assert.Equal(
@@ -112,7 +142,7 @@ func TestPriceTicker_PriceForDay(t *testing.T) {
 		)
 	}
 
-	for _, thisCase = range cases {
+	for _, thisCase = range pricePeriodTestCases {
 		t.Run(
 			fmt.Sprintf("%v %v", thisCase.Weekday.String(), thisCase.ToD), test,
 		)
@@ -120,65 +150,58 @@ func TestPriceTicker_PriceForDay(t *testing.T) {
 
 }
 
+func testSundayErr(t *testing.T, err error) {
+	assert.EqualError(t, err, errs.ErrNoSundayPricePeriod.Error())
+}
+
 func TestTickerWeekdayPurchasePrice(t *testing.T) {
 	ticker := new(PriceTicker)
-	ticker.SetPriceForDay(time.Sunday, timeofday.AM, 100)
+	err := ticker.Prices.SetForDay(time.Sunday, timeofday.AM, 100)
+	testSundayErr(t, err)
 
-	assert.Equal(t, ticker.PurchasePrice, 100, "purchase price")
-	assert.Equal(
-		t,
-		ticker.PriceForDay(time.Sunday, timeofday.PM),
-		100,
-		"purchase price from weekday",
-	)
+	price, err := ticker.Prices.ForDay(time.Sunday, timeofday.PM)
+	testSundayErr(t, err)
+	assert.Equal(t, price, 0)
 }
 
 func TestTickerPriceForTime(t *testing.T) {
-	monday := time.Date(
-		2020, 4, 6, 10, 0, 0, 0, time.UTC,
-	)
-	var periodIndex int
-	var testTime time.Time
+	var thisCase *pricePeriodTestCase
 
 	test := func(t *testing.T) {
 		assert := assert.New(t)
 
 		ticker := new(PriceTicker)
-		ticker.SetPriceForTime(testTime, 100)
+		err := ticker.Prices.SetForTime(thisCase.Time, 400)
+		assert.NoError(err)
+
+		price, err := ticker.Prices.ForTime(thisCase.Time)
+		assert.NoError(err)
 
 		assert.Equal(
-			100, ticker.PriceForTime(testTime), "method",
+			400, price, "method",
 		)
 		assert.Equal(
-			100, ticker.Prices[periodIndex], "array access",
+			400,
+			ticker.Prices[thisCase.ExpectedPeriod],
+			"array access",
 		)
 	}
 
-	for i := 0; i < 6; i++ {
-		testTime = monday.AddDate(0, 0, i)
-		for _, tod := range []timeofday.ToD{timeofday.AM, timeofday.PM} {
-			if tod == timeofday.PM {
-				testTime = testTime.Add(time.Hour * 3)
-			}
-
-			t.Run(fmt.Sprintf("price_period_%v", periodIndex), test)
-
-			periodIndex++
-
-		}
+	for _, thisCase = range pricePeriodTestCases {
+		t.Run(fmt.Sprintf("price_period_%v", thisCase.ExpectedPeriod), test)
 	}
 }
 
 func TestTickerPriceForTimeSunday(t *testing.T) {
-	assert := assert.New(t)
-
 	sunday := time.Date(
 		2020, 4, 5, 10, 0, 0, 0, time.UTC,
 	)
 
 	ticker := new(PriceTicker)
-	ticker.SetPriceForTime(sunday, 100)
+	err := ticker.Prices.SetForTime(sunday, 100)
+	testSundayErr(t, err)
 
-	assert.Equal(100, ticker.PurchasePrice, "struct field")
-	assert.Equal(100, ticker.PriceForTime(sunday), "method")
+	price, err := ticker.Prices.ForTime(sunday)
+	testSundayErr(t, err)
+	assert.Equal(t, price, 0)
 }

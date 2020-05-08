@@ -1,22 +1,59 @@
 package models
 
-import "github.com/peake100/turnup-go/values"
+import (
+	"github.com/peake100/turnup-go/models/timeofday"
+	"github.com/peake100/turnup-go/values"
+	"time"
+)
 
-// A probability heat-map of when a price spike might occur.
-type SpikePeriodDensity struct {
-	SpikeRange
-	// The probability distribution of a spike by day
-	SmallDensity [values.PricePeriodCount]float64
-	SmallChance  float64
+type SpikeChanceBreakdown [values.PricePeriodCount]float64
 
-	BigDensity [values.PricePeriodCount]float64
-	BigChance  float64
+// Return the spike chance for a given Weekday + time of day
+func (spikes *SpikeChanceBreakdown) ForDay(
+	weekday time.Weekday, tod timeofday.ToD,
+) (chance float64, err error) {
+	pricePeriod, err := PricePeriodFromDay(weekday, tod)
+	if err != nil {
+		return 0, err
+	}
 
-	AnyDensity [values.PricePeriodCount]float64
-	AnyChance  float64
+	return spikes[pricePeriod], nil
 }
 
-func (density *SpikePeriodDensity) updateSpikePeriod(
+// Return the spike chance for a given time. The ticker does not contain any information
+// about dates, so it is assumed that the time passed in to spikeTime is for the week
+// that the density describes.
+func (spikes *SpikeChanceBreakdown) ForTime(
+	spikeTime time.Time,
+) (chance float64, err error) {
+	pricePeriod, err := PricePeriodFromTime(spikeTime)
+	if err != nil {
+		return 0, err
+	}
+
+	return spikes[pricePeriod], nil
+}
+
+// A probability heat-map of when a price spike might occur.
+type SpikeChances struct {
+	SpikeRange
+	// The probability distribution of a small spike by day.
+	SmallBreakdown SpikeChanceBreakdown
+	// The overall chance of a small spike.
+	SmallChance float64
+
+	// The probability distribution of a big spike by day
+	BigBreakdown SpikeChanceBreakdown
+	// The overall chance of a big spike.
+	BigChance float64
+
+	// The probability distribution of any spike by day
+	AnyBreakdown SpikeChanceBreakdown
+	// The overall chance of any spike.
+	AnyChance float64
+}
+
+func (density *SpikeChances) updateSpikePeriod(
 	update HasSpikeRange,
 	period PricePeriod,
 	weekChance float64,
@@ -33,24 +70,24 @@ func (density *SpikePeriodDensity) updateSpikePeriod(
 	// Add chance to small density if this is a small spike.
 	containsSpike := false
 	if hasSmall && period >= smallStart && period <= smallEnd {
-		density.SmallDensity[period] += weekChance
+		density.SmallBreakdown[period] += weekChance
 		containsSpike = true
 	}
 
 	// Add chance to big density if this is a big spike.
 	if hasBig && period >= bigStart && period <= bigEnd {
-		density.BigDensity[period] += weekChance
+		density.BigBreakdown[period] += weekChance
 		containsSpike = true
 	}
 
 	if containsSpike {
 		// Add to total density for both
-		density.AnyDensity[period] += weekChance
+		density.AnyBreakdown[period] += weekChance
 	}
 }
 
 // We will updatePrices the density from the potential weeks.
-func (density *SpikePeriodDensity) UpdateSpikeDensity(
+func (density *SpikeChances) UpdateSpikeDensity(
 	updateWeek *PotentialWeek,
 ) {
 	// The idea behind this heatmap is simple: take the bin width of a given potential

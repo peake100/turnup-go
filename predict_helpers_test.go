@@ -226,7 +226,7 @@ func testPriceData(
 func testExpectedSpikeAnyHasSpike(
 	t *testing.T,
 	expected *expectedSpike,
-	predicted models.HasSpikeRangeAll,
+	predicted *models.SpikeRangeAll,
 ) {
 	assert := assert.New(t)
 	assert.True(predicted.Any().Has(), "has any spike")
@@ -263,7 +263,7 @@ func testExpectedSpikeAnyHasSpike(
 
 func testExpectedSpikeAnyNoSpike(
 	t *testing.T,
-	predicted models.HasSpikeRangeAll,
+	predicted *models.SpikeRangeAll,
 ) {
 	assert := assert.New(t)
 
@@ -283,7 +283,7 @@ func testExpectedSpikeAnyNoSpike(
 func testExpectedSpikeAny(
 	t *testing.T,
 	expected *expectedSpike,
-	predicted models.HasSpikeRangeAll,
+	predicted *models.SpikeRangeAll,
 ) {
 
 	if expected.Big || expected.Small {
@@ -296,7 +296,7 @@ func testExpectedSpikeAny(
 func testExpectedSpike(
 	t *testing.T,
 	expected *expectedSpike,
-	predicted models.HasSpikeRangeAll,
+	predicted *models.SpikeRangeAll,
 ) {
 	assert := assert.New(t)
 
@@ -361,24 +361,65 @@ func testSpikesDensity(
 		smallSpikeTotal += smallChancePeriod
 		anySpikeTotal += anyChancePeriod
 
-		assert.Equal(
-			smallChancePeriod+bigChancePeriod,
-			anyChancePeriod,
-			fmt.Sprintf("any chance for period %v equals small + big", i),
+		totalVariance := math.Abs(anySpikeTotal - (bigSpikeTotal + smallSpikeTotal))
+
+		assert.Less(
+			totalVariance,
+			0.0005,
+			fmt.Sprintf(
+				"any chance (%v) for period %v equals small (%v) + big ()%v",
+				anyChancePeriod,
+				smallChancePeriod,
+				bigChancePeriod,
+				i,
+			),
 		)
 	}
+
+	// because the small spike gets triple counted (it's spike is three days ling),
+	// we need to divide the total by 3 here
 
 	// There are going to be some floating point errors when we add up all the floats
 	// for the density map, check that we are within an acceptable bound (less than)
 	// 0.05%
 	bigVariance := math.Abs(bigSpikeTotal - bigSpike.Chance())
-	assert.Less(bigVariance, 0.0005, "big spike density total")
+	assert.Less(
+		bigVariance,
+		0.0005,
+		fmt.Sprint(
+			"big spike density total\n",
+			"big spike pattern:",
+			bigSpike.Chance(),
+			"\nbig spike total:",
+			bigSpikeTotal,
+		),
+	)
 
-	smallVariance := math.Abs(smallSpikeTotal - smallSpike.Chance())
-	assert.Less(smallVariance, 0.0005, "small spike density total")
+	// because the small spike gets triple counted (it's spike is three days ling),
+	// we need to divide the total by 3 here
+	smallVariance := math.Abs(smallSpikeTotal/3 - smallSpike.Chance())
+	assert.Less(
+		smallVariance,
+		0.0005,
+		fmt.Sprint(
+			"small spike density total\n",
+			"small spike pattern:", smallSpike.Chance(),
+			"\nsmall spike total:", smallSpikeTotal,
+		),
+	)
 
-	anyVariance := math.Abs(anySpikeTotal - (smallSpike.Chance() + bigSpike.Chance()))
-	assert.Less(anyVariance, 0.0005, "any spike density total")
+	anyVariance := math.Abs(anySpikeTotal - (smallSpikeTotal + bigSpikeTotal))
+	assert.Less(
+		anyVariance,
+		0.0005,
+		fmt.Sprint(
+			"any spike density total\n",
+			"small spike pattern:", smallSpike.Chance(),
+			"\nbig spike pattern:", bigSpike.Chance(),
+			"\nspike pattern: total:", bigSpike.Chance()+smallSpike.Chance(),
+			"\nany spike total:", anySpikeTotal,
+		),
+	)
 }
 
 // We can use this function to test a prediction for a given ticker against our expected

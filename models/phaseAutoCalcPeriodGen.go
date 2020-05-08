@@ -273,10 +273,10 @@ func (gen *phasePeriodGenerator) buildCurrentPeriod() *PotentialPricePeriod {
 			maxChance: maxChance,
 		},
 		Spikes: &SpikeHasAll{
-			any:   &Spike{
+			any: &Spike{
 				has: isSpike,
 			},
-			big:   &Spike{
+			big: &Spike{
 				has: isBigSpike,
 			},
 			small: &Spike{

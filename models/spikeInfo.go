@@ -73,20 +73,6 @@ func (spike *SpikeRange) updateFromRange(info HasSpikeRange) {
 	spike.has = true
 }
 
-// Shared interface for SpikeHasAll, SpikeRangeAll, and SpikeChancesAll
-type HasSpikeAll interface {
-	Big() HasSpike
-	Small() HasSpike
-	Any() HasSpike
-}
-
-// Shared interface for SpikeRangeAll, and SpikeChancesAll
-type HasSpikeRangeAll interface {
-	Big() HasSpikeRange
-	Small() HasSpikeRange
-	Any() HasSpikeRange
-}
-
 type SpikeHasAll struct {
 	big   *Spike
 	small *Spike
@@ -123,14 +109,16 @@ func (spike *SpikeRangeAll) Any() HasSpikeRange {
 	return spike.any
 }
 
-func (spike *SpikeRangeAll) updateSpikeFromPeriod(period PricePeriod, info HasSpikeAll) {
+func (spike *SpikeRangeAll) updateSpikeFromPeriod(
+	period PricePeriod, info *SpikeHasAll,
+) {
 	spike.any.updateSpikeFromPeriod(period, info.Any())
 	spike.big.updateSpikeFromPeriod(period, info.Big())
 	spike.small.updateSpikeFromPeriod(period, info.Small())
 }
 
 // Update From Range
-func (spike *SpikeRangeAll) updateSpikeFromRange(info HasSpikeRangeAll) {
+func (spike *SpikeRangeAll) updateSpikeFromRange(info *SpikeRangeAll) {
 	spike.big.updateFromRange(info.Big())
 	spike.small.updateFromRange(info.Small())
 	spike.any.updateFromRange(info.Any())

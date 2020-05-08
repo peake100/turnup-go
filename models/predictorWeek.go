@@ -129,7 +129,7 @@ func (predictor *weekPredictor) finalizeWidth() {
 func (predictor *weekPredictor) setup() {
 	predictor.result = &PotentialWeek{
 		Analysis: new(Analysis),
-		Spikes:   &SpikeRangeAll{
+		Spikes: &SpikeRangeAll{
 			big:   new(SpikeRange),
 			small: new(SpikeRange),
 			any:   new(SpikeRange),

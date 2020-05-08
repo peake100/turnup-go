@@ -114,7 +114,7 @@ func (predictor *Predictor) calculateChances(
 	}
 
 	// Lastly, get the total spike chance
-	spikeInfo.any.chance = spikeInfo.big.chance + spikeInfo.small.chance
+	spikeInfo.any.chance = spikeInfo.Big().Chance() + spikeInfo.Small().Chance()
 
 	// And we're done! Phew!
 }

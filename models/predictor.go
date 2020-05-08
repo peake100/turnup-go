@@ -21,12 +21,18 @@ func (predictor *Predictor) increaseBinWidth(amount float64) {
 
 func (predictor *Predictor) Predict() (*Prediction, error) {
 	result := &Prediction{
-		Spikes:      &SpikeChancesAll{
-			small: new(SpikeChance),
-			big:   new(SpikeChance),
-			any:   new(SpikeChance),
+		Spikes: &SpikeChancesAll{
+			small: &SpikeChance{
+				breakdown: new(SpikeChanceBreakdown),
+			},
+			big: &SpikeChance{
+				breakdown: new(SpikeChanceBreakdown),
+			},
+			any: &SpikeChance{
+				breakdown: new(SpikeChanceBreakdown),
+			},
 		},
-		Patterns:    nil,
+		Patterns: nil,
 	}
 	predictor.result = result
 

@@ -37,20 +37,20 @@ func (spikes *SpikeChanceBreakdown) ForTime(
 type HasSpikeChance interface {
 	HasSpikeRange
 	Chance() float64
-	Breakdown() SpikeChanceBreakdown
+	Breakdown() *SpikeChanceBreakdown
 }
 
 type SpikeChance struct {
 	SpikeRange
 	chance    float64
-	breakdown SpikeChanceBreakdown
+	breakdown *SpikeChanceBreakdown
 }
 
 func (spike *SpikeChance) Chance() float64 {
 	return spike.chance
 }
 
-func (spike *SpikeChance) Breakdown() SpikeChanceBreakdown {
+func (spike *SpikeChance) Breakdown() *SpikeChanceBreakdown {
 	return spike.breakdown
 }
 
@@ -59,16 +59,9 @@ func (spike *SpikeChance) updatePeriodDensity(
 	period PricePeriod,
 	weekChance float64,
 ) {
-
 	if update.Has() && period >= update.Start() && period <= update.End() {
 		spike.breakdown[period] += weekChance
 	}
-}
-
-type HasSpikeChancesAll interface {
-	Big() HasSpikeChance
-	Small() HasSpikeChance
-	Any() HasSpikeChance
 }
 
 // A probability heat-map of when a price spike might occur.
@@ -91,7 +84,7 @@ func (spikes *SpikeChancesAll) Any() HasSpikeChance {
 }
 
 // Converts from HasSpikeChancesAll to HasSpikeRangesAll
-func (spikes *SpikeChancesAll) SpikeRangeAll() HasSpikeRangeAll {
+func (spikes *SpikeChancesAll) SpikeRangeAll() *SpikeRangeAll {
 	// Extract the embedded types and rewrap them
 	return &SpikeRangeAll{
 		big:   &spikes.big.SpikeRange,
@@ -127,8 +120,14 @@ func (spikes *SpikeChancesAll) updateDensities(
 	end := update.any.End()
 
 	for period := start; period <= end; period++ {
-		spikes.any.updatePeriodDensity(update.any, period, weekChance)
-		spikes.big.updatePeriodDensity(update.big, period, weekChance)
-		spikes.small.updatePeriodDensity(update.small, period, weekChance)
+		if update.any.has {
+			spikes.any.updatePeriodDensity(update.any, period, weekChance)
+		}
+		if update.big.has {
+			spikes.big.updatePeriodDensity(update.big, period, weekChance)
+		}
+		if update.small.has {
+			spikes.small.updatePeriodDensity(update.small, period, weekChance)
+		}
 	}
 }

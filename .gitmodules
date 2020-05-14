@@ -1,0 +1,3 @@
+[submodule "stalk-proto"]
+	path = stalk-proto
+	url = git@github-peake:peake100/stalk-proto.git

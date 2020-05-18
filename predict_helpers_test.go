@@ -33,6 +33,12 @@ type priceBracket struct {
 	Max int
 }
 
+type PriceRange struct {
+	Min        int
+	Guaranteed int
+	Max        int
+}
+
 type expectedWeek struct {
 	Pattern         models.PricePattern
 	MinPrice        int
@@ -43,9 +49,8 @@ type expectedWeek struct {
 
 type expectedPattern struct {
 	Chance                 float64
-	MinPrice               int
-	GuaranteedPrice        int
-	MaxPotentialPrice      int
+	Prices                 PriceRange
+	PricesFuture           PriceRange
 	PossibleWeeks          int
 	Spike                  expectedSpike
 	MinPricePeriods        []models.PricePeriod
@@ -61,9 +66,8 @@ type expectedPrediction struct {
 	PriceCSV               string
 	Spike                  expectedSpike
 	expectedWeekHashes     map[string]interface{}
-	MinPrice               int
-	GuaranteedPrice        int
-	MaxPrice               int
+	Prices                 PriceRange
+	PricesFuture           PriceRange
 	MinPricePeriods        []models.PricePeriod
 	GuaranteedPricePeriods []models.PricePeriod
 	MaxPricePeriods        []models.PricePeriod
@@ -432,6 +436,14 @@ func testSpikesDensity(
 func testPrediction(
 	t *testing.T, expected *expectedPrediction, ticker *models.PriceTicker,
 ) {
+	// Set the current price period of the ticker to be the last known price
+	for i, price := range ticker.Prices {
+		if price == 0 {
+			continue
+		}
+		ticker.CurrentPeriod = models.PricePeriod(i)
+	}
+
 	prediction, err := Predict(ticker)
 	assert.NoError(t, err, "prices are not possible")
 	if err != nil {
@@ -461,20 +473,8 @@ func testPrediction(
 	}
 	t.Run("spike_info", testSpike)
 
-	testGuaranteedPrice := func(t *testing.T) {
-		assert.Equal(t, expected.GuaranteedPrice, prediction.GuaranteedPrice())
-	}
-	t.Run("guaranteed guaranteed price", testGuaranteedPrice)
-
-	testMinPrice := func(t *testing.T) {
-		assert.Equal(t, expected.MinPrice, prediction.MinPrice())
-	}
-	t.Run("min price", testMinPrice)
-
-	testMaxPrice := func(t *testing.T) {
-		assert.Equal(t, expected.MaxPrice, prediction.MaxPrice())
-	}
-	t.Run("max potential price", testMaxPrice)
+	testPriceRange(t, expected.Prices, prediction, false)
+	testPriceRange(t, expected.PricesFuture, &prediction.Future, true)
 
 	testMinPeriods := func(t *testing.T) {
 		assert.Equal(t, expected.MinPricePeriods, prediction.MinPeriods())
@@ -504,6 +504,59 @@ func testPrediction(
 
 		t.Run("price_data_check", testPrices)
 	}
+}
+
+func testPriceRange(
+	t *testing.T,
+	expected PriceRange,
+	actual models.HasPrices,
+	future bool,
+) {
+	var futureLabel string
+	if future {
+		futureLabel = " future "
+	} else {
+		futureLabel = " "
+	}
+
+	testName := fmt.Sprintf("min%vprice", futureLabel)
+	testPriceMin := func(t *testing.T) {
+		assert := assert.New(t)
+
+		assert.Equal(
+			expected.Min,
+			actual.MinPrice(),
+			testName,
+		)
+	}
+
+	t.Run(testName, testPriceMin)
+
+	testName = fmt.Sprintf("guaranteed%vprice", futureLabel)
+	testPriceGuaranteed := func(t *testing.T) {
+		assert := assert.New(t)
+
+		assert.Equal(
+			expected.Guaranteed, actual.GuaranteedPrice(),
+			testName,
+		)
+	}
+
+	t.Run(testName, testPriceGuaranteed)
+
+	testName = fmt.Sprintf("max%vprice", futureLabel)
+	testPriceMax := func(t *testing.T) {
+		assert := assert.New(t)
+
+		assert.Equal(
+			expected.Max,
+			actual.MaxPrice(),
+			testName,
+		)
+	}
+
+	t.Run(testName, testPriceMax)
+
 }
 
 // Test the expected values of a ticker against the actual result
@@ -546,40 +599,8 @@ func testPattern(
 
 	t.Run("weekly price period count", testPricePeriodCount)
 
-	testPriceMin := func(t *testing.T) {
-		assert := assert.New(t)
-
-		assert.Equal(
-			expected.MinPrice,
-			pattern.MinPrice(),
-			"min price",
-		)
-	}
-
-	t.Run("min price", testPriceMin)
-
-	testPriceGuaranteed := func(t *testing.T) {
-		assert := assert.New(t)
-
-		assert.Equal(
-			expected.GuaranteedPrice, pattern.GuaranteedPrice(),
-			"guaranteed price",
-		)
-	}
-
-	t.Run("guaranteed price", testPriceGuaranteed)
-
-	testPriceMax := func(t *testing.T) {
-		assert := assert.New(t)
-
-		assert.Equal(
-			expected.MaxPotentialPrice,
-			pattern.MaxPrice(),
-			"max potential price",
-		)
-	}
-
-	t.Run("max price", testPriceMax)
+	testPriceRange(t, expected.Prices, pattern, false)
+	testPriceRange(t, expected.PricesFuture, &pattern.Future, true)
 
 	testSpikeInfo := func(t *testing.T) {
 		testExpectedSpike(t, &expected.Spike, pattern.Spikes)

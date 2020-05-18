@@ -1,7 +1,7 @@
 package models
 
 type PotentialPricePeriod struct {
-	*prices
+	*pricesVal
 	Spikes *SpikeHasAll
 
 	// The price period
@@ -20,6 +20,6 @@ func (potential *PotentialPricePeriod) IsValidPrice(price int) bool {
 		return true
 	}
 
-	return price >= potential.prices.GuaranteedPrice() &&
-		price <= potential.prices.MaxPrice()
+	return price >= potential.pricesVal.GuaranteedPrice() &&
+		price <= potential.pricesVal.MaxPrice()
 }

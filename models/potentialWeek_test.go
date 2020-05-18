@@ -18,7 +18,7 @@ func newPotentialWeek() *PotentialWeek {
 		Spikes:   nil,
 		Prices: PotentialPricePeriods{
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 100,
 					maxPrice:        100,
 					minChance:       0,
@@ -28,7 +28,7 @@ func newPotentialWeek() *PotentialWeek {
 				PricePeriod: 0,
 			},
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 101,
 					maxPrice:        101,
 					minChance:       0,
@@ -38,7 +38,7 @@ func newPotentialWeek() *PotentialWeek {
 				PricePeriod: 1,
 			},
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 102,
 					maxPrice:        102,
 					minChance:       0,
@@ -48,7 +48,7 @@ func newPotentialWeek() *PotentialWeek {
 				PricePeriod: 2,
 			},
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 103,
 					maxPrice:        103,
 					minChance:       0,
@@ -58,7 +58,7 @@ func newPotentialWeek() *PotentialWeek {
 				PricePeriod: 3,
 			},
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 104,
 					maxPrice:        104,
 					minChance:       0,
@@ -68,7 +68,7 @@ func newPotentialWeek() *PotentialWeek {
 				PricePeriod: 4,
 			},
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 105,
 					maxPrice:        105,
 					minChance:       0,
@@ -78,7 +78,7 @@ func newPotentialWeek() *PotentialWeek {
 				PricePeriod: 5,
 			},
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 106,
 					maxPrice:        106,
 					minChance:       0,
@@ -88,7 +88,7 @@ func newPotentialWeek() *PotentialWeek {
 				PricePeriod: 6,
 			},
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 107,
 					maxPrice:        107,
 					minChance:       0,
@@ -98,7 +98,7 @@ func newPotentialWeek() *PotentialWeek {
 				PricePeriod: 7,
 			},
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 108,
 					maxPrice:        108,
 					minChance:       0,
@@ -108,7 +108,7 @@ func newPotentialWeek() *PotentialWeek {
 				PricePeriod: 8,
 			},
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 109,
 					maxPrice:        109,
 					minChance:       0,
@@ -118,7 +118,7 @@ func newPotentialWeek() *PotentialWeek {
 				PricePeriod: 9,
 			},
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 110,
 					maxPrice:        110,
 					minChance:       0,
@@ -128,7 +128,7 @@ func newPotentialWeek() *PotentialWeek {
 				PricePeriod: 10,
 			},
 			{
-				prices: &prices{
+				pricesVal: &pricesVal{
 					guaranteedPrice: 111,
 					maxPrice:        111,
 					minChance:       0,

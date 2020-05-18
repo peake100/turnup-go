@@ -44,7 +44,7 @@ func (predictor *weekPredictor) addPeriodBinWidth(
 
 	// Get the number of possible bell values (how many sides on this
 	// dice?). We need to add one since this is an inclusive range
-	periodRange := prices.MaxPrice() - prices.MinPrice() + 1
+	periodRange := prices.MaxPrice() - prices.GuaranteedPrice() + 1
 
 	// Now compute the likelihood of any particular price in this bracket
 	// occurring divided by the total number of prices. For many combinations

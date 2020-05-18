@@ -34,34 +34,34 @@ type priceBracket struct {
 }
 
 type expectedWeek struct {
-	Pattern            models.PricePattern
-	GuaranteedMinPrice int
-	MaxPrice           int
-	Prices             [values.PricePeriodCount]*priceBracket
+	Pattern         models.PricePattern
+	GuaranteedPrice int
+	MaxPrice        int
+	Prices          [values.PricePeriodCount]*priceBracket
 }
 
 type expectedPattern struct {
-	Chance             float64
-	MinGuaranteedPrice int
-	MaxPotentialPrice  int
-	PossibleWeeks      int
-	Spike              expectedSpike
-	MinPricePeriods    []models.PricePeriod
-	MaxPricePeriods    []models.PricePeriod
+	Chance                 float64
+	GuaranteedPrice        int
+	MaxPotentialPrice      int
+	PossibleWeeks          int
+	Spike                  expectedSpike
+	GuaranteedPricePeriods []models.PricePeriod
+	MaxPricePeriods        []models.PricePeriod
 }
 
 type expectedPrediction struct {
-	Fluctuating        *expectedPattern
-	BigSpike           *expectedPattern
-	Decreasing         *expectedPattern
-	SmallSpike         *expectedPattern
-	PriceCSV           string
-	Spike              expectedSpike
-	expectedWeekHashes map[string]interface{}
-	MinGuaranteedPrice int
-	MaxPotentialPrice  int
-	MinPricePeriods    []models.PricePeriod
-	MaxPricePeriods    []models.PricePeriod
+	Fluctuating            *expectedPattern
+	BigSpike               *expectedPattern
+	Decreasing             *expectedPattern
+	SmallSpike             *expectedPattern
+	PriceCSV               string
+	Spike                  expectedSpike
+	expectedWeekHashes     map[string]interface{}
+	GuaranteedPrice        int
+	MaxPotentialPrice      int
+	GuaranteedPricePeriods []models.PricePeriod
+	MaxPricePeriods        []models.PricePeriod
 }
 
 func (expected *expectedPrediction) Patterns() []*expectedPattern {
@@ -119,7 +119,7 @@ func parsePriceRecord(
 			pricePeriod := column - 1
 			parsePriceRecordPeriod(week, dataString, pricePeriod)
 		case column == 13:
-			week.GuaranteedMinPrice = parseWeekPriceBound(dataString)
+			week.GuaranteedPrice = parseWeekPriceBound(dataString)
 		case column == 14:
 			week.MaxPrice = parseWeekPriceBound(dataString)
 		}
@@ -169,7 +169,7 @@ func loadPriceData(t *testing.T, csvPath string) map[string]interface{} {
 		}
 		week := parsePriceRecord(record)
 		key := makeWeekKey(
-			week.Pattern, week.Prices, week.GuaranteedMinPrice, week.MaxPrice,
+			week.Pattern, week.Prices, week.GuaranteedPrice, week.MaxPrice,
 		)
 		t.Logf("expected price pattern: %v\n", key)
 		// Add the key to the map
@@ -183,14 +183,14 @@ func potentialWeekKey(pattern models.PricePattern, week *models.PotentialWeek) s
 	var priceBrackets [values.PricePeriodCount]*priceBracket
 	for i, pricePeriod := range week.Prices {
 		periodBracket := &priceBracket{
-			Min: pricePeriod.MinPrice(),
+			Min: pricePeriod.GuaranteedPrice(),
 			Max: pricePeriod.MaxPrice(),
 		}
 		priceBrackets[i] = periodBracket
 	}
 
 	return makeWeekKey(
-		pattern, priceBrackets, week.MinPrice(), week.MaxPrice(),
+		pattern, priceBrackets, week.GuaranteedPrice(), week.MaxPrice(),
 	)
 }
 
@@ -456,20 +456,20 @@ func testPrediction(
 	}
 	t.Run("spike_info", testSpike)
 
-	testMinPrice := func(t *testing.T) {
-		assert.Equal(t, expected.MinGuaranteedPrice, prediction.MinPrice())
+	testGuaranteedPrice := func(t *testing.T) {
+		assert.Equal(t, expected.GuaranteedPrice, prediction.GuaranteedPrice())
 	}
-	t.Run("min guaranteed price", testMinPrice)
+	t.Run("guaranteed guaranteed price", testGuaranteedPrice)
 
 	testMaxPrice := func(t *testing.T) {
 		assert.Equal(t, expected.MaxPotentialPrice, prediction.MaxPrice())
 	}
 	t.Run("max potential price", testMaxPrice)
 
-	testMinPeriods := func(t *testing.T) {
-		assert.Equal(t, expected.MinPricePeriods, prediction.MinPeriods())
+	testGuaranteedPeriods := func(t *testing.T) {
+		assert.Equal(t, expected.GuaranteedPricePeriods, prediction.GuaranteedPeriods())
 	}
-	t.Run("min price periods", testMinPeriods)
+	t.Run("guaranteed price periods", testGuaranteedPeriods)
 
 	testMaxPeriods := func(t *testing.T) {
 		assert.Equal(t, expected.MaxPricePeriods, prediction.MaxPeriods())
@@ -531,16 +531,16 @@ func testPattern(
 
 	t.Run("weekly price period count", testPricePeriodCount)
 
-	testPriceMin := func(t *testing.T) {
+	testPriceGuarenteed := func(t *testing.T) {
 		assert := assert.New(t)
 
 		assert.Equal(
-			expected.MinGuaranteedPrice, pattern.MinPrice(),
+			expected.GuaranteedPrice, pattern.GuaranteedPrice(),
 			"minimum guaranteed price",
 		)
 	}
 
-	t.Run("min price", testPriceMin)
+	t.Run("guaranteed price", testPriceGuarenteed)
 
 	testPriceMax := func(t *testing.T) {
 		assert := assert.New(t)
@@ -560,12 +560,12 @@ func testPattern(
 
 	t.Run("spike info", testSpikeInfo)
 
-	testMinPricePeriods := func(t *testing.T) {
+	testGuaranteedPricePeriods := func(t *testing.T) {
 		assert := assert.New(t)
-		assert.Equal(expected.MinPricePeriods, pattern.MinPeriods())
+		assert.Equal(expected.GuaranteedPricePeriods, pattern.GuaranteedPeriods())
 	}
 
-	t.Run("min price periods", testMinPricePeriods)
+	t.Run("guaranteed price periods", testGuaranteedPricePeriods)
 
 	testMaxPricePeriods := func(t *testing.T) {
 		assert := assert.New(t)

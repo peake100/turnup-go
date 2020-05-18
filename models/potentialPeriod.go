@@ -20,6 +20,6 @@ func (potential *PotentialPricePeriod) IsValidPrice(price int) bool {
 		return true
 	}
 
-	return price >= potential.prices.MinPrice() &&
+	return price >= potential.prices.GuaranteedPrice() &&
 		price <= potential.prices.MaxPrice()
 }

@@ -7,6 +7,7 @@ import (
 type hasPriceRange interface {
 	hasPrices
 	MinPeriods() []PricePeriod
+	GuaranteedPeriods() []PricePeriod
 	MaxPeriods() []PricePeriod
 }
 
@@ -27,10 +28,12 @@ type PriceSeries struct {
 	// We want to implement this as a map so we don't double-add price periods.
 	// We're going to use it as a set
 	minPeriodsSet map[PricePeriod]interface{}
-	maxPeriodsSet map[PricePeriod]interface{}
+	guaranteedPeriodsSet map[PricePeriod]interface{}
+	maxPeriodsSet        map[PricePeriod]interface{}
 
 	minPeriodsCached []PricePeriod
-	maxPeriodsCached []PricePeriod
+	guaranteedPeriodsCached []PricePeriod
+	maxPeriodsCached        []PricePeriod
 }
 
 func (prices *PriceSeries) createPeriodCache(
@@ -54,14 +57,21 @@ func (prices *PriceSeries) createPeriodCache(
 	return newCache
 }
 
-// The PricePeriods that this minimum guaranteed price might occur. On PotentialWeeks,
-// this will always be a single value, but on PotentialPatterns and Predictions, every
-// possible day the minimum guaranteed price *might* occur is used.
 func (prices *PriceSeries) MinPeriods() []PricePeriod {
 	if prices.minPeriodsCached == nil {
 		prices.minPeriodsCached = prices.createPeriodCache(prices.minPeriodsSet)
 	}
-	return prices.minPeriodsCached
+	return prices.guaranteedPeriodsCached
+}
+
+// The PricePeriods that this minimum guaranteed price might occur. On PotentialWeeks,
+// this will always be a single value, but on PotentialPatterns and Predictions, every
+// possible day the minimum guaranteed price *might* occur is used.
+func (prices *PriceSeries) GuaranteedPeriods() []PricePeriod {
+	if prices.guaranteedPeriodsCached == nil {
+		prices.guaranteedPeriodsCached = prices.createPeriodCache(prices.guaranteedPeriodsSet)
+	}
+	return prices.guaranteedPeriodsCached
 }
 
 // The PricePeriods that this maximum potential price might occur. On PotentialWeeks,
@@ -74,12 +84,18 @@ func (prices *PriceSeries) MaxPeriods() []PricePeriod {
 	return prices.maxPeriodsCached
 }
 
-func (prices *PriceSeries) clearPeriods(minUpdated bool, maxUpdated bool) {
+func (prices *PriceSeries) clearPeriods(
+	guaranteedUpdated bool, maxUpdated bool, minUpdated bool,
+) {
 	// If the value was updated, we have a new min/max, so we need to clear the
 	// map
 	if minUpdated {
 		prices.minPeriodsSet = make(map[PricePeriod]interface{})
 		prices.minPeriodsCached = nil
+	}
+	if guaranteedUpdated {
+		prices.guaranteedPeriodsSet = make(map[PricePeriod]interface{})
+		prices.guaranteedPeriodsCached = nil
 	}
 	if maxUpdated {
 		prices.maxPeriodsSet = make(map[PricePeriod]interface{})
@@ -91,14 +107,17 @@ func (prices *PriceSeries) clearPeriods(minUpdated bool, maxUpdated bool) {
 func (prices *PriceSeries) updatePriceRangeFromPrices(
 	other hasPrices, period PricePeriod,
 ) {
-	minUpdated := prices.updateMin(other.MinPrice(), true)
+	minUpdated := prices.updateMin(other.MinPrice())
+	guaranteedUpdated := prices.updateGuaranteed(
+		other.GuaranteedPrice(), true,
+	)
 	maxUpdated := prices.updateMax(other.MaxPrice())
-	prices.clearPeriods(minUpdated, maxUpdated)
+	prices.clearPeriods(guaranteedUpdated, maxUpdated, minUpdated)
 
 	// Now add the price period to the set if it was updated OR if it's equal to our
 	// current value, as that means it's another high or low point
-	if minUpdated || other.MinPrice() == prices.minPrice {
-		prices.minPeriodsSet[period] = nil
+	if guaranteedUpdated || other.GuaranteedPrice() == prices.guaranteedPrice {
+		prices.guaranteedPeriodsSet[period] = nil
 	}
 
 	if maxUpdated || other.MaxPrice() == prices.maxPrice {
@@ -116,13 +135,15 @@ func (prices *PriceSeries) addPeriodsToSet(
 
 // Update from another analysis object
 func (prices *PriceSeries) updatePriceRangeFromOther(other hasPriceRange) {
-	minUpdated, maxUpdated := prices.updatePrices(other, false)
-	prices.clearPeriods(minUpdated, maxUpdated)
+	guaranteedUpdated, maxUpdated, minUpdated := prices.updatePrices(
+		other, false,
+	)
+	prices.clearPeriods(guaranteedUpdated, maxUpdated, minUpdated)
 
 	// Now add the price period to the set if it was updated OR if it's equal to our
 	// current value, as that means it's another high or low point
-	if minUpdated || other.MinPrice() == prices.minPrice {
-		prices.addPeriodsToSet(other.MinPeriods(), prices.minPeriodsSet)
+	if guaranteedUpdated || other.GuaranteedPrice() == prices.guaranteedPrice {
+		prices.addPeriodsToSet(other.GuaranteedPeriods(), prices.guaranteedPeriodsSet)
 	}
 
 	if maxUpdated || other.MaxPrice() == prices.maxPrice {

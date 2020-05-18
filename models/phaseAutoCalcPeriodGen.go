@@ -265,8 +265,8 @@ func (gen *phasePeriodGenerator) buildCurrentPeriod() *PotentialPricePeriod {
 
 	return &PotentialPricePeriod{
 		prices: &prices{
-			minPrice: gen.priceMin,
-			maxPrice: gen.priceMax,
+			guaranteedPrice: gen.priceMin,
+			maxPrice:        gen.priceMax,
 
 			minChance: minChance,
 			midChance: midChance,

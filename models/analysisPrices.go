@@ -8,7 +8,7 @@ type hasPrices interface {
 
 type prices struct {
 	// Price info
-	minPrice int
+	minPrice        int
 	guaranteedPrice int
 	maxPrice        int
 
@@ -49,7 +49,7 @@ func (prices *prices) PriceChance(price int) float64 {
 }
 
 func (prices *prices) updateMin(value int) (updated bool) {
-	updated = prices.minPrice == 0 || value < prices.minPrice
+	updated = (prices.minPrice == 0 || value < prices.minPrice) && value != 0
 
 	if updated {
 		prices.minPrice = value

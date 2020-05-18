@@ -1,12 +1,12 @@
 package models
 
-type hasPrices interface {
+type HasPrices interface {
 	MinPrice() int
 	GuaranteedPrice() int
 	MaxPrice() int
 }
 
-type prices struct {
+type pricesVal struct {
 	// Price info
 	minPrice        int
 	guaranteedPrice int
@@ -19,7 +19,7 @@ type prices struct {
 }
 
 // The absolute minimum price that may occur.
-func (prices *prices) MinPrice() int {
+func (prices *pricesVal) MinPrice() int {
 	return prices.minPrice
 }
 
@@ -27,17 +27,17 @@ func (prices *prices) MinPrice() int {
 // PotentialPricePeriod objects, this is the *lowest possible price* for the given
 // period, but on Week, Pattern, and Prediction object this is the minimum guaranteed
 // price, or the highest price we can guarantee will occur this week.
-func (prices *prices) GuaranteedPrice() int {
+func (prices *pricesVal) GuaranteedPrice() int {
 	return prices.guaranteedPrice
 }
 
 // The potential maximum price for this period / week / pattern / prediction.
-func (prices *prices) MaxPrice() int {
+func (prices *pricesVal) MaxPrice() int {
 	return prices.maxPrice
 }
 
 // Returns the chance of this price range resulting in this price.
-func (prices *prices) PriceChance(price int) float64 {
+func (prices *pricesVal) PriceChance(price int) float64 {
 	switch {
 	case price == prices.maxPrice:
 		return prices.maxChance
@@ -48,7 +48,7 @@ func (prices *prices) PriceChance(price int) float64 {
 	}
 }
 
-func (prices *prices) updateMin(value int) (updated bool) {
+func (prices *pricesVal) updateMin(value int) (updated bool) {
 	updated = (prices.minPrice == 0 || value < prices.minPrice) && value != 0
 
 	if updated {
@@ -58,7 +58,7 @@ func (prices *prices) updateMin(value int) (updated bool) {
 	return updated
 }
 
-func (prices *prices) updateGuaranteed(value int, useHigher bool) (updated bool) {
+func (prices *pricesVal) updateGuaranteed(value int, useHigher bool) (updated bool) {
 	updated = ((useHigher && value > prices.guaranteedPrice) ||
 		(!useHigher && value < prices.guaranteedPrice) ||
 		prices.guaranteedPrice == 0) &&
@@ -71,7 +71,7 @@ func (prices *prices) updateGuaranteed(value int, useHigher bool) (updated bool)
 	return updated
 }
 
-func (prices *prices) updateMax(value int) (updated bool) {
+func (prices *pricesVal) updateMax(value int) (updated bool) {
 	updated = value > prices.maxPrice
 
 	if updated {
@@ -81,8 +81,8 @@ func (prices *prices) updateMax(value int) (updated bool) {
 	return updated
 }
 
-func (prices *prices) updatePrices(
-	otherPrices hasPrices, useHigherGuaranteed bool,
+func (prices *pricesVal) updatePrices(
+	otherPrices HasPrices, useHigherGuaranteed bool,
 ) (guaranteedUpdated bool, maxUpdated bool, minUpdated bool) {
 	minUpdated = prices.updateMin(otherPrices.MinPrice())
 	guaranteedUpdated = prices.updateGuaranteed(

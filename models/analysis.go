@@ -5,7 +5,7 @@ import (
 )
 
 type hasPriceRange interface {
-	hasPrices
+	HasPrices
 	MinPeriods() []PricePeriod
 	GuaranteedPeriods() []PricePeriod
 	MaxPeriods() []PricePeriod
@@ -23,7 +23,11 @@ type hasFullAnalysis interface {
 
 // Information about the min and max prices over the 12 price periods of the week.
 type PriceSeries struct {
-	prices
+	pricesVal
+
+	future        bool
+	currentPeriod PricePeriod
+	currentPrice  int
 
 	// We want to implement this as a map so we don't double-add price periods.
 	// We're going to use it as a set
@@ -106,10 +110,39 @@ func (prices *PriceSeries) clearPeriods(
 	}
 }
 
+func (prices *PriceSeries) checkFuture(
+	otherIn HasPrices, period PricePeriod,
+) (skip bool, otherOut HasPrices) {
+	// If this is a future-only price range, do not update if we are not on or past
+	// the current period.
+	if prices.future && !(period >= prices.currentPeriod) {
+		return true, nil
+	}
+
+	// Next if this IS the same price period as the current price, then the current
+	// price needs to be used for the min, max, and guaranteed of this perriod
+	if prices.future && period == prices.currentPeriod && prices.currentPrice != 0 {
+		otherOut = &pricesVal{
+			minPrice:        prices.currentPrice,
+			guaranteedPrice: prices.currentPrice,
+			maxPrice:        prices.currentPrice,
+		}
+	} else {
+		otherOut = otherIn
+	}
+
+	return false, otherOut
+}
+
 // Update from another analysis object
 func (prices *PriceSeries) updatePriceRangeFromPrices(
-	other hasPrices, period PricePeriod,
+	other HasPrices, period PricePeriod,
 ) {
+	skip, other := prices.checkFuture(other, period)
+	if skip {
+		return
+	}
+
 	minUpdated := prices.updateMin(other.MinPrice())
 	guaranteedUpdated := prices.updateGuaranteed(
 		other.GuaranteedPrice(), true,
@@ -167,6 +200,8 @@ func (prices *PriceSeries) updatePriceRangeFromOther(other hasPriceRange) {
 // for fetching price and probability information.
 type Analysis struct {
 	PriceSeries
+	// Contains information about a future price series
+	Future PriceSeries
 	chance float64
 }
 
@@ -182,4 +217,16 @@ func (analysis *Analysis) setChance(value float64) {
 		value = 0
 	}
 	analysis.chance = value
+}
+
+func NewAnalysis(ticker *PriceTicker) *Analysis {
+	return &Analysis{
+		PriceSeries: PriceSeries{},
+		// We need to set up the future price series for this.
+		Future: PriceSeries{
+			future:        true,
+			currentPeriod: ticker.CurrentPeriod,
+			currentPrice:  ticker.Prices[ticker.CurrentPeriod],
+		},
+	}
 }

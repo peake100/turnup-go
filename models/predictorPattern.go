@@ -59,6 +59,7 @@ func (predictor *patternPredictor) addWeekFromFinalizedPhases(
 	// Otherwise, add the result and updatePrices all of our pattern's stats
 	result.PotentialWeeks = append(result.PotentialWeeks, potentialWeek)
 	result.updatePriceRangeFromOther(potentialWeek)
+	result.Future.updatePriceRangeFromOther(&potentialWeek.Future)
 	result.Spikes.updateSpikeFromRange(potentialWeek.Spikes)
 	predictor.increaseBinWidth(binWidth)
 }
@@ -142,7 +143,7 @@ func (predictor *patternPredictor) branchPhases(
 
 func (predictor *patternPredictor) setup() {
 	predictor.result = &PotentialPattern{
-		Analysis: new(Analysis),
+		Analysis: NewAnalysis(predictor.Ticker),
 		Pattern:  predictor.Pattern,
 		Spikes: &SpikeRangeAll{
 			big:   new(SpikeRange),

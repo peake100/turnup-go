@@ -96,6 +96,7 @@ func (predictor *weekPredictor) buildWeek() {
 			// We want to find the highest minimum for this potential week and use that
 			// as the week's guaranteed minimum
 			result.updatePriceRangeFromPrices(potentialPeriod, pricePeriod)
+			result.Future.updatePriceRangeFromPrices(potentialPeriod, pricePeriod)
 			result.Spikes.updateSpikeFromPeriod(
 				potentialPeriod.PricePeriod, potentialPeriod.Spikes,
 			)
@@ -128,7 +129,7 @@ func (predictor *weekPredictor) finalizeWidth() {
 
 func (predictor *weekPredictor) setup() {
 	predictor.result = &PotentialWeek{
-		Analysis: new(Analysis),
+		Analysis: NewAnalysis(predictor.Ticker),
 		Spikes: &SpikeRangeAll{
 			big:   new(SpikeRange),
 			small: new(SpikeRange),

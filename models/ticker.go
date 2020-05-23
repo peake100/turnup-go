@@ -25,10 +25,15 @@ type PriceTicker struct {
 	Prices NookPriceArray
 }
 
-func NewTicker(purchasePrice int, previousPattern PricePattern) *PriceTicker {
+func NewTicker(
+	purchasePrice int,
+	previousPattern PricePattern,
+	currentPeriod PricePeriod,
+) *PriceTicker {
 	return &PriceTicker{
 		PreviousPattern: previousPattern,
 		PurchasePrice:   purchasePrice,
+		CurrentPeriod:   currentPeriod,
 		Prices:          [values.PricePeriodCount]int{},
 	}
 }

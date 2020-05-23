@@ -17,7 +17,7 @@ import (
 // We are going to use data from turnip prophet to validate our predictions
 func Test100BellPurchase(t *testing.T) {
 
-	ticker := NewPriceTicker(100, patterns.UNKNOWN)
+	ticker := NewPriceTicker(100, patterns.UNKNOWN, 0)
 
 	expected := &expectedPrediction{
 		Prices: PriceRange{
@@ -141,7 +141,7 @@ func Test100BellPurchase(t *testing.T) {
 // Test a pattern that results in a single large spike possibility
 func Test100BellPurchaseBigSpike(t *testing.T) {
 
-	ticker := NewPriceTicker(100, patterns.UNKNOWN)
+	ticker := NewPriceTicker(100, patterns.UNKNOWN, 0)
 	ticker.Prices[0] = 86
 	ticker.Prices[1] = 90
 	ticker.Prices[2] = 160
@@ -222,7 +222,7 @@ func Test100BellPurchaseBigSpike(t *testing.T) {
 // Test a pattern that results in a single large spike possibility
 func Test100BellPurchaseFluctuating(t *testing.T) {
 
-	ticker := NewPriceTicker(100, patterns.DECREASING)
+	ticker := NewPriceTicker(100, patterns.DECREASING, 0)
 	ticker.Prices[0] = 140
 	ticker.Prices[1] = 140
 	ticker.Prices[2] = 140
@@ -290,7 +290,7 @@ func Test100BellPurchaseFluctuating(t *testing.T) {
 // Test a pattern that results in a decreasing possibility
 func Test100BellPurchaseDecreasing(t *testing.T) {
 
-	ticker := NewPriceTicker(100, patterns.DECREASING)
+	ticker := NewPriceTicker(100, patterns.DECREASING, 0)
 	ticker.Prices[0] = 86
 	ticker.Prices[1] = 82
 	ticker.Prices[2] = 78
@@ -360,7 +360,7 @@ func Test100BellPurchaseDecreasing(t *testing.T) {
 // Test a pattern that results in a single large spike possibility
 func Test100BellPurchaseSmallSpike(t *testing.T) {
 
-	ticker := NewPriceTicker(100, patterns.SMALLSPIKE)
+	ticker := NewPriceTicker(100, patterns.SMALLSPIKE, 0)
 	ticker.Prices[0] = 120
 	ticker.Prices[1] = 120
 	ticker.Prices[2] = 199
@@ -441,7 +441,7 @@ func Test100BellPurchaseSmallSpike(t *testing.T) {
 // Test getting doing a prediction when you don't know the purchase price.
 func TestUnknownBellPurchase(t *testing.T) {
 
-	ticker := NewPriceTicker(0, patterns.UNKNOWN)
+	ticker := NewPriceTicker(0, patterns.UNKNOWN, 0)
 
 	expected := &expectedPrediction{
 		Prices: PriceRange{
@@ -564,7 +564,7 @@ func TestUnknownBellPurchase(t *testing.T) {
 func TestImpossiblePattern(t *testing.T) {
 	assert := assert.New(t)
 
-	ticker := NewPriceTicker(0, patterns.UNKNOWN)
+	ticker := NewPriceTicker(0, patterns.UNKNOWN, 0)
 	ticker.Prices[0] = 10
 
 	result, err := Predict(ticker)
@@ -577,7 +577,7 @@ func TestImpossiblePattern(t *testing.T) {
 }
 
 func TestMultiplePossibleMatches(t *testing.T) {
-	ticker := NewPriceTicker(100, patterns.DECREASING)
+	ticker := NewPriceTicker(100, patterns.DECREASING, 0)
 	ticker.Prices[0] = 86
 	ticker.Prices[1] = 82
 
@@ -687,7 +687,7 @@ func TestMultiplePossibleMatches(t *testing.T) {
 // several billion (the bin width comes out to 0)
 func Test100BellPurchaseUnlikelyLowerBoundPattern(t *testing.T) {
 
-	ticker := NewPriceTicker(100, patterns.SMALLSPIKE)
+	ticker := NewPriceTicker(100, patterns.SMALLSPIKE, 0)
 	ticker.Prices[0] = 85
 	ticker.Prices[1] = 80
 	ticker.Prices[2] = 75
@@ -762,7 +762,7 @@ func Test100BellPurchaseUnlikelyLowerBoundPattern(t *testing.T) {
 // bound this time
 func Test100BellPurchaseUnlikelyUpperBoundPattern(t *testing.T) {
 
-	ticker := NewPriceTicker(100, patterns.SMALLSPIKE)
+	ticker := NewPriceTicker(100, patterns.SMALLSPIKE, 0)
 	ticker.Prices[0] = 90
 	ticker.Prices[1] = 87
 	ticker.Prices[2] = 84

@@ -68,6 +68,7 @@ func (predictor *Predictor) Predict() (*Prediction, error) {
 		return nil, errs.ErrImpossibleTickerPrices
 	}
 	predictor.calculateChances(currentWeek, result)
+	predictor.CalcHeat()
 
 	return result, nil
 }

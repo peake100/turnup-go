@@ -19,6 +19,7 @@ func (patterns Patterns) Get(pattern PricePattern) (*PotentialPattern, error) {
 
 type Prediction struct {
 	PriceSeries
+	Heat     int
 	Future   PriceSeries
 	Spikes   *SpikeChancesAll
 	Patterns Patterns
